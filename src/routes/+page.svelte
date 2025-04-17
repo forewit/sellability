@@ -58,7 +58,6 @@
       </Card.Header>
 
       <Card.Content class="flex flex-col gap-2">
-
         <div>
           <Label for="name">Name</Label>
           <Input id="name" placeholder="Product name" />
@@ -123,10 +122,10 @@
   <Resizable.Pane class="min-w-[400px]">
     <Card.Root class="m-2 ml-1">
       <Card.Header>
-        <Card.Title class="flex gap-2 items-center">
-          <img src="/images/pie.png" class="w-8" alt="goals icon" />
-          Goals
-        </Card.Title>
+          <Card.Title class="flex gap-2 items-center">
+            <img src="/images/pie.png" class="w-8" alt="goals icon" />
+            Goals
+          </Card.Title>
       </Card.Header>
 
       <Card.Content class="flex flex-col gap-4">
@@ -138,38 +137,45 @@
           <Label>Desired time per week (hrs)</Label>
           <Input type="number" bind:value={desiredTimeWeekly} placeholder="0" />
         </div>
+      </Card.Content>
+    </Card.Root>
 
-        <!-- Big summary blocks -->
-        <div class="grid grid-cols-3 gap-4 mt-4">
-          <!-- Units to sell -->
-          <div class="p-3 rounded-xl bg-blue-300 text-center">
-            <div class="text-sm font-semibold">Units / mo</div>
-            <div class="text-2xl">{unitsNeeded}</div>
-          </div>
+    <Card.Root class="m-2 ml-1">
+      <Card.Header>
+        <Card.Title class="flex gap-2 items-center">
+          <img src="/images/rocket.png" class="w-8" alt="goals icon" />
+          Summary
+        </Card.Title>
+      </Card.Header>
+      <Card.Content class="grid grid-cols-3 gap-4">
+        <!-- Units to sell -->
+        <div class="p-3 rounded-xl bg-blue-300 text-center">
+          <div class="text-sm font-semibold">Units / mo</div>
+          <div class="text-2xl">{unitsNeeded}</div>
+        </div>
 
-          <!-- Work time needed -->
-          <div class="p-3 rounded-xl bg-purple-300 text-center">
-            <div class="text-sm font-semibold">Hours / mo</div>
-            <div class="text-2xl">{totalTimeNeeded}</div>
-          </div>
+        <!-- Work time needed -->
+        <div class="p-3 rounded-xl bg-purple-300 text-center">
+          <div class="text-sm font-semibold">Hours / mo</div>
+          <div class="text-2xl">{totalTimeNeeded}</div>
+        </div>
 
-          <!-- Viability -->
-          <div
-            class="p-3 rounded-xl text-center"
-            class:bg-red-300={viabilityColor === "red"}
-            class:bg-yellow-300={viabilityColor === "yellow"}
-            class:bg-green-300={viabilityColor === "green"}
-          >
-            <div class="text-sm font-semibold">Viability</div>
-            <div class="grid place-items-center pt-2">
-              {#if viabilityColor === "red"}
-                <TriangleAlert />
-              {:else if viabilityColor === "yellow"}
-                <MessageCircleWarning />
-              {:else if viabilityColor === "green"}
-                <CheckCheck />
-              {/if}
-            </div>
+        <!-- Viability -->
+        <div
+          class="p-3 rounded-xl text-center"
+          class:bg-red-400={viabilityColor === "red"}
+          class:bg-yellow-400={viabilityColor === "yellow"}
+          class:bg-green-400={viabilityColor === "green"}
+        >
+          <div class="text-sm font-semibold">Viability</div>
+          <div class="grid place-items-center pt-2">
+            {#if viabilityColor === "red"}
+              <TriangleAlert />
+            {:else if viabilityColor === "yellow"}
+              <MessageCircleWarning />
+            {:else if viabilityColor === "green"}
+              <CheckCheck />
+            {/if}
           </div>
         </div>
       </Card.Content>
