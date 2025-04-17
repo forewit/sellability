@@ -37,6 +37,7 @@
     profitPerUnit > 0 ? Math.ceil(desiredMonthlyProfit / profitPerUnit) : NaN
   );
   let totalTimeNeeded = $derived.by(() => unitsNeeded * laborTime);
+  let hoursPerWeek = $derived(Math.ceil(totalTimeNeeded / 4));
   let viabilityColor = $derived.by(() => {
     const metProfit = profitPerUnit > 0;
     const metTime = totalTimeNeeded <= desiredTimeWeekly * 4;
@@ -122,10 +123,10 @@
   <Resizable.Pane class="min-w-[400px]">
     <Card.Root class="m-2 ml-1">
       <Card.Header>
-          <Card.Title class="flex gap-2 items-center">
-            <img src="/images/pie.png" class="w-8" alt="goals icon" />
-            Goals
-          </Card.Title>
+        <Card.Title class="flex gap-2 items-center">
+          <img src="/images/pie.png" class="w-8" alt="goals icon" />
+          Goals
+        </Card.Title>
       </Card.Header>
 
       <Card.Content class="flex flex-col gap-4">
@@ -156,8 +157,8 @@
 
         <!-- Work time needed -->
         <div class="p-3 rounded-xl bg-purple-50 text-center">
-          <div class="text-sm font-semibold">Hours / mo</div>
-          <div class="text-2xl">{totalTimeNeeded}</div>
+          <div class="text-sm font-semibold">Hours / wk</div>
+          <div class="text-2xl">{hoursPerWeek}</div>
         </div>
 
         <!-- Viability -->
