@@ -53,15 +53,12 @@
       <Card.Header>
         <Card.Title class="flex gap-2 items-center">
           <img src="/images/cube.png" class="w-8" alt="product icon" />
-          Details
+          Product
         </Card.Title>
       </Card.Header>
 
       <Card.Content class="flex flex-col gap-2">
-        <div>
-          <Label for="image">Image</Label>
-          <Input id="image" type="file" />
-        </div>
+
         <div>
           <Label for="name">Name</Label>
           <Input id="name" placeholder="Product name" />
@@ -123,7 +120,7 @@
   <Resizable.Handle class="bg-transparent" />
 
   <!-- Goals & Summary Pane -->
-  <Resizable.Pane class="min-w-[450px]">
+  <Resizable.Pane class="min-w-[400px]">
     <Card.Root class="m-2 ml-1">
       <Card.Header>
         <Card.Title class="flex gap-2 items-center">
@@ -145,23 +142,23 @@
         <!-- Big summary blocks -->
         <div class="grid grid-cols-3 gap-4 mt-4">
           <!-- Units to sell -->
-          <div class="p-3 rounded-xl bg-blue-100 text-center">
-            <div class="text-sm font-semibold">Units / month</div>
+          <div class="p-3 rounded-xl bg-blue-300 text-center">
+            <div class="text-sm font-semibold">Units / mo</div>
             <div class="text-2xl">{unitsNeeded}</div>
           </div>
 
           <!-- Work time needed -->
-          <div class="p-3 rounded-xl bg-purple-100 text-center">
-            <div class="text-sm font-semibold">Hours / month</div>
+          <div class="p-3 rounded-xl bg-purple-300 text-center">
+            <div class="text-sm font-semibold">Hours / mo</div>
             <div class="text-2xl">{totalTimeNeeded}</div>
           </div>
 
           <!-- Viability -->
           <div
             class="p-3 rounded-xl text-center"
-            class:bg-red-200={viabilityColor === "red"}
-            class:bg-yellow-200={viabilityColor === "yellow"}
-            class:bg-green-200={viabilityColor === "green"}
+            class:bg-red-300={viabilityColor === "red"}
+            class:bg-yellow-300={viabilityColor === "yellow"}
+            class:bg-green-300={viabilityColor === "green"}
           >
             <div class="text-sm font-semibold">Viability</div>
             <div class="grid place-items-center pt-2">
