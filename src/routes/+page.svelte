@@ -13,6 +13,8 @@
   import Trash from "lucide-svelte/icons/trash-2";
 
   // — Details state —
+  let laborTime = $state<number>(0); // hrs per unit
+  let price = $state<number>(0); // $ per unit
   let expenses = $state([
     { name: "Materials ($)", value: "0" },
     { name: "Average Shipping ($)", value: "0" },
@@ -23,36 +25,18 @@
     otherExpense = "";
   }
 
-  let laborTime = $state<number>(0); // hrs per unit
-  let price = $state<number>(0); // $ per unit
-
   // — Goals & constraints —
   let desiredMonthlyProfit = $state<number>(0); // $
   let desiredTimeWeekly = $state<number>(0); // hrs
 
-  let goals = $state([
-    { name: "Minimize work time", selected: false },
-    { name: "Maximize profit", selected: false },
-  ]);
-
   // — Derived values —
   let totalMaterialCost = $derived.by(() => expenses.reduce((sum, e) => sum + Number(e.value), 0));
-
-  // We no longer $derive labor cost in $.
   let totalExpenses = $derived(totalMaterialCost);
-
-  // profit per unit = price – material/shipping
   let profitPerUnit = $derived(price - totalExpenses);
-
-  // units you must sell per month to hit your profit goal
   let unitsNeeded = $derived.by(() =>
     profitPerUnit > 0 ? Math.ceil(desiredMonthlyProfit / profitPerUnit) : NaN
   );
-
-  // total hours needed per month
   let totalTimeNeeded = $derived.by(() => unitsNeeded * laborTime);
-
-  // decide viability color: red/yellow/green
   let viabilityColor = $derived.by(() => {
     const metProfit = profitPerUnit > 0;
     const metTime = totalTimeNeeded <= desiredTimeWeekly * 4;
@@ -182,14 +166,13 @@
             <div class="text-sm font-semibold">Viability</div>
             <div class="grid place-items-center pt-2">
               {#if viabilityColor === "red"}
-              <TriangleAlert />
-            {:else if viabilityColor === "yellow"}
-              <MessageCircleWarning />
-            {:else if viabilityColor === "green"}
-              <CheckCheck />
-            {/if}
+                <TriangleAlert />
+              {:else if viabilityColor === "yellow"}
+                <MessageCircleWarning />
+              {:else if viabilityColor === "green"}
+                <CheckCheck />
+              {/if}
             </div>
-            
           </div>
         </div>
       </Card.Content>
