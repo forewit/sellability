@@ -149,13 +149,13 @@
       </Card.Header>
       <Card.Content class="grid grid-cols-3 gap-4">
         <!-- Units to sell -->
-        <div class="p-3 rounded-xl bg-blue-300 text-center">
+        <div class="p-3 rounded-xl bg-blue-50 text-center">
           <div class="text-sm font-semibold">Units / mo</div>
           <div class="text-2xl">{unitsNeeded}</div>
         </div>
 
         <!-- Work time needed -->
-        <div class="p-3 rounded-xl bg-purple-300 text-center">
+        <div class="p-3 rounded-xl bg-purple-50 text-center">
           <div class="text-sm font-semibold">Hours / mo</div>
           <div class="text-2xl">{totalTimeNeeded}</div>
         </div>
@@ -163,9 +163,9 @@
         <!-- Viability -->
         <div
           class="p-3 rounded-xl text-center"
-          class:bg-red-400={viabilityColor === "red"}
-          class:bg-yellow-400={viabilityColor === "yellow"}
-          class:bg-green-400={viabilityColor === "green"}
+          class:bg-red-500={viabilityColor === "red"}
+          class:bg-yellow-500={viabilityColor === "yellow"}
+          class:bg-green-500={viabilityColor === "green"}
         >
           <div class="text-sm font-semibold">Viability</div>
           <div class="grid place-items-center pt-2">
