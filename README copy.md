@@ -1,4 +1,5 @@
-# budget
+# Sellability
+a simple tool for evaluating products for a small business to determine if it's sellable
 
 ## stack
 UI library: [shadcn-svelte](next.shadcn-svelte.com)
