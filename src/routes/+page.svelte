@@ -125,7 +125,7 @@
     <Card.Root class="m-2 ml-1">
       <Card.Header>
         <Card.Title class="flex gap-2 items-center">
-          <img src="/images/pie.png" class="w-8" alt="goals icon" />
+          <img src="{base}/images/pie.png" class="w-8" alt="goals icon" />
           Goals
         </Card.Title>
       </Card.Header>
@@ -145,7 +145,7 @@
     <Card.Root class="m-2 ml-1">
       <Card.Header>
         <Card.Title class="flex gap-2 items-center">
-          <img src="/images/rocket.png" class="w-8" alt="goals icon" />
+          <img src="{base}/images/rocket.png" class="w-8" alt="goals icon" />
           Summary
         </Card.Title>
       </Card.Header>
