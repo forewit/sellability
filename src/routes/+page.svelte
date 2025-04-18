@@ -1,6 +1,7 @@
 <script lang="ts">
   import * as Resizable from "$lib/components/ui/resizable/index.js";
   import * as Card from "$lib/components/ui/card/index.js";
+  import { base } from "$app/paths";
   import { Label } from "$lib/components/ui/label/index.js";
   import { Input } from "$lib/components/ui/input/index.js";
   import Button from "$lib/components/ui/button/button.svelte";
