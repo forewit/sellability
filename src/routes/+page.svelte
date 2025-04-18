@@ -53,7 +53,7 @@
     <Card.Root class="m-2 mr-1">
       <Card.Header>
         <Card.Title class="flex gap-2 items-center">
-          <img src="/images/cube.png" class="w-8" alt="product icon" />
+          <img src="{base}/images/cube.png" class="w-8" alt="product icon" />
           Product
         </Card.Title>
       </Card.Header>
