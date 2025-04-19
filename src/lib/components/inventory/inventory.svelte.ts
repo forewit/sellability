@@ -10,7 +10,17 @@ export type Product = {
 }
 
 function createInventory() {
-    let products: Product[] = $state([]);
+    let products: Product[] = $state([
+        {
+            id: 'test',
+            name: "Test Product",
+            description: "Testing out functionality",
+            expenses: [{name:"Materials", value: 25}, {name: "Shipping", value: 10}],
+            laborTime: 1.5,
+            price: 49,
+            
+        }
+    ]);
 
     function newProduct() {
         const id = crypto.randomUUID().slice(0, 8)
