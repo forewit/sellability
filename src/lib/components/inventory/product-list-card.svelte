@@ -10,7 +10,8 @@
   let { selectedProducts = $bindable([]) as string[] } = $props();
 
   function selectProduct(e: MouseEvent, id: string) {
-    selectedProducts.push(id);
+    selectedProducts = [id];
+    //TODO: allow for selecting multiple
   }
 </script>
 

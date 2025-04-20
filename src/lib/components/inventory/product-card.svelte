@@ -12,7 +12,7 @@
 
   const inventory = getInventoryContext();
 
-  let product = inventory.products.find((p) => p.id === id);
+  let product = $derived(inventory.products.find((p) => p.id === id));
 
   let otherExpense = $state("");
   function addOtherExpense() {
@@ -22,7 +22,7 @@
 </script>
 
 <Card.Root>
-  {#if product}
+  {#if product !== undefined}
     <Card.Header>
       <Card.Title class="flex items-center">
         <img src="{base}/images/cube.png" class="w-8" alt="product icon" />
@@ -90,8 +90,6 @@
       <Button variant="destructive" onclick={() => inventory.deleteProduct(id)}>Delete</Button>
     </Card.Footer>
   {:else}
-    <div class="h-24 grid items-center text-center text-sm font-mono">
-      <div>Product ID not found: <p class="font-bold">{id}</p></div>
-    </div>
+    <div class="py-12 text-center p-4">Choose a product to edit</div>
   {/if}
 </Card.Root>
