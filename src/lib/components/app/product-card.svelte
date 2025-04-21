@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getInventoryContext, type Product } from "$lib/components/inventory/inventory.svelte";
+  import { getAppContext, type Product } from "$lib/components/app/app.svelte";
   import * as Card from "$lib/components/ui/card/index.js";
   import { base } from "$app/paths";
   import { Label } from "$lib/components/ui/label/index.js";
@@ -8,13 +8,12 @@
   import Textarea from "$lib/components/ui/textarea/textarea.svelte";
   import { Trash2, Plus } from "lucide-svelte";
 
-  let { id = "", class: className = "" }= $props();
+  let { product, class: className = "" }: { product?: Product; class?: string } = $props();
 
-  const inventory = getInventoryContext();
-
-  let product = $derived(inventory.products.find((p) => p.id === id));
+  const app = getAppContext();
 
   let otherExpense = $state("");
+
   function addOtherExpense() {
     product?.expenses.push({ name: otherExpense, value: 0 });
     otherExpense = "";
@@ -87,7 +86,7 @@
       </div>
     </Card.Content>
     <Card.Footer class="justify-end">
-      <Button variant="destructive" onclick={() => inventory.deleteProduct(id)}>Delete</Button>
+      <Button variant="destructive" onclick={() => app.deleteProduct(product.id)}>Delete</Button>
     </Card.Footer>
   {:else}
     <div class="py-12 text-center p-4">Choose a product to edit</div>

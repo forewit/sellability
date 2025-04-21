@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { setInventoryContext } from "$lib/components/inventory/inventory.svelte";
+  import { setInventoryContext } from "$lib/components/app/app.svelte";
   import * as Resizable from "$lib/components/ui/resizable/index.js";
   import * as Card from "$lib/components/ui/card/index.js";
   import { base } from "$app/paths";

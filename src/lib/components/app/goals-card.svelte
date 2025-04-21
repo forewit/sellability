@@ -3,11 +3,11 @@
   import { Label } from "$lib/components/ui/label/index.js";
   import { Input } from "$lib/components/ui/input/index.js";
   import { base } from "$app/paths";
-  import { getGoalsContext } from "./goals.svelte";
+  import { getAppContext } from "./app.svelte";
 
   let { class: className = "" } = $props();
 
-  const goals = getGoalsContext();
+  const app = getAppContext();
 </script>
 
 <Card.Root class={className}>
@@ -21,11 +21,11 @@
   <Card.Content class="flex flex-col gap-4">
     <div>
       <Label>Desired monthly profit ($)</Label>
-      <Input type="number" bind:value={goals.monthlyProfit} placeholder="0" />
+      <Input type="number" bind:value={app.monthlyProfit} placeholder="0" />
     </div>
     <div>
       <Label>Desired time per week (hrs)</Label>
-      <Input type="number" bind:value={goals.weeklyLabor} placeholder="0" />
+      <Input type="number" bind:value={app.weeklyLabor} placeholder="0" />
     </div>
   </Card.Content>
 </Card.Root>
