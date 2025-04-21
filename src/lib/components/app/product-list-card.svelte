@@ -10,15 +10,13 @@
 
   const app = getAppContext();
 
-  let { class: className = "" } = $props(); 
+  let { class: className = "" } = $props();
 
-
-function newProduct(){
-  const id = app.newProduct();
-  app.selectedProductId = id;
-  app.evaluateMode = false;
-
-}
+  function newProduct() {
+    const id = app.newProduct();
+    app.selectedProductId = id;
+    app.evaluateMode = false;
+  }
 </script>
 
 <Card.Root class={className}>
@@ -31,29 +29,19 @@ function newProduct(){
   <Card.Content>
     <div class="flex flex-col gap-2">
       {#each app.products as product}
-        <div class="relative flex items-center gap-2 h-10">
-          {#if app.evaluateMode}
-            <Checkbox
-              id={product.id}
-              bind:checked={product.evaluating}
-            />
-            <Label for={product.id} class="flex items-center gap-2 w-full">
-              <img src={`${base}/images/cube.png`} class="size-6" alt={product.name} />
-              {product.name}
-            </Label>
-          {:else}
-            <Button
-              variant="ghost"
-              class={cn(
-                "flex justify-start w-full",
-                app.selectedProductId === product.id && "ring-2 ring-primary"
-              )}
-              onclick={() => (app.selectedProductId = product.id)}
-            >
-              <img src={`${base}/images/cube.png`} class="size-6" alt={product.name} />
-              {product.name}
-            </Button>
-          {/if}
+        <div class="relative flex items-center gap-4 h-10">
+          <Checkbox id={product.id} bind:checked={product.evaluating} />
+          <Button
+            variant="ghost"
+            class={cn(
+              "justify-start w-full",
+              app.selectedProductId === product.id && "ring-2 ring-secondary"
+            )}
+            onclick={() => (app.selectedProductId = product.id)}
+          >
+            <img src={`${base}/images/cube.png`} class="size-6" alt={product.name} />
+            {product.name}
+          </Button>
         </div>
       {/each}
     </div>

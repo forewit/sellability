@@ -18,16 +18,23 @@
     product?.expenses.push({ name: otherExpense, value: 0 });
     otherExpense = "";
   }
+
+  let nameInput: HTMLInputElement | null = $state(null);
+
+  $effect(()=>{
+    if (product) nameInput?.select();
+  })
 </script>
 
 <Card.Root class={className}>
   {#if product !== undefined}
     <Card.Header>
-      <Card.Title class="flex items-center">
+      <Card.Title class="flex items-center gap-2">
         <img src="{base}/images/cube.png" class="w-8" alt="product icon" />
         <Input
+          bind:ref={nameInput}
           placeholder="Product Name"
-          class="border-none text-xl md:text-xl"
+          class="border-none pl-1 text-xl md:text-xl"
           bind:value={product.name}
         />
       </Card.Title>
@@ -85,7 +92,9 @@
         <Input id="price" type="number" bind:value={product.price} placeholder="0" />
       </div>
     </Card.Content>
-    <Card.Footer class="justify-end">
+    <Card.Footer class="justify-between">
+      <Button variant="outline" onclick={() => app.selectedProductId=""}>Close</Button>
+
       <Button variant="destructive" onclick={() => app.deleteProduct(product.id)}>Delete</Button>
     </Card.Footer>
   {:else}

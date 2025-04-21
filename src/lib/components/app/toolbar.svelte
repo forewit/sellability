@@ -11,6 +11,6 @@
   </script>
   
   <Card.Root class={cn("p-2 h-min",className)}>
-      <Toggle bind:pressed={app.evaluateMode}><ChartLine /></Toggle>
+      <Toggle><ChartLine /></Toggle>
   </Card.Root>
   

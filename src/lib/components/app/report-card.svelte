@@ -1,9 +1,11 @@
 <script lang="ts">
   import * as Card from "$lib/components/ui/card/index.js";
   import Button from "$lib/components/ui/button/button.svelte";
+  import Checkbox from "$lib/components/ui/checkbox/checkbox.svelte";
   import { base } from "$app/paths";
   import { getAppContext } from "./app.svelte";
-  import { TriangleAlert, CheckCheck, MessageCircleWarning } from "lucide-svelte";
+  import { TriangleAlert, CheckCheck, MessageCircleWarning, Trash2 } from "lucide-svelte";
+  import Input from "../ui/input/input.svelte";
 
   let { class: className = "" } = $props();
 
@@ -14,7 +16,6 @@
   let unitsPerMonth = $state(0);
   let hoursPerWeek = $derived(app.productData.reduce((total, data) => total + data.totalTime, 0));
   let viabilityColor = $state("red");
-
 </script>
 
 <Card.Root class={className}>
@@ -27,16 +28,20 @@
   <Card.Content>
     {#if evalProducts.length > 0}
       <!-- eval products -->
-      <div class="flex flex-col gap-2 mb-8">
+      <div class="flex gap-2 mb-8">
         {#each evalProducts as product}
-          <Button variant="outline"onclick={() => (product.evaluating = false)}>
-            <img src={`${base}/images/cube.png`} class="size-6" alt={product.name} />
-            {product.name}
-          </Button>
+          <div class="relative flex items-center gap-1 h-10">
+            <!-- onclick should open a slider to select quantity -->
+            <!-- quanity slider should have a lock -->
+            <!-- add a auto button that automatically suggests quanities -->
+            <Button variant="outline" class="w-full justify-start">
+              <img src={`${base}/images/cube.png`} class="size-6" alt={product.name} />
+              {product.name}
+            </Button>
+          </div>
         {/each}
       </div>
       <div class="grid grid-cols-2 gap-4">
-
         <!-- Work time needed -->
         <div class="p-3 rounded-xl bg-purple-50 text-center">
           <div class="text-sm font-semibold">Hours / wk</div>
