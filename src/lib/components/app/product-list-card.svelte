@@ -2,7 +2,6 @@
   import { cn } from "$lib/utils";
   import * as Card from "$lib/components/ui/card/index.js";
   import { Checkbox } from "$lib/components/ui/checkbox/index.js";
-  import { Toggle } from "$lib/components/ui/toggle/index.js";
   import { Label } from "$lib/components/ui/label/index.js";
   import Button from "$lib/components/ui/button/button.svelte";
   import { Plus, ChartLine } from "lucide-svelte";
@@ -13,9 +12,22 @@
 
   let { class: className = "" } = $props(); 
 
+
+function newProduct(){
+  const id = app.newProduct();
+  app.selectedProductId = id;
+  app.evaluateMode = false;
+
+}
 </script>
 
 <Card.Root class={className}>
+  <Card.Header>
+    <Card.Title class="flex gap-2 items-center">
+      <img src="{base}/images/cube.png" class="w-8" alt="goals icon" />
+      Products
+    </Card.Title>
+  </Card.Header>
   <Card.Content>
     <div class="flex flex-col gap-2">
       {#each app.products as product}
@@ -47,6 +59,6 @@
     </div>
   </Card.Content>
   <Card.Footer>
-    <Button onclick={app.newProduct}><Plus />New Product</Button>
+    <Button onclick={newProduct}><Plus />New Product</Button>
   </Card.Footer>
 </Card.Root>

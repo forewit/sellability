@@ -2,8 +2,7 @@
     import { cn } from "$lib/utils";
     import * as Card from "$lib/components/ui/card/index.js";
     import { Toggle } from "$lib/components/ui/toggle/index.js";
-    import Button from "$lib/components/ui/button/button.svelte";
-    import { Plus, ChartLine } from "lucide-svelte";
+    import {  ChartLine } from "lucide-svelte";
     import { getAppContext } from "./app.svelte";
   
     const app = getAppContext();

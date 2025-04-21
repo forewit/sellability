@@ -12,7 +12,7 @@
   let evalProducts = $derived(app.products.filter((p) => p.evaluating));
 
   let unitsPerMonth = $state(0);
-  let hoursPerWeek = $state(0);
+  let hoursPerWeek = $derived(app.productData.reduce((total, data) => total + data.totalTime, 0));
   let viabilityColor = $state("red");
 
 </script>
@@ -21,26 +21,21 @@
   <Card.Header>
     <Card.Title class="flex gap-2 items-center">
       <img src="{base}/images/rocket.png" class="w-8" alt="goals icon" />
-      Summary
+      Report
     </Card.Title>
   </Card.Header>
   <Card.Content>
     {#if evalProducts.length > 0}
       <!-- eval products -->
-      <div class="flex gap-2 mb-8">
+      <div class="flex flex-col gap-2 mb-8">
         {#each evalProducts as product}
-          <Button variant="outline" onclick={() => (product.evaluating = false)}>
+          <Button variant="outline"onclick={() => (product.evaluating = false)}>
             <img src={`${base}/images/cube.png`} class="size-6" alt={product.name} />
             {product.name}
           </Button>
         {/each}
       </div>
-      <div class="grid grid-cols-3 gap-4">
-        <!-- Units to sell -->
-        <div class="p-3 rounded-xl bg-blue-50 text-center">
-          <div class="text-sm font-semibold">Units / mo</div>
-          <div class="text-2xl">{unitsPerMonth}</div>
-        </div>
+      <div class="grid grid-cols-2 gap-4">
 
         <!-- Work time needed -->
         <div class="p-3 rounded-xl bg-purple-50 text-center">
