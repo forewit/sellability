@@ -8,7 +8,7 @@
   import Textarea from "$lib/components/ui/textarea/textarea.svelte";
   import { Trash2, Plus } from "lucide-svelte";
 
-  let { id }: { id: string } = $props();
+  let { id = "", class: className = "" }= $props();
 
   const inventory = getInventoryContext();
 
@@ -21,7 +21,7 @@
   }
 </script>
 
-<Card.Root>
+<Card.Root class={className}>
   {#if product !== undefined}
     <Card.Header>
       <Card.Title class="flex items-center">

@@ -4,12 +4,13 @@
   import { Input } from "$lib/components/ui/input/index.js";
   import { base } from "$app/paths";
   import { getGoalsContext } from "./goals.svelte";
-  import { getInventoryContext } from "../inventory/inventory.svelte";
+
+  let { class: className = "" } = $props();
 
   const goals = getGoalsContext();
 </script>
 
-<Card.Root >
+<Card.Root class={className}>
   <Card.Header>
     <Card.Title class="flex gap-2 items-center">
       <img src="{base}/images/pie.png" class="w-8" alt="goals icon" />

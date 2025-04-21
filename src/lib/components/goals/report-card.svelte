@@ -6,6 +6,8 @@
   import { getInventoryContext } from "$lib/components/inventory/inventory.svelte";
   import { TriangleAlert, CheckCheck, MessageCircleWarning } from "lucide-svelte";
 
+let { class: className = "" } = $props();
+
   const goals = getGoalsContext();
   const inventory = getInventoryContext();
 
@@ -22,7 +24,7 @@
   }
 </script>
 
-<Card.Root>
+<Card.Root class={className}>
   <Card.Header>
     <Card.Title class="flex gap-2 items-center">
       <img src="{base}/images/rocket.png" class="w-8" alt="goals icon" />
