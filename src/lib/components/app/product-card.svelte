@@ -8,7 +8,7 @@
   import Textarea from "$lib/components/ui/textarea/textarea.svelte";
   import { Trash2, Plus } from "lucide-svelte";
 
-  let { product, class: className = "" }: { product?: Product; class?: string } = $props();
+  let { product, class: className = ""}: { product?: Product; class?: string; } = $props();
 
   const app = getAppContext();
 
@@ -18,12 +18,6 @@
     product?.expenses.push({ name: otherExpense, value: 0 });
     otherExpense = "";
   }
-
-  let nameInput: HTMLInputElement | null = $state(null);
-
-  $effect(()=>{
-    if (product) nameInput?.select();
-  })
 </script>
 
 <Card.Root class={className}>
@@ -32,7 +26,6 @@
       <Card.Title class="flex items-center gap-2">
         <img src="{base}/images/cube.png" class="w-8" alt="product icon" />
         <Input
-          bind:ref={nameInput}
           placeholder="Product Name"
           class="border-none pl-1 text-xl md:text-xl"
           bind:value={product.name}

@@ -35,7 +35,7 @@
             <!-- quanity slider should have a lock -->
             <!-- add a auto button that automatically suggests quanities -->
             <Button variant="outline" class="w-full justify-start">
-              <img src={`${base}/images/cube.png`} class="size-6" alt={product.name} />
+              <img src={`${base}/images/cube.png`} class="w-6 min-w-6 aspect-square" alt={product.name} />
               {product.name}
             </Button>
           </div>

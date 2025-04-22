@@ -35,7 +35,7 @@ function createApp() {
         return {
             id: p.id,
             totalExpenses: totalExpenses,
-            totalTime: p.laborTime, 
+            totalTime: p.laborTime,
             profit: p.price - totalExpenses
         }
     }))
@@ -53,32 +53,33 @@ function createApp() {
         }
     }
 
-    let monthlyProfit = $state(0);
-    let weeklyLabor = $state(0);
+    const MAX_WEEKLY_HOURS = 80;
+    let monthlyProfitGoal = $state([0,0]);
+    let weeklyLaborGoals = $state([20, 30, 40]);
     let evaluateMode = $state(false);
     let selectedProductId = $state("")
     let selectedProduct = $derived(products.find(p => p.id === selectedProductId))
 
     return {
         // read only state
-        get products() { return products; },
-        get selectedProduct() { return selectedProduct; },
-        get productData() { return productData; },
+        get products() { return products },
+        get selectedProduct() { return selectedProduct },
+        get productData() { return productData },
+        MAX_WEEKLY_HOURS,
 
         // helper functions
         newProduct,
         deleteProduct,
 
         // editable state
-        get monthlyProfit() { return monthlyProfit },
-        set monthlyProfit(value: number) { monthlyProfit = value },
-        get weeklyLabor() { return weeklyLabor },
-        set weeklyLabor(value: number) { weeklyLabor = value },
-        get evaluateMode() { return evaluateMode; },
-        set evaluateMode(value: boolean) { evaluateMode = value; },
-        get selectedProductId() { return selectedProductId; },
-        set selectedProductId(value: string) { selectedProductId = value; }
-
+        get evaluateMode() { return evaluateMode },
+        set evaluateMode(value: boolean) { evaluateMode = value },
+        get selectedProductId() { return selectedProductId },
+        set selectedProductId(value: string) { selectedProductId = value },
+        get monthlyProfitGoal() { return monthlyProfitGoal },
+        set monthlyProfitGoal(value: number[]) { monthlyProfitGoal = value },
+        get weeklyLaborGoals() { return weeklyLaborGoals },
+        set weeklyLaborGoals(value: number[]) { weeklyLaborGoals = value },
     }
 }
 
