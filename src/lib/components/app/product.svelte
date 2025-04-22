@@ -1,5 +1,6 @@
 <script lang="ts">
   import { getAppContext, type Product } from "$lib/components/app/app.svelte";
+  import { cn } from "$lib/utils";
   import * as Card from "$lib/components/ui/card/index.js";
   import { base } from "$app/paths";
   import { Label } from "$lib/components/ui/label/index.js";
@@ -8,7 +9,7 @@
   import Textarea from "$lib/components/ui/textarea/textarea.svelte";
   import { Trash2, Plus } from "lucide-svelte";
 
-  let { product, class: className = ""}: { product?: Product; class?: string; } = $props();
+  let { product, class: className = "" }: { product?: Product; class?: string } = $props();
 
   const app = getAppContext();
 
@@ -18,13 +19,25 @@
     product?.expenses.push({ name: otherExpense, value: 0 });
     otherExpense = "";
   }
+
+  function handleImageChange(event: Event) {
+    if (!product) return;
+
+    const input = event.currentTarget as HTMLInputElement;
+    const file = input.files?.[0];
+    if (file) {
+      // revoke old URL if there was one
+      if (product.url) URL.revokeObjectURL(product.url);
+      product.url = URL.createObjectURL(file);
+    }
+  }
 </script>
 
-<Card.Root class={className}>
+<div class={cn("h-full grid grid-rows-[auto,1fr,auto] ",className)}>
   {#if product !== undefined}
-    <Card.Header>
+    <Card.Header class="p-0">
       <Card.Title class="flex items-center gap-2">
-        <img src="{base}/images/cube.png" class="w-8" alt="product icon" />
+        <img src={product.url || `${base}/images/cube.png`} class="w-8" alt={product.name} />
         <Input
           placeholder="Product Name"
           class="border-none pl-1 text-xl md:text-xl"
@@ -33,7 +46,18 @@
       </Card.Title>
     </Card.Header>
 
-    <Card.Content class="flex flex-col gap-2">
+    <Card.Content class="flex flex-col gap-2 px-0">
+      <div>
+        <Label for="image">Image</Label>
+        <Input
+          onchange={handleImageChange}
+          id="image"
+          type="file"
+          bind:value={product.url}
+          accept="image/*"
+        />
+        {product.url}
+      </div>
       <div>
         <Label for="details">Description</Label>
         <Textarea
@@ -85,12 +109,12 @@
         <Input id="price" type="number" bind:value={product.price} placeholder="0" />
       </div>
     </Card.Content>
-    <Card.Footer class="justify-between">
-      <Button variant="outline" onclick={() => app.selectedProductId=""}>Close</Button>
+    <Card.Footer class="justify-between p-0">
+      <Button onclick={() => (app.selectedProductId = "")}>Save</Button>
 
       <Button variant="destructive" onclick={() => app.deleteProduct(product.id)}>Delete</Button>
     </Card.Footer>
   {:else}
     <div class="py-12 text-center p-4">Choose a product to edit</div>
   {/if}
-</Card.Root>
+</div>

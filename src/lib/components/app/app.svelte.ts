@@ -2,12 +2,12 @@ import { getContext, setContext } from 'svelte';
 
 export type Product = {
     id: string;
+    url: string;
     name?: string;
     description?: string;
     expenses: Array<{ name: string; value: number }>;
     laborTime: number;
     price: number;
-    evaluating: boolean;
 }
 
 export type ProductData = {
@@ -21,12 +21,12 @@ function createApp() {
     let products: Product[] = $state([
         {
             id: 'test',
+            url: '',
             name: "Test Product",
             description: "Testing out functionality",
             expenses: [{ name: "Materials", value: 25 }, { name: "Shipping", value: 10 }],
             laborTime: 1.5,
             price: 49,
-            evaluating: false,
         }
     ]);
 
@@ -42,7 +42,7 @@ function createApp() {
 
     const newProduct = () => {
         const id = crypto.randomUUID().slice(0, 8)
-        products.push({ id: id, expenses: [], laborTime: 0, price: 0, evaluating: false })
+        products.push({ id: id, url:'',expenses: [], laborTime: 0, price: 0 })
         return id;
     }
 
@@ -54,9 +54,8 @@ function createApp() {
     }
 
     const MAX_WEEKLY_HOURS = 80;
-    let monthlyProfitGoal = $state([0,0]);
-    let weeklyLaborGoals = $state([20, 30, 40]);
-    let evaluateMode = $state(false);
+    let monthlyProfitGoal = $state([2000, 500]); // target, minimum
+    let weeklyLaborGoals = $state([30, 40]); // target, maximum
     let selectedProductId = $state("")
     let selectedProduct = $derived(products.find(p => p.id === selectedProductId))
 
@@ -72,8 +71,6 @@ function createApp() {
         deleteProduct,
 
         // editable state
-        get evaluateMode() { return evaluateMode },
-        set evaluateMode(value: boolean) { evaluateMode = value },
         get selectedProductId() { return selectedProductId },
         set selectedProductId(value: string) { selectedProductId = value },
         get monthlyProfitGoal() { return monthlyProfitGoal },

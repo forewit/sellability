@@ -14,23 +14,22 @@
 
   function newProduct() {
     const id = app.newProduct();
-    app.selectedProductId = id;
-    app.evaluateMode = false;
+    //app.selectedProductId = id;
   }
 </script>
 
-<Card.Root class={className}>
-  <Card.Header>
+<div class={cn("min-w-[250px]",className)}>
+  <Card.Header class="p-0">
     <Card.Title class="flex gap-2 items-center">
       <img src="{base}/images/cube.png" class="w-8" alt="goals icon" />
       Products
     </Card.Title>
   </Card.Header>
-  <Card.Content>
+  <Card.Content class="px-0">
     <div class="flex flex-col gap-2">
       {#each app.products as product}
         <div class="relative flex items-center gap-4 h-10">
-          <Checkbox id={product.id} bind:checked={product.evaluating} />
+          <Checkbox id={product.id} />
           <Button
             variant="ghost"
             class={cn(
@@ -39,14 +38,14 @@
             )}
             onclick={() => (app.selectedProductId = product.id)}
           >
-            <img src={`${base}/images/cube.png`} class="size-6" alt={product.name} />
-            {product.name}
+          <img src={product.url || `${base}/images/cube.png`} class="w-6" alt={product.name} />
+          {product.name}
           </Button>
         </div>
       {/each}
     </div>
   </Card.Content>
-  <Card.Footer>
+  <Card.Footer class="p-0">
     <Button onclick={newProduct}><Plus />New Product</Button>
   </Card.Footer>
-</Card.Root>
+</div>
