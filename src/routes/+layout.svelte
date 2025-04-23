@@ -22,7 +22,7 @@
 
 <!-- main page with toolbar -->
 <div
-  class="fixed top-0 bottom-0 left-0 right-0 bg-red-50 grid grid-rows-[1fr,auto] md:grid-cols-[auto,1fr]"
+  class="h-lvh bg-red-50 grid grid-rows-[1fr,auto] md:grid-cols-[auto,1fr]"
   style="margin-left: max(0px, env(safe-area-inset-left)); margin-right: max(0px, env(safe-area-inset-right)); margin-top: max(0px, env(safe-area-inset-top));"
 >
   <Toolbar class="flex-row md:flex-col w-min h-min order-2 md:order-1 m-2 mt-0 md:mt-2 md:mr-0" />
