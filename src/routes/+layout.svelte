@@ -33,7 +33,7 @@
 
 <!-- product editing sheet -->
 <Sheet.Root open={productSheetOpen} {onOpenChange}>
-  <Sheet.Content class="p-0" hideCloseButton>
+  <Sheet.Content class="p-0" hideCloseButton >
     <ScrollArea class="h-full" type="scroll">
       <Product product={app.selectedProduct} class="p-6" />
     </ScrollArea>
