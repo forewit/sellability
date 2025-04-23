@@ -1,8 +1,11 @@
 <script lang="ts">
   import ProductList from "$lib/components/app/product-list.svelte";
+  import * as Card from "$lib/components/ui/card/index.js";
+
 </script>
 
-<div class="p-6">
-  <ProductList />
-
-</div>
+  <Card.Root class="h-min w-min m-2">
+    <Card.Content>
+      <ProductList />
+    </Card.Content>
+  </Card.Root>

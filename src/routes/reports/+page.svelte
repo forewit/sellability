@@ -7,20 +7,18 @@
 </script>
 
 
-<div class="grid md:grid-cols-[1fr,3fr] gap-3 p-3">
-  <Card.Root class="h-min">
-    <Card.Content>
-      <Goals class="max-w-[250px]" />
-    </Card.Content>
-  </Card.Root>
 
+<Card.Root class="h-min m-3">
+  <Card.Content>
+    <Scenario />
+  </Card.Content>
+</Card.Root>
+<div class="grid md:grid-cols-[auto,1fr,1fr] gap-3 p-3">
   <Card.Root class="h-min">
     <Card.Content>
-      <Scenario />
+      <Goals class="" />
     </Card.Content>
   </Card.Root>
-</div>
-<div class="grid md:grid-cols-[1fr,1fr] gap-3 p-3">
   <Card.Root class="h-min">
       <Card.Header>
         <Card.Title class="flex items-center gap-2">
