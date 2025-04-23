@@ -1,0 +1,7 @@
+:root {
+  /* safe areas */
+  --safe-area-left: 0px; /* overwritten by env("safe-area-inset-left") */
+  --safe-area-right: 0px; /* overwritten by env("safe-area-inset-right") */
+  --safe-area-top: 0px; /* overwritten by env("safe-area-inset-top") */
+  --safe-area-inline: max(var(--safe-area-left), var(--safe-area-right));
+}
