@@ -7,7 +7,7 @@
 </script>
 
 
-<div class="grid md:grid-cols-[1fr,3fr] gap-8 p-6">
+<div class="grid md:grid-cols-[1fr,3fr] gap-3 p-3">
   <Card.Root class="h-min">
     <Card.Content>
       <Goals class="max-w-[250px]" />
@@ -20,7 +20,7 @@
     </Card.Content>
   </Card.Root>
 </div>
-<div class="grid md:grid-cols-[1fr,1fr] gap-8 p-6">
+<div class="grid md:grid-cols-[1fr,1fr] gap-3 p-3">
   <Card.Root class="h-min">
       <Card.Header>
         <Card.Title class="flex items-center gap-2">
