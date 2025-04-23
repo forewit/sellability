@@ -30,16 +30,6 @@ function createApp() {
         }
     ]);
 
-    let productData: ProductData[] = $derived(products.map(p => {
-        const totalExpenses = p.expenses.reduce((total, expense) => total + expense.value, 0);
-        return {
-            id: p.id,
-            totalExpenses: totalExpenses,
-            totalTime: p.laborTime,
-            profit: p.price - totalExpenses
-        }
-    }))
-
     const newProduct = () => {
         const id = crypto.randomUUID().slice(0, 8)
         products.push({ id: id, url:'',expenses: [], laborTime: 0, price: 0 })
@@ -56,7 +46,7 @@ function createApp() {
     const MAX_WEEKLY_HOURS = 80;
     let monthlyProfitGoal = $state([2000, 500]); // target, minimum
     let weeklyLaborGoals = $state([30, 40]); // target, maximum
-    
+
     let selectedProductId = $state("")
     let selectedProduct = $derived(products.find(p => p.id === selectedProductId))
 
@@ -64,7 +54,6 @@ function createApp() {
         // read only state
         get products() { return products },
         get selectedProduct() { return selectedProduct },
-        get productData() { return productData },
         MAX_WEEKLY_HOURS,
 
         // helper functions

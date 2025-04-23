@@ -32,9 +32,9 @@
   >
     <ScrollArea type="always">
       {@render children?.()}
-      <div class="h-16"></div>
+      <div class="h-20"></div>
     </ScrollArea>
-    <Toolbar class="flex-row absolute left-1/2 -translate-x-1/2 bottom-4" />
+    <Toolbar class="flex-row absolute left-1/2 -translate-x-1/2 bottom-5" />
   </div>
 
   <!-- product editing sheet -->

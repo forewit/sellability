@@ -40,7 +40,7 @@
         <img src={product.url || `${base}/images/cube.png`} class="w-8" alt={product.name} />
         <Input
           placeholder="Product Name"
-          class="border-none pl-1 text-xl md:text-xl"
+          class="py-5 text-xl md:text-xl"
           bind:value={product.name}
         />
       </Card.Title>
@@ -53,10 +53,8 @@
           onchange={handleImageChange}
           id="image"
           type="file"
-          bind:value={product.url}
           accept="image/*"
         />
-        {product.url}
       </div>
       <div>
         <Label for="details">Description</Label>
