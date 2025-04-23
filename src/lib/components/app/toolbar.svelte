@@ -8,7 +8,7 @@
   let { class: className = "" } = $props();
 </script>
 
-<div class={cn("p-2 h-min flex  gap-1 bg-background rounded-lg shadow-lg", className)}>
+<div class={cn("p-2 h-min flex flex-col gap-1 bg-background rounded-lg  border shadow-sm", className)}>
   <a href="{base}/">
     <Button class={cn("px-2.5", page.url.pathname === `${base}/` && "bg-muted")} variant="ghost">
       <img src={`${base}/images/cube.png`} class="w-6 min-w-6 aspect-square" alt="products" />
