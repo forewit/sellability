@@ -56,6 +56,7 @@ function createApp() {
     const MAX_WEEKLY_HOURS = 80;
     let monthlyProfitGoal = $state([2000, 500]); // target, minimum
     let weeklyLaborGoals = $state([30, 40]); // target, maximum
+    
     let selectedProductId = $state("")
     let selectedProduct = $derived(products.find(p => p.id === selectedProductId))
 

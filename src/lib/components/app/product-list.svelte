@@ -10,15 +10,22 @@
 
   const app = getAppContext();
 
-  let { class: className = "" } = $props();
+  let { selectedIds = $bindable([]) as string[], class: className = "" } = $props();
 
   function newProduct() {
     const id = app.newProduct();
-    //app.selectedProductId = id;
   }
+
+  let productsSelectedStatus: Record<string, boolean> = $state({});
+
+  $effect(() => {
+    selectedIds = app.products
+      .filter((product) => productsSelectedStatus[product.id])
+      .map((product) => product.id);
+  });
 </script>
 
-<div class={cn("min-w-[250px]",className)}>
+<div class={cn("min-w-[250px]", className)}>
   <Card.Header class="p-0">
     <Card.Title class="flex gap-2 items-center">
       <img src="{base}/images/cube.png" class="w-8" alt="goals icon" />
@@ -27,9 +34,12 @@
   </Card.Header>
   <Card.Content class="px-0">
     <div class="flex flex-col gap-2">
-      {#each app.products as product}
+      {#each app.products as product, i}
         <div class="relative flex items-center gap-4 h-10">
-          <Checkbox id={product.id} />
+          <Checkbox
+            id={product.id}
+            onCheckedChange={(checked) => (productsSelectedStatus[product.id] = checked)}
+          />
           <Button
             variant="ghost"
             class={cn(
@@ -38,8 +48,8 @@
             )}
             onclick={() => (app.selectedProductId = product.id)}
           >
-          <img src={product.url || `${base}/images/cube.png`} class="w-6" alt={product.name} />
-          {product.name}
+            <img src={product.url || `${base}/images/cube.png`} class="w-6" alt={product.name} />
+            {product.name}
           </Button>
         </div>
       {/each}

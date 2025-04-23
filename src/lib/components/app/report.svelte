@@ -10,12 +10,11 @@
   import Input from "../ui/input/input.svelte";
   import { cn } from "$lib/utils";
 
-  let { class: className = "" } = $props();
+  let { selectedIds = $bindable([]) as string[], class: className = "" } = $props();
 
   const app = getAppContext();
 
-  let evalIds: string[] = $state([]);
-  let evalProducts = $derived(app.products.filter((p) => evalIds.includes(p.id)));
+  let evalProducts = $derived(app.products.filter((p) => selectedIds.includes(p.id)));
 
   let unitsPerMonth = $state(0);
   let hoursPerWeek = $derived(app.productData.reduce((total, data) => total + data.totalTime, 0));
@@ -28,7 +27,7 @@
       <img src="{base}/images/rocket.png" class="w-8" alt="goals icon" />
       Report
     </Card.Title>
-    <Select.Root type="multiple" bind:value={evalIds}>
+    <Select.Root type="multiple" bind:value={selectedIds}>
       <Select.Trigger>Add products</Select.Trigger>
       <Select.Content>
         {#each app.products as product}
@@ -44,7 +43,7 @@
       </Select.Content>
     </Select.Root>
   </Card.Header>
-  <Card.Content class="px-0">
+  <Card.Content class="px-0 pb-0">
     {#if evalProducts.length > 0}
       <!-- eval products -->
       <div class="flex flex-col gap-2 mb-8">
@@ -54,9 +53,8 @@
             <!-- quanity slider should have a lock -->
             <!-- add a auto button that automatically suggests quanities -->
             <Button
-              variant="outline"
-              class="w-full justify-start"
-              onclick={() => (app.selectedProductId = product.id)}
+              variant="ghost"
+              class="justify-start"
             >
               <img
                 src={product.url || `${base}/images/cube.png`}

@@ -28,9 +28,9 @@
 <SafeAreas>
   <!-- main page with toolbar -->
   <div
-    class="h-svh w-svw grid relative bg-red-50 pl-[var(--safe-area-left)] pr-[var(--safe-area-right)] pt-[var(--safe-area-top)]"
+    class="h-svh w-svw grid relative pl-[var(--safe-area-left)] pr-[var(--safe-area-right)] pt-[var(--safe-area-top)]"
   >
-    <ScrollArea type="scroll">
+    <ScrollArea type="always">
       {@render children?.()}
       <div class="h-16"></div>
     </ScrollArea>

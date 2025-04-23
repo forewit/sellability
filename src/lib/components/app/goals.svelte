@@ -19,7 +19,7 @@
     </Card.Title>
   </Card.Header>
 
-  <Card.Content class="flex flex-col gap-8 px-0">
+  <Card.Content class="flex flex-col gap-8 px-0 pb-0">
     <div>
       <Label>Profit ($ / month)</Label>
       <div class="flex justify-between items-center mt-4">
