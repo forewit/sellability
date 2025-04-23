@@ -4,7 +4,7 @@
 
 </script>
 
-  <Card.Root class="h-min w-min m-2">
+  <Card.Root class="h-min m-2">
     <Card.Content>
       <ProductList />
     </Card.Content>

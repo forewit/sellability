@@ -30,9 +30,21 @@ function createApp() {
         }
     ]);
 
+    let productData = $derived(
+        products.map((p) => {
+            const expenses = p.expenses.reduce((total, expense) => total + expense.value, 0);
+            return {
+                id: p.id,
+                expenses,
+                profit: p.price - expenses,
+                time: p.laborTime,
+            };
+        })
+    );
+
     const newProduct = () => {
         const id = crypto.randomUUID().slice(0, 8)
-        products.push({ id: id, url:'',expenses: [], laborTime: 0, price: 0 })
+        products.push({ id: id, url: '', expenses: [], laborTime: 0, price: 0 })
         return id;
     }
 
@@ -54,6 +66,7 @@ function createApp() {
         // read only state
         get products() { return products },
         get selectedProduct() { return selectedProduct },
+        get productData() { return productData },
         MAX_WEEKLY_HOURS,
 
         // helper functions

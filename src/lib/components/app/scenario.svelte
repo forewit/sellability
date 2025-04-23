@@ -26,17 +26,6 @@
   let evalProducts = $derived(app.products.filter((p) => evalIds.includes(p.id)));
   let evalProductQuantities: number[] = $state([0]);
 
-  let productData = $derived(
-    app.products.map((p) => {
-      const expenses = p.expenses.reduce((total, expense) => total + expense.value, 0);
-      return {
-        id: p.id,
-        expenses,
-        profit: p.price - expenses,
-        time: p.laborTime,
-      };
-    })
-  );
 
   let unitsPerMonth = $state(0);
   let hoursPerWeek = $derived(0);
@@ -119,12 +108,12 @@
             </Table.Cell>
             <Table.Cell class="text-right"
               >{evalProductQuantities[i] *
-                (productData.find((p) => p.id === product.id)?.time || 0)} hrs</Table.Cell
+                (app.productData.find((p) => p.id === product.id)?.time || 0)} hrs</Table.Cell
             >
             <Table.Cell class="text-right"
               >${(
                 evalProductQuantities[i] *
-                (productData.find((p) => p.id === product.id)?.profit || 0)
+                (app.productData.find((p) => p.id === product.id)?.profit || 0)
               ).toFixed(2)}</Table.Cell
             >
           </Table.Row>
