@@ -8,18 +8,18 @@
   let { class: className = "" } = $props();
 </script>
 
-<div class={cn("p-2 h-min flex flex-col gap-1 bg-background rounded-lg  border shadow-sm", className)}>
+<div class={cn("p-2 h-min flex gap-1 bg-background rounded-lg  border shadow-sm", className)}>
   <a href="{base}/">
-    <Button class={cn("px-2.5", page.url.pathname === `${base}/` && "bg-muted")} variant="ghost">
-      <img src={`${base}/images/cube.png`} class="w-6 min-w-6 aspect-square" alt="products" />
+    <Button class={cn("h-12 w-14", page.url.pathname === `${base}/` && "bg-muted")} variant="ghost">
+      <img src={`${base}/images/cube.png`} class="w-8 min-w-8" alt="products" />
     </Button>
   </a>
   <a href="{base}/reports/">
     <Button
-      class={cn("px-2.5", page.url.pathname === `${base}/reports/` && "bg-muted")}
+      class={cn("h-12 w-14", page.url.pathname === `${base}/reports/` && "bg-muted")}
       variant="ghost"
     >
-      <img src={`${base}/images/pie.png`} class="w-6 min-w-6 aspect-square" alt="products" />
+      <img src={`${base}/images/pie.png`} class="w-8 min-w-8" alt="products" />
     </Button>
   </a>
   <!-- <Separator class="my-2" orientation="vertical" />

@@ -1,12 +1,10 @@
 <script lang="ts">
   import "../app.css";
-  import { cn } from "$lib/utils";
   import { setAppContext } from "$lib/components/app/app.svelte";
   import Toolbar from "$lib/components/app/toolbar.svelte";
   import * as Sheet from "$lib/components/ui/sheet/index.js";
   import Product from "$lib/components/app/product.svelte";
   import { ScrollArea } from "$lib/components/ui/scroll-area/index.js";
-  import { IsMobile } from "$lib/hooks/is-mobile.svelte";
 
   let { children } = $props();
 
@@ -16,8 +14,6 @@
   function onOpenChange(open: boolean) {
     if (!open) app.selectedProductId = "";
   }
-
-  let isMobile = new IsMobile();
 </script>
 
 <svelte:head>
