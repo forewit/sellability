@@ -25,7 +25,7 @@
   class="h-lvh bg-red-50 grid grid-rows-[1fr,auto] md:grid-cols-[auto,1fr]"
   style="margin-left: max(0px, env(safe-area-inset-left)); margin-right: max(0px, env(safe-area-inset-right)); margin-top: max(0px, env(safe-area-inset-top));"
 >
-  <Toolbar class="flex-row md:flex-col w-min h-min order-2 md:order-1 m-2 mt-0 md:mt-2 md:mr-0" />
+  <Toolbar class="place-self-center flex-row md:flex-col w-min h-min order-2 md:order-1 m-2 mt-0 md:mt-2 md:mr-0" />
   <ScrollArea class="m-2 border shadow-sm rounded-lg bg-card order-1 md:order-2" type="scroll">
     {@render children?.()}
   </ScrollArea>
