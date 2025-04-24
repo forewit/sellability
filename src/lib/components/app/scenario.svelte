@@ -19,6 +19,7 @@
   import { cn } from "$lib/utils";
   import { page } from "$app/state";
   import type { Snippet } from "svelte";
+  import Stars from "../stars/stars.svelte";
 
   let {
     evalData = $bindable({ test: { quantity: 1 } }),
@@ -89,6 +90,8 @@
           <Table.Head></Table.Head>
           <Table.Head class="">Product</Table.Head>
           <Table.Head class="">Quantity</Table.Head>
+          <Table.Head class="">Rank</Table.Head>
+
           <Table.Head class="text-right">Total Time (hrs)</Table.Head>
           <Table.Head class="text-right">Total Profit ($)</Table.Head>
         </Table.Row>
@@ -108,6 +111,7 @@
                 <MinusCircle />
               </Button>
             </Table.Cell>
+            
             <Table.Cell class="pl-0">
               <div class="flex gap-2">
                 <img
@@ -128,6 +132,9 @@
                 bind:value={evalData[product.id].quantity}
                 min="0"
               />
+            </Table.Cell>
+            <Table.Cell>
+              <Stars></Stars>
             </Table.Cell>
             <Table.Cell class="text-right"
               >{evalData[product.id].quantity *
