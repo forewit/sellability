@@ -108,9 +108,7 @@
       </div>
     </Card.Content>
     <Card.Footer class="justify-between p-0">
-      <Button onclick={() => (app.selectedProductId = "")}>Save</Button>
-
-      <Button variant="destructive" onclick={() => app.deleteProduct(product.id)}>Delete</Button>
+      <Button onclick={() => (app.selectedProductId = "")}>Close</Button>
     </Card.Footer>
   {:else}
     <div class="py-12 text-center p-4">Choose a product to edit</div>

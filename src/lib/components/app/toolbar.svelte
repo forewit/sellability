@@ -9,19 +9,20 @@
 </script>
 
 <div class={cn("p-2 h-min flex gap-1 bg-background rounded-lg  border shadow-sm", className)}>
-  <a href="{base}/">
-    <Button class={cn("h-12 w-14", page.url.pathname === `${base}/` && "bg-muted")} variant="ghost">
-      <img src={`${base}/images/cube.png`} class="w-8 min-w-8" alt="products" />
-    </Button>
-  </a>
-  <a href="{base}/reports/">
-    <Button
-      class={cn("h-12 w-14", page.url.pathname === `${base}/reports/` && "bg-muted")}
-      variant="ghost"
-    >
-      <img src={`${base}/images/pie.png`} class="w-8 min-w-8" alt="products" />
-    </Button>
-  </a>
+  <Button
+    href="{base}/"
+    class={cn("h-12 w-14", page.url.pathname === `${base}/` && "bg-muted")}
+    variant="ghost"
+  >
+    <img src={`${base}/images/cube.png`} class="w-8 min-w-8" alt="products" />
+  </Button>
+  <Button
+    class={cn("h-12 w-14", page.url.pathname === `${base}/reports/` && "bg-muted")}
+    href="{base}/reports/"
+    variant="ghost"
+  >
+    <img src={`${base}/images/pie.png`} class="w-8 min-w-8" alt="products" />
+  </Button>
   <!-- <Separator class="my-2" orientation="vertical" />
   <Button class="px-2.5" variant="ghost">
     <Settings />

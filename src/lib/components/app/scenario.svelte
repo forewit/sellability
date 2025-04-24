@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { untrack } from "svelte";
   import * as Card from "$lib/components/ui/card/index.js";
   import * as Select from "$lib/components/ui/select/index.js";
   import * as Table from "$lib/components/ui/table/index.js";
@@ -17,19 +18,41 @@
   import Input from "../ui/input/input.svelte";
   import { cn } from "$lib/utils";
   import { page } from "$app/state";
+  import type { Snippet } from "svelte";
 
-  let { class: className = "" } = $props();
+  let {
+    evalData = $bindable({ test: { quantity: 1 } }),
+    class: className = "",
+    children,
+  }: {
+    evalData?: Record<string, { quantity: number }>;
+    class?: string;
+    children?: Snippet;
+  } = $props();
 
   const app = getAppContext();
 
-  let evalIds: string[] = $state(["test"]);
-  let evalProducts = $derived(app.products.filter((p) => evalIds.includes(p.id)));
-  let evalProductQuantities: number[] = $state([0]);
+  let evalProducts = $derived(app.products.filter((p) => Object.keys(evalData).includes(p.id)));
 
+  let selectedIds: string[] = $state(Object.keys(evalData));
+  $effect(() => {
+    console.log("hi");
+    
+    // sync selectIds and evalData (update evalData when selectedIds changes)
+    untrack(() =>
+      Object.keys(evalData).forEach((id) => {
+        if (!selectedIds.includes(id)) {
+          delete evalData[id];
+        }
+      })
+    );
 
-  let unitsPerMonth = $state(0);
-  let hoursPerWeek = $derived(0);
-  let viabilityColor = $state("red");
+    selectedIds.forEach((id) => {
+      if (untrack(()=>(!evalData[id]))) {
+        evalData[id] = { quantity: 0 };
+      }
+    });
+  });
 </script>
 
 <div class={cn("min-w-[220px]", className)}>
@@ -38,7 +61,7 @@
       <img src="{base}/images/rocket.png" class="w-8" alt="goals icon" />
       Scenario
     </Card.Title>
-    <Select.Root type="multiple" bind:value={evalIds}>
+    <Select.Root type="multiple" bind:value={selectedIds}>
       <Select.Trigger class="w-48">Add products</Select.Trigger>
       <Select.Content>
         {#each app.products as product}
@@ -66,53 +89,53 @@
           <Table.Head></Table.Head>
           <Table.Head class="">Product</Table.Head>
           <Table.Head class="">Quantity</Table.Head>
-          <Table.Head class="text-right">Time (hrs)</Table.Head>
-          <Table.Head class="text-right">Profit ($)</Table.Head>
+          <Table.Head class="text-right">Total Time (hrs)</Table.Head>
+          <Table.Head class="text-right">Total Profit ($)</Table.Head>
         </Table.Row>
       </Table.Header>
       <Table.Body>
-        {#each evalProducts as product, i}
-          <Table.Row>
+        {#each evalProducts as product}
+          <Table.Row onclick={() => (app.selectedProductId = product.id)}>
             <Table.Cell class="w-12 pr-0 pl-1">
               <Button
                 size="sm"
                 variant="ghost"
-                onclick={() => {
-                  evalIds = evalIds.filter((id) => id !== product.id);
+                onclick={(e) => {
+                  e.stopPropagation();
+                  selectedIds = selectedIds.filter(id => id !== product.id);
                 }}
               >
                 <MinusCircle />
               </Button>
             </Table.Cell>
             <Table.Cell class="pl-0">
-              <Button
-                variant="ghost"
-                class="justify-start"
-                onclick={() => (app.selectedProductId = product.id)}
-              >
+              <div class="flex gap-2">
                 <img
                   src={product.url || `${base}/images/cube.png`}
                   class="w-6 min-w-6 aspect-square"
                   alt={product.name}
                 />
                 {product.name}
-              </Button>
+              </div>
             </Table.Cell>
+
             <Table.Cell>
               <Input
                 class="w-20"
                 type="number"
                 inputmode="numeric"
-                bind:value={evalProductQuantities[i]}
+                onclick={(e) => e.stopPropagation()}
+                bind:value={evalData[product.id].quantity}
+                min="0"
               />
             </Table.Cell>
             <Table.Cell class="text-right"
-              >{evalProductQuantities[i] *
+              >{evalData[product.id].quantity *
                 (app.productData.find((p) => p.id === product.id)?.time || 0)} hrs</Table.Cell
             >
             <Table.Cell class="text-right"
               >${(
-                evalProductQuantities[i] *
+                evalData[product.id].quantity *
                 (app.productData.find((p) => p.id === product.id)?.profit || 0)
               ).toFixed(2)}</Table.Cell
             >
@@ -125,4 +148,5 @@
       <div class="text-center p-4">Choose one or more products to evaluate</div>
     {/if} -->
   </Card.Content>
+  {@render children?.()}
 </div>
