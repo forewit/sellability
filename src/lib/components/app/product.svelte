@@ -4,23 +4,30 @@
   import * as Card from "$lib/components/ui/card/index.js";
   import * as Accordion from "$lib/components/ui/accordion/index.js";
   import * as Dialog from "$lib/components/ui/dialog/index.js";
-  import Stars from "$lib/components/stars/stars.svelte";
+  import Stars from "$lib/components/custom/stars.svelte";
   import { base } from "$app/paths";
   import { Label } from "$lib/components/ui/label/index.js";
   import { Input } from "$lib/components/ui/input/index.js";
   import Button from "$lib/components/ui/button/button.svelte";
   import Textarea from "$lib/components/ui/textarea/textarea.svelte";
   import { Trash2, Plus } from "lucide-svelte";
+  import Slider from "$lib/components/ui/slider/slider.svelte";
+  import Heart from "$lib/components/custom/heart.svelte";
 
   let { product, class: className = "" }: { product?: Product; class?: string } = $props();
 
   const app = getAppContext();
 
   let otherExpense = $state("");
-
   function addOtherExpense() {
     product?.expenses.push({ name: otherExpense, value: 0 });
     otherExpense = "";
+  }
+
+  let otherTime = $state("");
+  function addOtherTime() {
+    product?.time.push({ name: otherTime, value: 0, liked: false });
+    otherTime = "";
   }
 
   function handleImageChange(event: Event) {
@@ -50,7 +57,10 @@
     </Card.Header>
 
     <Card.Content class="flex flex-col gap-4 px-0">
-      <Stars bind:value={product.rank} class="mr-2" />
+      <div class="flex gap-4 place-self-end">
+        <Label>Rank</Label>
+        <Stars bind:value={product.rank} class="mr-2" />
+      </div>
 
       <Accordion.Root type="single">
         <Accordion.Item value="details">
@@ -60,17 +70,17 @@
             <div class="grow"></div>
             ${product.price}
           </Accordion.Trigger>
-          <Accordion.Content class="px-2">
-            <div class="flex flex-col gap-2">
-              <div>
+          <Accordion.Content class="p-2">
+            <div class="flex flex-col gap-4">
+              <div class="flex flex-col gap-2">
                 <Label for="price">Sell Price ($)</Label>
                 <Input id="price" type="number" bind:value={product.price} placeholder="0" />
               </div>
-              <div>
+              <div class="flex flex-col gap-2">
                 <Label for="image">Image</Label>
                 <Input onchange={handleImageChange} id="image" type="file" accept="image/*" />
               </div>
-              <div>
+              <div class="flex flex-col gap-2">
                 <Label for="details">Description</Label>
                 <Textarea
                   id="details"
@@ -87,18 +97,13 @@
             <div class="grow"></div>
             ${app.productData.find((p) => p.id == product.id)?.expenses}
           </Accordion.Trigger>
-          <Accordion.Content class="px-2">
+          <Accordion.Content class="p-2">
             <div class="flex flex-col gap-2">
               {#each product.expenses as expense, i}
-                <div>
-                  <Label for={expense.name + i}>{expense.name}</Label>
+                <div class="flex flex-col gap-2">
+                  <Label>{expense.name}</Label>
                   <div class="grid grid-cols-[1fr,auto] gap-2 items-center">
-                    <Input
-                      id={expense.name + i}
-                      type="number"
-                      bind:value={expense.value}
-                      placeholder="0"
-                    />
+                    <Input type="number" inputmode="decimal" min="0" bind:value={expense.value} />
                     <Button
                       variant="ghost"
                       class="p-2 opacity-30 hover:opacity-100"
@@ -110,7 +115,6 @@
                 </div>
               {/each}
               <div class="w-[200px] pt-2 place-self-end">
-                <!-- <Label for="add-expense">Add Expense</Label> -->
                 <form class="grid grid-cols-[1fr,auto] gap-2 items-center">
                   <Input id="add-expense" placeholder="Add expense" bind:value={otherExpense} />
                   <Button
@@ -133,16 +137,39 @@
             <div class="grow"></div>
             {app.productData.find((p) => p.id == product.id)?.time} hrs
           </Accordion.Trigger>
-          <Accordion.Content class="px-2">
+          <Accordion.Content class="p-2">
             <div class="flex flex-col gap-2">
-              <div>
-                <Label for="laborTime">Labor Time (hrs/unit)</Label>
-                <Input
-                  id="laborTime"
-                  type="number"
-                  bind:value={product.laborTime}
-                  placeholder="0"
-                />
+              <div class="flex flex-col gap-2">
+                {#each product.time as time, i}
+                  <div class="flex flex-col gap-2">
+                    <Label>{time.name}</Label>
+                    <div class="grid grid-cols-[auto,1fr,auto] gap-2 items-center">
+                      <Heart bind:checked={time.liked} />
+                      <Input type="number" inputmode="decimal" min="0" bind:value={time.value} />
+                      <Button
+                        variant="ghost"
+                        class="p-2 opacity-30 hover:opacity-100"
+                        onclick={() => product.time.splice(i, 1)}
+                      >
+                        <Trash2 />
+                      </Button>
+                    </div>
+                  </div>
+                {/each}
+                <div class="w-[200px] pt-2 place-self-end">
+                  <form class="grid grid-cols-[1fr,auto] gap-2 items-center">
+                    <Input id="add-time" placeholder="Add time" bind:value={otherTime} />
+                    <Button
+                      variant="ghost"
+                      onclick={addOtherTime}
+                      class="p-2"
+                      disabled={otherTime.length === 0}
+                      type="submit"
+                    >
+                      <Plus />
+                    </Button>
+                  </form>
+                </div>
               </div>
             </div>
           </Accordion.Content>

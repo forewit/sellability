@@ -24,7 +24,7 @@
   import { cn } from "$lib/utils";
   import { page } from "$app/state";
   import type { Snippet } from "svelte";
-  import Stars from "../stars/stars.svelte";
+  import Stars from "../custom/stars.svelte";
 
   let {
     evalData = $bindable({ test: { quantity: 1 } }),

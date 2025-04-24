@@ -4,7 +4,7 @@
   import * as Table from "$lib/components/ui/table/index.js";
   import { Slider } from "$lib/components/ui/slider/index.js";
   import * as Popover from "$lib/components/ui/popover/index.js";
-  import Stars from "$lib/components/stars/stars.svelte";
+  import Stars from "$lib/components/custom/stars.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import Checkbox from "$lib/components/ui/checkbox/checkbox.svelte";
   import { base } from "$app/paths";

@@ -5,8 +5,8 @@ export type Product = {
     url: string;
     name?: string;
     description?: string;
-    expenses: Array<{ name: string; value: number }>;
-    laborTime: number;
+    expenses: { name: string; value: number }[];
+    time: { name: string; value: number; liked: boolean }[];
     price: number;
     rank: number;
 }
@@ -26,7 +26,7 @@ function createApp() {
             name: "Test Product",
             description: "Testing out functionality",
             expenses: [{ name: "Materials", value: 25 }, { name: "Shipping", value: 10 }],
-            laborTime: 1.5,
+            time: [{ name: "Labor", value: 1.5, liked: false }],
             price: 49,
             rank: 0,
         }
@@ -35,18 +35,20 @@ function createApp() {
     let productData = $derived(
         products.map((p) => {
             const expenses = p.expenses.reduce((total, expense) => total + expense.value, 0);
+            const time = p.time.reduce((total, time) => total + time.value, 0);
+
             return {
                 id: p.id,
                 expenses,
                 profit: p.price - expenses,
-                time: p.laborTime,
+                time,
             };
         })
     );
 
     const newProduct = () => {
         const id = crypto.randomUUID().slice(0, 8)
-        products.push({ id: id, url: '', expenses: [], laborTime: 0, price: 0, rank: 0 })
+        products.push({ id: id, url: '', expenses: [], time: [], price: 0, rank: 0 })
         return id;
     }
 
@@ -60,6 +62,7 @@ function createApp() {
     const MAX_WEEKLY_HOURS = 80;
     let monthlyProfitGoal = $state([2000, 500]); // target, minimum
     let weeklyLaborGoals = $state([30, 40]); // target, maximum
+    let prioritizeLikedTime = $state(false);
 
     let selectedProductId = $state("")
     let selectedProduct = $derived(products.find(p => p.id === selectedProductId))
@@ -82,6 +85,8 @@ function createApp() {
         set monthlyProfitGoal(value: number[]) { monthlyProfitGoal = value },
         get weeklyLaborGoals() { return weeklyLaborGoals },
         set weeklyLaborGoals(value: number[]) { weeklyLaborGoals = value },
+        get prioritizeLikedTime() { return prioritizeLikedTime },
+        set prioritizeLikedTime(value: boolean) { prioritizeLikedTime = value },
     }
 }
 
