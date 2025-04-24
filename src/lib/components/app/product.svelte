@@ -95,7 +95,7 @@
           <Accordion.Trigger class="gap-4">
             Expenses
             <div class="grow"></div>
-            ${app.productData.find((p) => p.id == product.id)?.expenses}
+            ${app.productData[product.id].expenses}
           </Accordion.Trigger>
           <Accordion.Content class="p-2">
             <div class="flex flex-col gap-2">
@@ -135,7 +135,7 @@
           <Accordion.Trigger class="gap-4">
             Time
             <div class="grow"></div>
-            {app.productData.find((p) => p.id == product.id)?.time} hrs
+            {app.productData[product.id].time} hrs
           </Accordion.Trigger>
           <Accordion.Content class="p-2">
             <div class="flex flex-col gap-2">

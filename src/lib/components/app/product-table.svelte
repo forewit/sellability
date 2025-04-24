@@ -44,9 +44,9 @@
           <Table.Head></Table.Head>
           <Table.Head class="">Name</Table.Head>
           <Table.Head class="">Rank</Table.Head>
+          <Table.Head class="">Price ($)</Table.Head>
           <Table.Head class="text-right">Expenses ($)</Table.Head>
           <Table.Head class="text-right">Time (hrs)</Table.Head>
-          <Table.Head class="text-right">Price ($)</Table.Head>
           <Table.Head></Table.Head>
         </Table.Row>
       </Table.Header>
@@ -75,15 +75,16 @@
                 <Stars bind:value={product.rank} />
               </div>
             </Table.Cell>
-            <Table.Cell class="text-right">
-              ${app.productData.find((p) => p.id === product.id)?.expenses || 0}
-            </Table.Cell>
-            <Table.Cell class="text-right">
-              {app.productData.find((p) => p.id === product.id)?.time || 0} hrs
-            </Table.Cell>
-            <Table.Cell class="flex justify-end">
+            <Table.Cell>
               <Input inputmode="decimal" type="number" class="w-16" bind:value={product.price} />
             </Table.Cell>
+            <Table.Cell class="text-right">
+              ${app.productData[product.id].expenses || 0}
+            </Table.Cell>
+            <Table.Cell class="text-right">
+              {app.productData[product.id].time || 0} hrs
+            </Table.Cell>
+            
             <Table.Cell class="w-12 pr-0 pl-0">
               <Button
                 size="sm"

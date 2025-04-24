@@ -13,8 +13,10 @@ export type Product = {
 
 export type ProductData = {
     id: string;
-    totalExpenses: number;
-    totalTime: number;
+    expenses: number;
+    likedTime: number;
+    unlikedTime: number;
+    time: number;
     profit: number;
 }
 
@@ -32,18 +34,23 @@ function createApp() {
         }
     ]);
 
-    let productData = $derived(
-        products.map((p) => {
+    let productData: Record<string, ProductData> = $derived(
+        products.reduce((acc, p) => {
             const expenses = p.expenses.reduce((total, expense) => total + expense.value, 0);
             const time = p.time.reduce((total, time) => total + time.value, 0);
+            const likedTime = p.time.filter(t => t.liked).reduce((total, time) => total + time.value, 0);
+            const unlikedTime = time - likedTime;
 
-            return {
+            acc[p.id] = {
                 id: p.id,
                 expenses,
                 profit: p.price - expenses,
                 time,
+                likedTime,
+                unlikedTime
             };
-        })
+            return acc;
+        }, {} as Record<string, ProductData>)
     );
 
     const newProduct = () => {

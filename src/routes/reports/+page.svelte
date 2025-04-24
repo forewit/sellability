@@ -3,6 +3,8 @@
   import Goals from "$lib/components/app/goals.svelte";
   import Scenario from "$lib/components/app/scenario.svelte";
   import { base } from "$app/paths";
+  import ScenarioTime from "$lib/components/app/scenario-time.svelte";
+  import ScenarioProfit from "$lib/components/app/scenario-profit.svelte";
 </script>
 
 <Card.Root class="h-min m-3">
@@ -19,22 +21,15 @@
   </Card.Root>
 
   <Card.Root class="h-min">
-    <Card.Header>
-      <Card.Title class="flex items-center gap-2">
-        <img src={`${base}/images/pie2.png`} class="w-8" alt="" />
-        Time
-      </Card.Title>
-    </Card.Header>
-    <Card.Content></Card.Content>
+
+    <Card.Content>
+      <ScenarioTime />
+    </Card.Content>
   </Card.Root>
 
   <Card.Root class="h-min">
-    <Card.Header>
-      <Card.Title class="flex items-center gap-2">
-        <img src={`${base}/images/profit.png`} class="w-8" alt="" />
-        Profit
-      </Card.Title>
-    </Card.Header>
-    <Card.Content></Card.Content>
+    <Card.Content>
+      <ScenarioProfit />
+    </Card.Content>
   </Card.Root>
 </div>

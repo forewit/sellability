@@ -3,43 +3,49 @@
   import * as Card from "$lib/components/ui/card/index.js";
   import * as Select from "$lib/components/ui/select/index.js";
   import * as Table from "$lib/components/ui/table/index.js";
-  import { Slider } from "$lib/components/ui/slider/index.js";
   import Button from "$lib/components/ui/button/button.svelte";
-  import Checkbox from "$lib/components/ui/checkbox/checkbox.svelte";
   import { base } from "$app/paths";
   import { getAppContext } from "./app.svelte";
-  import {
-    TriangleAlert,
-    CheckCheck,
-    MessageCircleWarning,
-    Trash2,
-    MinusCircle,
-    Minus,
-    Plus,
-    SquarePen,
-    ChevronRight,
-    ChevronDown,
-  } from "lucide-svelte";
+  import { Minus, Plus, SquarePen, ChevronRight } from "lucide-svelte";
   import Input from "../ui/input/input.svelte";
   import { cn } from "$lib/utils";
-  import { page } from "$app/state";
   import type { Snippet } from "svelte";
   import Stars from "../custom/stars.svelte";
 
+
+  type ProductData = {
+    quantity: number;
+    unLikedTime: number;
+    likedTime: number;
+    allTime: number;
+    expenses: number;
+    profit: number;
+  }
+  type Scenario = {
+    producctData: Record<string, ProductData>;
+    totalLikedTime: number;
+    totalUnlikedTime: number;
+    totalTime: number;
+    totalExpenses: number;
+    totalProfit: number;
+  }
+
   let {
-    evalData = $bindable({ test: { quantity: 1 } }),
     timeSpanDays = $bindable(30),
     class: className = "",
     children,
+    onScenarioChange = ()=>{},
   }: {
-    evalData?: Record<string, { quantity: number }>;
     timeSpanDays?: number;
     class?: string;
     children?: Snippet;
+    onScenarioChange?: () => void;
   } = $props();
 
   const app = getAppContext();
 
+
+  let evalData: Record<string, { quantity: number }> = $state({ test: { quantity: 1 } });
   let evalProducts = $derived(app.products.filter((p) => Object.keys(evalData).includes(p.id)));
 
   let selectedIds: string[] = $state(Object.keys(evalData));
@@ -67,12 +73,23 @@
     timeSpanDays = parseInt(timeSpanString) || 30; // Update timeSpanDays based on timeSpanString
   });
 
+
+  let totalLikedTime = $derived(
+    evalProducts.reduce(
+      (total, product) =>
+        total +
+        evalData[product.id].quantity *
+          (app.productData[product.id].time || 0),
+      0
+    )
+  );
+
   let totalTime = $derived(
     evalProducts.reduce(
       (total, product) =>
         total +
         evalData[product.id].quantity *
-          (app.productData.find((p) => p.id === product.id)?.time || 0),
+          (app.productData[product.id].time || 0),
       0
     )
   );
@@ -83,7 +100,7 @@
         (total, product) =>
           total +
           evalData[product.id].quantity *
-            (app.productData.find((p) => p.id === product.id)?.expenses || 0),
+            (app.productData[product.id].expenses || 0),
         0
       )
       .toFixed(2)
@@ -95,7 +112,7 @@
         (total, product) =>
           total +
           evalData[product.id].quantity *
-            (app.productData.find((p) => p.id === product.id)?.profit || 0),
+            (app.productData[product.id].profit || 0),
         0
       )
       .toFixed(2)
@@ -157,10 +174,7 @@
         {#each evalProducts as product}
           <Table.Row>
             <Table.Cell class="w-12 pr-0 pl-1">
-              <Button
-                size="sm"
-                variant="ghost"                
-              >
+              <Button size="sm" variant="ghost">
                 <ChevronRight />
               </Button>
             </Table.Cell>
@@ -218,18 +232,18 @@
             </Table.Cell>
             <Table.Cell class="text-right"
               >{evalData[product.id].quantity *
-                (app.productData.find((p) => p.id === product.id)?.time || 0)} hrs</Table.Cell
+                (app.productData[product.id].time || 0)} hrs</Table.Cell
             >
             <Table.Cell class="text-right"
               >${(
                 evalData[product.id].quantity *
-                (app.productData.find((p) => p.id === product.id)?.expenses || 0)
+                (app.productData[product.id].expenses || 0)
               ).toFixed(2)}</Table.Cell
             >
             <Table.Cell class="text-right"
               >${(
                 evalData[product.id].quantity *
-                (app.productData.find((p) => p.id === product.id)?.profit || 0)
+                (app.productData[product.id].profit || 0)
               ).toFixed(2)}</Table.Cell
             >
           </Table.Row>
