@@ -14,6 +14,7 @@
     ><input 
         class="appearance-none absolute peer"
         type="radio" 
+        tabindex="0"
         value={rating == value ? 0 : rating} 
         bind:group={value}
     />

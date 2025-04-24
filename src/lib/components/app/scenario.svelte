@@ -17,6 +17,8 @@
     Minus,
     Plus,
     SquarePen,
+    ChevronRight,
+    ChevronDown,
   } from "lucide-svelte";
   import Input from "../ui/input/input.svelte";
   import { cn } from "$lib/utils";
@@ -25,12 +27,12 @@
   import Stars from "../stars/stars.svelte";
 
   let {
-    evalData = $bindable({ test: { quantity: 1, rank: 0 } }),
+    evalData = $bindable({ test: { quantity: 1 } }),
     timeSpanDays = $bindable(30),
     class: className = "",
     children,
   }: {
-    evalData?: Record<string, { quantity: number; rank: number }>;
+    evalData?: Record<string, { quantity: number }>;
     timeSpanDays?: number;
     class?: string;
     children?: Snippet;
@@ -55,7 +57,7 @@
 
     selectedIds.forEach((id) => {
       if (untrack(() => !evalData[id])) {
-        evalData[id] = { quantity: 0, rank: 0 };
+        evalData[id] = { quantity: 0 };
       }
     });
   });
@@ -117,7 +119,7 @@
       </Select.Content>
     </Select.Root>
     <Select.Root type="multiple" bind:value={selectedIds}>
-      <Select.Trigger class="w-48">Add products ({evalProducts.length})</Select.Trigger>
+      <Select.Trigger class="w-48">Select products ({evalProducts.length})</Select.Trigger>
       <Select.Content>
         {#each app.products as product}
           <Select.Item value={product.id}>
@@ -126,8 +128,8 @@
               class="w-6 min-w-6 aspect-square mr-2"
               alt={product.name}
             />
-            {product.name}</Select.Item
-          >
+            {product.name}
+          </Select.Item>
         {/each}
         <a href="{base}/">
           <Button class="py-2" variant="link">Manage Products →</Button>
@@ -143,7 +145,7 @@
         <Table.Row>
           <Table.Head></Table.Head>
           <Table.Head class="">Product</Table.Head>
-          <Table.Head class="">Sell price (each)</Table.Head>
+          <Table.Head class="">Sell Price (each)</Table.Head>
           <Table.Head class="">Quantity</Table.Head>
           <Table.Head class="">Rank</Table.Head>
           <Table.Head class="text-right">Time (hrs)</Table.Head>
@@ -157,10 +159,9 @@
             <Table.Cell class="w-12 pr-0 pl-1">
               <Button
                 size="sm"
-                variant="ghost"
-                onclick={() => (selectedIds = selectedIds.filter((id) => id !== product.id))}
+                variant="ghost"                
               >
-                <MinusCircle />
+                <ChevronRight />
               </Button>
             </Table.Cell>
 
@@ -211,8 +212,8 @@
               </Button>
             </Table.Cell>
             <Table.Cell>
-              <div class="justify-self-start" role="cell" tabindex="0" onkeydown={() => {}}>
-                <Stars bind:value={evalData[product.id].rank} />
+              <div class="justify-self-start" role="cell" tabindex="-1" onkeydown={() => {}}>
+                <Stars bind:value={product.rank} />
               </div>
             </Table.Cell>
             <Table.Cell class="text-right"

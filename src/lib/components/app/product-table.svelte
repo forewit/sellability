@@ -52,11 +52,7 @@
       </Table.Header>
       <Table.Body>
         {#each app.products as product, i}
-          <Table.Row
-            onclick={() => {
-              app.selectedProductId = product.id;
-            }}
-          >
+          <Table.Row>
             <Table.Cell class="w-12">
               <img
                 src={product.url || `${base}/images/cube.png`}
@@ -72,16 +68,10 @@
               </Button> -->
             </Table.Cell>
             <Table.Cell class="pl-0">
-              <Input bind:value={product.name} onclick={(e) => e.stopPropagation()} />
+              <Input bind:value={product.name} />
             </Table.Cell>
             <Table.Cell>
-              <div
-                class="justify-self-start"
-                role="cell"
-                tabindex="0"
-                onkeydown={() => {}}
-                onclick={(e) => e.stopPropagation()}
-              >
+              <div class="justify-self-start" role="cell" tabindex="-1" onkeydown={() => {}}>
                 <Stars bind:value={product.rank} />
               </div>
             </Table.Cell>
@@ -92,39 +82,16 @@
               {app.productData.find((p) => p.id === product.id)?.time || 0} hrs
             </Table.Cell>
             <Table.Cell class="flex justify-end">
-              <Input
-                onclick={(e) => e.stopPropagation()}
-                inputmode="decimal"
-                type="number"
-                class="w-16"
-                bind:value={product.price}
-              />
+              <Input inputmode="decimal" type="number" class="w-16" bind:value={product.price} />
             </Table.Cell>
             <Table.Cell class="w-12 pr-0 pl-0">
-              <Popover.Root>
-                <Popover.Trigger
-                  class="rounded-lg"
-                  onclick={(e) => {
-                    e.stopPropagation();
-                  }}
-                >
-                  <Button size="sm" variant="ghost" disabled>
-                    <EllipsisVertical />
-                  </Button>
-                </Popover.Trigger>
-                <Popover.Content align="end" side="bottom" class="w-32 flex flex-col gap-2" trapFocus={false}>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onclick={() => (app.selectedProductId = product.id)}>Edit</Button
-                    >
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onclick={() => app.deleteProduct(product.id)}>Delete</Button
-                    >
-                </Popover.Content>
-              </Popover.Root>
+              <Button
+                size="sm"
+                variant="ghost"
+                onclick={() => (app.selectedProductId = product.id)}
+              >
+                <SquarePen />
+              </Button>
             </Table.Cell>
           </Table.Row>
         {/each}
