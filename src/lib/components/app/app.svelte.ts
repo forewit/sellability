@@ -8,6 +8,7 @@ export type Product = {
     expenses: Array<{ name: string; value: number }>;
     laborTime: number;
     price: number;
+    rank: number;
 }
 
 export type ProductData = {
@@ -27,6 +28,7 @@ function createApp() {
             expenses: [{ name: "Materials", value: 25 }, { name: "Shipping", value: 10 }],
             laborTime: 1.5,
             price: 49,
+            rank: 0,
         }
     ]);
 
@@ -44,7 +46,7 @@ function createApp() {
 
     const newProduct = () => {
         const id = crypto.randomUUID().slice(0, 8)
-        products.push({ id: id, url: '', expenses: [], laborTime: 0, price: 0 })
+        products.push({ id: id, url: '', expenses: [], laborTime: 0, price: 0, rank: 0 })
         return id;
     }
 

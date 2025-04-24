@@ -2,6 +2,8 @@
   import { getAppContext, type Product } from "$lib/components/app/app.svelte";
   import { cn } from "$lib/utils";
   import * as Card from "$lib/components/ui/card/index.js";
+  import * as Accordion from "$lib/components/ui/accordion/index.js";
+
   import { base } from "$app/paths";
   import { Label } from "$lib/components/ui/label/index.js";
   import { Input } from "$lib/components/ui/input/index.js";
@@ -33,7 +35,7 @@
   }
 </script>
 
-<div class={cn("h-full grid grid-rows-[auto,1fr,auto] ",className)}>
+<div class={cn("h-full grid grid-rows-[auto,1fr,auto] ", className)}>
   {#if product !== undefined}
     <Card.Header class="p-0">
       <Card.Title class="flex items-center gap-2">
@@ -46,15 +48,73 @@
       </Card.Title>
     </Card.Header>
 
-    <Card.Content class="flex flex-col gap-2 px-0">
+    <Card.Content class="flex flex-col gap-8 px-0">
+      <div>
+        <Label for="price">Sell Price ($)</Label>
+        <Input id="price" type="number" bind:value={product.price} placeholder="0" />
+      </div>
+      <Accordion.Root type="multiple">
+        <Accordion.Item>
+          <Accordion.Trigger class="gap-4">
+            Expenses
+            <div class="grow"></div>
+            ${app.productData.find((p) => p.id == product.id)?.expenses}
+          </Accordion.Trigger>
+          <Accordion.Content>
+            {#each product.expenses as expense, i}
+              <div>
+                <Label for={expense.name + i}>{expense.name}</Label>
+                <div class="grid grid-cols-[1fr,auto] gap-2 items-center">
+                  <Input
+                    id={expense.name + i}
+                    type="number"
+                    bind:value={expense.value}
+                    placeholder="0"
+                  />
+                  <Button
+                    variant="ghost"
+                    class="p-2 opacity-30 hover:opacity-100"
+                    onclick={() => product.expenses.splice(i, 1)}
+                  >
+                    <Trash2 />
+                  </Button>
+                </div>
+              </div>
+            {/each}
+            <div class="w-[200px] pt-2 place-self-end">
+              <!-- <Label for="add-expense">Add Expense</Label> -->
+              <form class="grid grid-cols-[1fr,auto] gap-2 items-center">
+                <Input id="add-expense" placeholder="Add expense" bind:value={otherExpense} />
+                <Button
+                  variant="ghost"
+                  onclick={addOtherExpense}
+                  class="p-2"
+                  disabled={otherExpense.length === 0}
+                  type="submit"
+                >
+                  <Plus />
+                </Button>
+              </form>
+            </div>
+          </Accordion.Content>
+        </Accordion.Item>
+        <Accordion.Item>
+          <Accordion.Trigger class="gap-4">
+            Time
+            <div class="grow"></div>
+            {app.productData.find((p) => p.id == product.id)?.time} hrs
+          </Accordion.Trigger>
+          <Accordion.Content>
+            <div>
+              <Label for="laborTime">Labor Time (hrs/unit)</Label>
+              <Input id="laborTime" type="number" bind:value={product.laborTime} placeholder="0" />
+            </div>
+          </Accordion.Content>
+        </Accordion.Item>
+      </Accordion.Root>
       <div>
         <Label for="image">Image</Label>
-        <Input
-          onchange={handleImageChange}
-          id="image"
-          type="file"
-          accept="image/*"
-        />
+        <Input onchange={handleImageChange} id="image" type="file" accept="image/*" />
       </div>
       <div>
         <Label for="details">Description</Label>
@@ -64,48 +124,7 @@
           bind:value={product.description}
         />
       </div>
-
-      {#each product.expenses as expense, i}
-        <div>
-          <Label for={expense.name + i}>{expense.name}</Label>
-          <div class="grid grid-cols-[1fr,auto] gap-2 items-center">
-            <Input id={expense.name + i} type="number" bind:value={expense.value} placeholder="0" />
-            <Button
-              variant="ghost"
-              class="p-2 opacity-30 hover:opacity-100"
-              onclick={() => product.expenses.splice(i, 1)}
-            >
-              <Trash2 />
-            </Button>
-          </div>
-        </div>
-      {/each}
-
-      <div class="w-[200px] pt-2 place-self-end">
-        <!-- <Label for="add-expense">Add Expense</Label> -->
-        <form class="grid grid-cols-[1fr,auto] gap-2 items-center">
-          <Input id="add-expense" placeholder="Add expense" bind:value={otherExpense} />
-          <Button
-            variant="ghost"
-            onclick={addOtherExpense}
-            class="p-2"
-            disabled={otherExpense.length === 0}
-            type="submit"
-          >
-            <Plus />
-          </Button>
-        </form>
-      </div>
-
-      <div>
-        <Label for="laborTime">Labor Time (hrs/unit)</Label>
-        <Input id="laborTime" type="number" bind:value={product.laborTime} placeholder="0" />
-      </div>
-
-      <div>
-        <Label for="price">Unit Price ($)</Label>
-        <Input id="price" type="number" bind:value={product.price} placeholder="0" />
-      </div>
+      
     </Card.Content>
     <Card.Footer class="justify-between p-0">
       <Button onclick={() => (app.selectedProductId = "")}>Close</Button>

@@ -4,7 +4,7 @@
   import * as Table from "$lib/components/ui/table/index.js";
   import { Slider } from "$lib/components/ui/slider/index.js";
   import * as Popover from "$lib/components/ui/popover/index.js";
-
+  import Stars from "$lib/components/stars/stars.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import Checkbox from "$lib/components/ui/checkbox/checkbox.svelte";
   import { base } from "$app/paths";
@@ -43,6 +43,7 @@
         <Table.Row>
           <Table.Head></Table.Head>
           <Table.Head class="">Name</Table.Head>
+          <Table.Head class="">Rank</Table.Head>
           <Table.Head class="text-right">Expenses ($)</Table.Head>
           <Table.Head class="text-right">Time (hrs)</Table.Head>
           <Table.Head class="text-right">Price ($)</Table.Head>
@@ -73,6 +74,17 @@
             <Table.Cell class="pl-0">
               <Input bind:value={product.name} onclick={(e) => e.stopPropagation()} />
             </Table.Cell>
+            <Table.Cell>
+              <div
+                class="justify-self-start"
+                role="cell"
+                tabindex="0"
+                onkeydown={() => {}}
+                onclick={(e) => e.stopPropagation()}
+              >
+                <Stars bind:value={product.rank} />
+              </div>
+            </Table.Cell>
             <Table.Cell class="text-right">
               ${app.productData.find((p) => p.id === product.id)?.expenses || 0}
             </Table.Cell>
@@ -91,7 +103,7 @@
             <Table.Cell class="w-12 pr-0 pl-0">
               <Popover.Root>
                 <Popover.Trigger
-                class="rounded-lg"
+                  class="rounded-lg"
                   onclick={(e) => {
                     e.stopPropagation();
                   }}
@@ -100,7 +112,7 @@
                     <EllipsisVertical />
                   </Button>
                 </Popover.Trigger>
-                <Popover.Content side="bottom" class="w-32 flex flex-col gap-2">
+                <Popover.Content align="end" side="bottom" class="w-32 flex flex-col gap-2" trapFocus={false}>
                     <Button
                       size="sm"
                       variant="outline"

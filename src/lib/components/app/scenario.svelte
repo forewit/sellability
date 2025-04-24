@@ -14,6 +14,9 @@
     MessageCircleWarning,
     Trash2,
     MinusCircle,
+    Minus,
+    Plus,
+    SquarePen,
   } from "lucide-svelte";
   import Input from "../ui/input/input.svelte";
   import { cn } from "$lib/utils";
@@ -22,11 +25,13 @@
   import Stars from "../stars/stars.svelte";
 
   let {
-    evalData = $bindable({ test: { quantity: 1 } }),
+    evalData = $bindable({ test: { quantity: 1, rank: 0 } }),
+    timeSpanDays = $bindable(30),
     class: className = "",
     children,
   }: {
-    evalData?: Record<string, { quantity: number }>;
+    evalData?: Record<string, { quantity: number; rank: number }>;
+    timeSpanDays?: number;
     class?: string;
     children?: Snippet;
   } = $props();
@@ -38,7 +43,7 @@
   let selectedIds: string[] = $state(Object.keys(evalData));
   $effect(() => {
     console.log("hi");
-    
+
     // sync selectIds and evalData (update evalData when selectedIds changes)
     untrack(() =>
       Object.keys(evalData).forEach((id) => {
@@ -49,21 +54,70 @@
     );
 
     selectedIds.forEach((id) => {
-      if (untrack(()=>(!evalData[id]))) {
-        evalData[id] = { quantity: 0 };
+      if (untrack(() => !evalData[id])) {
+        evalData[id] = { quantity: 0, rank: 0 };
       }
     });
   });
+
+  let timeSpanString = $state(timeSpanDays.toString());
+  $effect(() => {
+    timeSpanDays = parseInt(timeSpanString) || 30; // Update timeSpanDays based on timeSpanString
+  });
+
+  let totalTime = $derived(
+    evalProducts.reduce(
+      (total, product) =>
+        total +
+        evalData[product.id].quantity *
+          (app.productData.find((p) => p.id === product.id)?.time || 0),
+      0
+    )
+  );
+
+  let totalExpenses = $derived(
+    evalProducts
+      .reduce(
+        (total, product) =>
+          total +
+          evalData[product.id].quantity *
+            (app.productData.find((p) => p.id === product.id)?.expenses || 0),
+        0
+      )
+      .toFixed(2)
+  );
+
+  let totalProfit = $derived(
+    evalProducts
+      .reduce(
+        (total, product) =>
+          total +
+          evalData[product.id].quantity *
+            (app.productData.find((p) => p.id === product.id)?.profit || 0),
+        0
+      )
+      .toFixed(2)
+  );
 </script>
 
 <div class={cn("min-w-[220px]", className)}>
-  <Card.Header class="p-0 grid grid-cols-[1fr,auto]">
+  <Card.Header class="p-0 grid grid-cols-[1fr,auto,auto] gap-2">
     <Card.Title class="flex gap-2 items-center">
       <img src="{base}/images/rocket.png" class="w-8" alt="goals icon" />
       Scenario
     </Card.Title>
+    <Select.Root type="single" bind:value={timeSpanString}>
+      <Select.Trigger class="w-28">{timeSpanString + " days"}</Select.Trigger>
+      <Select.Content>
+        <Select.Item value="7">7 days</Select.Item>
+        <Select.Item value="30">30 days</Select.Item>
+        <Select.Item value="90">90 days</Select.Item>
+        <Select.Item value="180">180 days</Select.Item>
+        <Select.Item value="365">365 days</Select.Item>
+      </Select.Content>
+    </Select.Root>
     <Select.Root type="multiple" bind:value={selectedIds}>
-      <Select.Trigger class="w-48">Add products</Select.Trigger>
+      <Select.Trigger class="w-48">Add products ({evalProducts.length})</Select.Trigger>
       <Select.Content>
         {#each app.products as product}
           <Select.Item value={product.id}>
@@ -89,56 +143,87 @@
         <Table.Row>
           <Table.Head></Table.Head>
           <Table.Head class="">Product</Table.Head>
+          <Table.Head class="">Sell price (each)</Table.Head>
           <Table.Head class="">Quantity</Table.Head>
           <Table.Head class="">Rank</Table.Head>
-
-          <Table.Head class="text-right">Total Time (hrs)</Table.Head>
-          <Table.Head class="text-right">Total Profit ($)</Table.Head>
+          <Table.Head class="text-right">Time (hrs)</Table.Head>
+          <Table.Head class="">Expenses ($)</Table.Head>
+          <Table.Head class="text-right">Profit ($)</Table.Head>
         </Table.Row>
       </Table.Header>
       <Table.Body>
         {#each evalProducts as product}
-          <Table.Row onclick={() => (app.selectedProductId = product.id)}>
+          <Table.Row>
             <Table.Cell class="w-12 pr-0 pl-1">
               <Button
                 size="sm"
                 variant="ghost"
-                onclick={(e) => {
-                  e.stopPropagation();
-                  selectedIds = selectedIds.filter(id => id !== product.id);
-                }}
+                onclick={() => (selectedIds = selectedIds.filter((id) => id !== product.id))}
               >
                 <MinusCircle />
               </Button>
             </Table.Cell>
-            
+
             <Table.Cell class="pl-0">
-              <div class="flex gap-2">
+              <Button
+                variant="outline"
+                class="flex gap-2 pl-3"
+                onclick={() => (app.selectedProductId = product.id)}
+              >
                 <img
                   src={product.url || `${base}/images/cube.png`}
                   class="w-6 min-w-6 aspect-square"
                   alt={product.name}
                 />
                 {product.name}
-              </div>
+                <SquarePen />
+              </Button>
             </Table.Cell>
-
-            <Table.Cell>
+            <Table.Cell class="">
               <Input
-                class="w-20"
+                class="w-16"
                 type="number"
                 inputmode="numeric"
-                onclick={(e) => e.stopPropagation()}
-                bind:value={evalData[product.id].quantity}
+                bind:value={product.price}
                 min="0"
               />
             </Table.Cell>
+            <Table.Cell class="flex">
+              <Button
+                size="sm"
+                variant="ghost"
+                onclick={() => {
+                  if (evalData[product.id].quantity > 0) evalData[product.id].quantity--;
+                  else evalData[product.id].quantity = 0;
+                }}
+              >
+                <Minus />
+              </Button>
+              <Input
+                class="w-16"
+                type="number"
+                inputmode="numeric"
+                bind:value={evalData[product.id].quantity}
+                min="0"
+              />
+              <Button size="sm" variant="ghost" onclick={() => evalData[product.id].quantity++}>
+                <Plus />
+              </Button>
+            </Table.Cell>
             <Table.Cell>
-              <Stars></Stars>
+              <div class="justify-self-start" role="cell" tabindex="0" onkeydown={() => {}}>
+                <Stars bind:value={evalData[product.id].rank} />
+              </div>
             </Table.Cell>
             <Table.Cell class="text-right"
               >{evalData[product.id].quantity *
                 (app.productData.find((p) => p.id === product.id)?.time || 0)} hrs</Table.Cell
+            >
+            <Table.Cell class="text-right"
+              >${(
+                evalData[product.id].quantity *
+                (app.productData.find((p) => p.id === product.id)?.expenses || 0)
+              ).toFixed(2)}</Table.Cell
             >
             <Table.Cell class="text-right"
               >${(
@@ -149,6 +234,22 @@
           </Table.Row>
         {/each}
       </Table.Body>
+      <Table.Footer>
+        <Table.Row>
+          <Table.Cell colspan={5}></Table.Cell>
+          <!-- total time -->
+          <Table.Cell class="text-right">
+            {totalTime} hrs
+          </Table.Cell>
+          <!-- total expenses -->
+          <Table.Cell class="text-right">
+            ${totalExpenses}
+          </Table.Cell>
+          <Table.Cell class="text-right">
+            ${totalProfit}
+          </Table.Cell>
+        </Table.Row>
+      </Table.Footer>
     </Table.Root>
 
     <!-- {:else}

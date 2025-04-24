@@ -54,11 +54,9 @@
         <X class="size-4" />
         <span class="sr-only">Close</span>
       </SheetPrimitive.Close>
-	  {:else}
-	  <button class="sr-only">Close</button>
-
+    {:else}
+      <button class="sr-only">Close</button>
     {/if}
-	{@render children?.()}
-
+    {@render children?.()}
   </SheetPrimitive.Content>
 </SheetPrimitive.Portal>
