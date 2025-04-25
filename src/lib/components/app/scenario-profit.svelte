@@ -9,7 +9,7 @@
   const app = getAppContext();
 </script>
 
-<div class={cn("", className)}>
+<div class={cn("min-w-48", className)}>
   <Card.Header class="p-0">
     <Card.Title class="flex items-center gap-2">
       <img src={`${base}/images/profit.png`} class="w-8" alt="" />

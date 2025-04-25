@@ -1,107 +1,157 @@
 <script lang="ts">
-    import { scaleLinear, scaleBand } from 'd3-scale';
-    import type { ScaleBand, ScaleLinear } from 'd3-scale';
+  import { cn } from "$lib/utils";
+  import { flip } from "svelte/animate";
+  import Button from "../ui/button/button.svelte";
 
-    // Props
-    export let data: { value: number; sentiment: number; rating: number }[] = [];
-    export let groupBy: 'sentiment' | 'rating' = 'sentiment';
-    export let width: number = 600;
-    export let height: number = 300;
-    export let margin: { top: number; right: number; bottom: number; left: number } = { top: 20, right: 20, bottom: 30, left: 40 };
+  // ==========================================
+  // TYPES
+  // ==========================================
+  type GroupId = 0 | 1 | 2 | 3;
+  type DataItem = { value: number; sentiment: GroupId; rating: GroupId };
+  type GroupByKey = "sentiment" | "rating";
 
-    // Derived groups
-    let groups: { key: number; total: number }[] = [];
-    let xScale: ScaleLinear<number, number>;
-    let yScale: ScaleBand<number>;
+  // ==========================================
+  // PROPS
+  // ==========================================
+  type Props = { data?: DataItem[]; groupBy?: GroupByKey; showToggleButton?: boolean };
+  let { data = [], groupBy = $bindable("sentiment"), showToggleButton = true }: Props = $props();
 
-    // Recompute on data or groupBy change
-    $: {
-        // Aggregate sums by selected key
-        const map = new Map<number, number>();
-        data.forEach(({ value, sentiment, rating }) => {
-            const key = groupBy === 'sentiment' ? sentiment : rating;
-            map.set(key, (map.get(key) || 0) + value);
-        });
-        groups = Array.from(map.entries())
-            .map(([key, total]) => ({ key, total }))
-            .sort((a, b) => a.key - b.key);
+  // ==========================================
+  // CONSTANTS
+  // ==========================================
+  const DISPLAY_ORDER: GroupId[] = [0, 1, 2, 3];
 
-        // Find biggest negative and positive sums around midpoint 1.5
-        const keys = groups.map(g => g.key);
-        const midpoint = (Math.min(...keys) + Math.max(...keys)) / 2;
-        const neg = Math.max(0, ...groups.filter(g => g.key < midpoint).map(g => Math.abs(g.total)));
-        const pos = Math.max(0, ...groups.filter(g => g.key >= midpoint).map(g => g.total));
+  const SENTIMENT_LABELS: Record<GroupId, string> = {
+    0: "No sentiment",
+    1: "Negative",
+    2: "Positive",
+    3: "Very Positive",
+  };
+  const RATING_LABELS: Record<GroupId, string> = {
+    0: "Very Low",
+    1: "Low",
+    2: "High",
+    3: "Very High",
+  };
+  const SENTIMENT_COLORS: Record<GroupId, string> = {
+    0: "#fff",
+    1: "#e74c3c",
+    2: "#f39c12",
+    3: "#2ecc71",
+  };
+  const RATING_COLORS: Record<GroupId, string> = {
+    0: "#d6d3d1",
+    1: "#a8a29e",
+    2: "#78716c",
+    3: "#57534e",
+  };
 
-        // Scales
-        xScale = scaleLinear<number, number>()
-            .domain([-neg, pos])
-            .range([margin.left, width - margin.right]);
+  // ==========================================
+  // DERIVED STATE
+  // ==========================================
+  const totalValue = $derived(data.reduce((sum, d) => sum + d.value, 0));
 
-        yScale = scaleBand<number>()
-            .domain(groups.map(g => g.key))
-            .range([margin.top, height - margin.bottom])
-            .padding(0.2);
+  const segments = $derived.by(() => {
+    if (totalValue === 0) return [];
+
+    const unsorted = data.map((d) => ({
+      key: `${d.sentiment}-${d.rating}`,
+      sentimentId: d.sentiment,
+      ratingId: d.rating,
+      value: d.value,
+      width: (d.value / totalValue) * 100,
+    }));
+
+    return unsorted.sort((a, b) => {
+      const pA = groupBy === "sentiment" ? a.sentimentId : a.ratingId;
+      const sA = groupBy === "sentiment" ? a.ratingId : a.sentimentId;
+      const pB = groupBy === "sentiment" ? b.sentimentId : b.ratingId;
+      const sB = groupBy === "sentiment" ? b.ratingId : b.sentimentId;
+      return pA - pB || sA - sB;
+    });
+  });
+
+  const groupData: { startingIndex: number; totalGroupWidth: number }[] = $derived.by(() => {
+    if (groupBy === "sentiment") {
+      const sentimentGroups = segments.reduce(
+        (acc, seg, index) => {
+          if (!acc[seg.sentimentId]) {
+            acc[seg.sentimentId] = { startingIndex: index, totalGroupWidth: 0 };
+          }
+          acc[seg.sentimentId].totalGroupWidth += seg.width;
+          return acc;
+        },
+        {} as Record<GroupId, { startingIndex: number; totalGroupWidth: number }>
+      );
+
+      return Object.values(sentimentGroups);
+    } else {
+      const ratingGroups = segments.reduce(
+        (acc, seg, index) => {
+          if (!acc[seg.ratingId]) {
+            acc[seg.ratingId] = { startingIndex: index, totalGroupWidth: 0 };
+          }
+          acc[seg.ratingId].totalGroupWidth += seg.width;
+          return acc;
+        },
+        {} as Record<GroupId, { startingIndex: number; totalGroupWidth: number }>
+      );
+
+      return Object.values(ratingGroups);
     }
+  });
+
+  function toggleGroupBy() {
+    groupBy = groupBy === "sentiment" ? "rating" : "sentiment";
+  }
 </script>
 
-<svg {width} {height}>
-    <!-- X axis -->
-    <g transform="translate(0,{height - margin.bottom})">
-        <!-- Zero line -->
-        <line
-            x1="{xScale(0)}"
-            x2="{xScale(0)}"
-            y1="0"
-            y2="-{height - margin.top - margin.bottom}"
-            stroke="#999"
-            stroke-dasharray="4"
-        />
-    </g>
+<div>
+  <div role="figure" aria-label="Nested bar chart grouped by {groupBy}">
+    <div class="flex h-10">
+      {#each segments as seg, i (seg.key)}
+        <!-- lastOfGroup should check using the groupData.segmentCount -->
+        {@const inbetweenGroup =
+          i === groupData[groupBy == "sentiment" ? seg.sentimentId : seg.ratingId].startingIndex &&
+          i > 0}
 
-    <!-- Bars -->
-    {#each groups as { key, total }}
-        {#if yScale(key) !== undefined}
-            <rect
-                x="{total >= 0 ? xScale(0) : xScale(total)}"
-                y="{yScale(key)}"
-                width="{Math.abs(xScale(total) - xScale(0))}"
-                height="{yScale.bandwidth()}"
-                fill="{total >= 0 ? '#e6550d' : '#3182bd'}"
-            />
-
-            <!-- Label -->
-            <text
-                x="{xScale(total) + (total >= 0 ? 4 : -4)}"
-                y="{yScale(key) + yScale.bandwidth() / 2}"
-                dy=".35em"
-                text-anchor="{total >= 0 ? 'start' : 'end'}"
-                font-size="12"
-                fill="#000"
-            >
-                {total}
-            </text>
-        {/if}
-    {/each}
-
-    <!-- Group labels -->
-    {#each groups as { key }}
-        {#if yScale(key) !== undefined}
-            <text
-                x="{margin.left - 6}"
-                y="{yScale(key) + yScale.bandwidth() / 2}"
-                dy=".35em"
-                text-anchor="end"
-                font-size="12"
-                fill="#000"
-            >
-                {groupBy}: {key}
-            </text>
-        {/if}
-    {/each}
-</svg>
-
-<style>
-    svg {
-        font-family: sans-serif;
-    }
-</style>
+        <div
+          class={cn(
+            "flex items-center justify-center overflow-hidden whitespace-nowrap border-l-2 border-background",
+            inbetweenGroup && "ml-2 border-l-0"
+          )}
+          animate:flip={{ duration: 200 }}
+          style="
+              width: {seg.width}%;
+              background-color: {RATING_COLORS[seg.ratingId]};
+              box-shadow: 0 6px 0px {SENTIMENT_COLORS[seg.sentimentId]};
+              {inbetweenGroup && 'margin-left: 0.5rem;'}
+            "
+          title="{SENTIMENT_LABELS[seg.sentimentId]} | {RATING_LABELS[seg.ratingId]}: {seg.value}"
+        >
+          {#if seg.width >= 5}
+            <span class="text-xs text-white">
+              {seg.width.toFixed(0)}%
+            </span>
+          {/if}
+        </div>
+      {/each}
+    </div>
+    <div class="flex gap-2">
+      {#each groupData as group}
+        <div style="width: {group.totalGroupWidth}%;" class="relative h-2 border-2 border-t-0 mt-3">
+          <div class="text-xs text-stone-400 font-medium bg-background px-1 ml-1 absolute">
+            {group.totalGroupWidth.toFixed(0)}%
+          </div>
+        </div>
+      {/each}
+    </div>
+  </div>
+  {#if showToggleButton}
+    <div class="mt-6">
+      <Button variant="outline" size="sm" onclick={toggleGroupBy}>
+        Grouped by {groupBy}
+      </Button>
+    </div>
+  {/if}
+</div>

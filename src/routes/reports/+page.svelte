@@ -13,7 +13,7 @@
   </Card.Content>
 </Card.Root>
 
-<div class="grid md:grid-cols-[auto,1fr,1fr] gap-3 p-3">
+<div class="grid md:grid-cols-[auto,1fr,auto] gap-3 p-3">
   <Card.Root class="h-min">
     <Card.Content>
       <Goals class="" />
