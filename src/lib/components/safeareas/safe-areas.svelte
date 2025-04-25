@@ -8,6 +8,10 @@
     if (!screen) throw new Error("Cannot update safe areas: screen is not defined");
 
     const root = document.documentElement;
+    root.style.setProperty("--safe-area-top", "env(safe-area-inset-top)");
+    root.style.setProperty("--safe-area-left", "env(safe-area-inset-left)");
+    root.style.setProperty("--safe-area-right", "env(safe-area-inset-right)");
+    /*
     switch (screen.orientation.type) {
       case "portrait-primary":
         root.style.setProperty("--safe-area-top", "env(safe-area-inset-top)");
@@ -25,6 +29,7 @@
         root.style.setProperty("--safe-area-right", "env(safe-area-inset-right)");
         break;
     }
+        */
   }
 
   onMount(() => {

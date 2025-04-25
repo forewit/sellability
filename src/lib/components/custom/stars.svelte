@@ -2,7 +2,7 @@
   // credit: https://uiverse.io/amikambs/dangerous-impala-17
   import { cn } from "$lib/utils";
 
-  let { class: className = "", value = $bindable(0) } = $props();
+  let { class: className = "", value = $bindable(0), size = 5 } = $props();
 </script>
 
 <div
@@ -12,13 +12,13 @@
     className
   )}
 >
-  {#each [1,2,3,4,5] as rating}
+  {#each Array(size).fill(0) as _, index}
     <label title="text" class="cursor-pointer text-3xl"
       ><input
         class="appearance-none absolute peer"
         type="radio"
         tabindex="0"
-        value={rating == value ? 0 : rating}
+        value={index + 1 == value ? 0 : index + 1}
         bind:group={value}
       />
       <svg
@@ -27,7 +27,7 @@
         xmlns="http://www.w3.org/2000/svg"
         class={cn(
           "fill-gray-500 transition-colors duration-300",
-          value >= rating && "fill-amber-500"
+          value >= index + 1 && "fill-amber-500"
         )}
       >
         <path

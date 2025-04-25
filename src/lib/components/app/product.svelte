@@ -26,7 +26,7 @@
 
   let otherTime = $state("");
   function addOtherTime() {
-    product?.time.push({ name: otherTime, value: 0, liked: false });
+    product?.time.push({ name: otherTime, value: 0, rating: 0 });
     otherTime = "";
   }
 
@@ -144,7 +144,7 @@
                   <div class="flex flex-col gap-2">
                     <Label>{time.name}</Label>
                     <div class="grid grid-cols-[auto,1fr,auto] gap-2 items-center">
-                      <Heart bind:checked={time.liked} />
+                      <Stars size={3} bind:value={time.rating} />
                       <Input type="number" inputmode="decimal" min="0" bind:value={time.value} />
                       <Button
                         variant="ghost"

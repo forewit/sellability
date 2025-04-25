@@ -6,7 +6,7 @@ export type Product = {
     name?: string;
     description?: string;
     expenses: { name: string; value: number }[];
-    time: { name: string; value: number; liked: boolean }[];
+    time: { name: string; value: number; rating: number }[];
     price: number;
     rank: number;
 }
@@ -14,8 +14,7 @@ export type Product = {
 export type ProductData = {
     id: string;
     expenses: number;
-    likedTime: number;
-    unlikedTime: number;
+    ratedTime: number[];
     time: number;
     profit: number;
 }
@@ -28,7 +27,7 @@ function createApp() {
             name: "Test Product",
             description: "Testing out functionality",
             expenses: [{ name: "Materials", value: 25 }, { name: "Shipping", value: 10 }],
-            time: [{ name: "Labor", value: 1.5, liked: false }],
+            time: [{ name: "Labor", value: 1.5, rating: 0 }],
             price: 49,
             rank: 0,
         }
@@ -38,16 +37,17 @@ function createApp() {
         products.reduce((acc, p) => {
             const expenses = p.expenses.reduce((total, expense) => total + expense.value, 0);
             const time = p.time.reduce((total, time) => total + time.value, 0);
-            const likedTime = p.time.filter(t => t.liked).reduce((total, time) => total + time.value, 0);
-            const unlikedTime = time - likedTime;
+            const ratedTime = p.time.reduce<number[]>((totals, item) => {
+                totals[item.rating] = (totals[item.rating] || 0) + item.value;
+                return totals;
+            }, []);
 
             acc[p.id] = {
                 id: p.id,
                 expenses,
                 profit: p.price - expenses,
                 time,
-                likedTime,
-                unlikedTime
+                ratedTime,
             };
             return acc;
         }, {} as Record<string, ProductData>)
@@ -67,9 +67,8 @@ function createApp() {
     }
 
     const MAX_WEEKLY_HOURS = 80;
-    let monthlyProfitGoal = $state([2000, 500]); // target, minimum
-    let weeklyLaborGoals = $state([30, 40]); // target, maximum
-    let prioritizeLikedTime = $state(false);
+    let monthlyProfitGoal = $state([2000, 500]); // [target, minimum]
+    let weeklyLaborGoals = $state([30, 40]); // [target, maximum]
 
     let selectedProductId = $state("")
     let selectedProduct = $derived(products.find(p => p.id === selectedProductId))
@@ -92,8 +91,6 @@ function createApp() {
         set monthlyProfitGoal(value: number[]) { monthlyProfitGoal = value },
         get weeklyLaborGoals() { return weeklyLaborGoals },
         set weeklyLaborGoals(value: number[]) { weeklyLaborGoals = value },
-        get prioritizeLikedTime() { return prioritizeLikedTime },
-        set prioritizeLikedTime(value: boolean) { prioritizeLikedTime = value },
     }
 }
 

@@ -9,11 +9,11 @@
   import { Switch } from "$lib/components/ui/switch/index.js";
   import Heart from "../custom/heart.svelte";
 
-
   let { class: className = "" } = $props();
 
   const app = getAppContext();
 </script>
+
 <div class={cn("min-w-[200px]", className)}>
   <Card.Header class="p-0">
     <Card.Title class="flex gap-2 items-center">
@@ -108,18 +108,6 @@
             >
           </div>
         </div>
-      </div>
-    </div>
-    <div>
-      <Label >Settings</Label>
-      
-      <div class="flex items-center gap-4 mt-4">
-        <Switch id="prioritize-liked-time" bind:checked={app.prioritizeLikedTime}/>
-        <Label for="prioritize-liked-time" class="flex items-center gap-2">
-          Prioritize 
-          <Heart bind:checked={app.prioritizeLikedTime} class="inline-block cursor-auto"/>
-          time
-        </Label>
       </div>
     </div>
   </Card.Content>
