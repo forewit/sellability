@@ -5,11 +5,15 @@
   import { base } from "$app/paths";
   import ScenarioTime from "$lib/components/app/scenario-time.svelte";
   import ScenarioProfit from "$lib/components/app/scenario-profit.svelte";
+  import type { ChartData } from "$lib/components/app/diverging-bar-chart.svelte";
+
+
+  let timeData: ChartData = $state([]);
 </script>
 
 <Card.Root class="h-min m-3">
   <Card.Content>
-    <Scenario />
+    <Scenario onScenarioChange={(data) => { timeData = data; }}/>
   </Card.Content>
 </Card.Root>
 
@@ -23,7 +27,7 @@
   <Card.Root class="h-min">
 
     <Card.Content>
-      <ScenarioTime />
+      <ScenarioTime {timeData}/>
     </Card.Content>
   </Card.Root>
 

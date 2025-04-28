@@ -43,7 +43,7 @@
         <Table.Row>
           <Table.Head></Table.Head>
           <Table.Head class="">Name</Table.Head>
-          <Table.Head class="">Rank</Table.Head>
+          <Table.Head class="">Profitability</Table.Head>
           <Table.Head class="">Price ($)</Table.Head>
           <Table.Head class="text-right">Expenses ($)</Table.Head>
           <Table.Head class="text-right">Time (hrs)</Table.Head>
@@ -72,7 +72,7 @@
             </Table.Cell>
             <Table.Cell>
               <div class="justify-self-start" role="cell" tabindex="-1" onkeydown={() => {}}>
-                <Stars bind:value={product.rank} />
+                <Stars bind:value={product.profitability} />
               </div>
             </Table.Cell>
             <Table.Cell>

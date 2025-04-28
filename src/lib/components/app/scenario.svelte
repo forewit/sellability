@@ -5,53 +5,45 @@
   import * as Table from "$lib/components/ui/table/index.js";
   import Button from "$lib/components/ui/button/button.svelte";
   import { base } from "$app/paths";
-  import { getAppContext } from "./app.svelte";
+  import { getAppContext, exampleScenario } from "./app.svelte";
   import { Minus, Plus, SquarePen, ChevronRight } from "lucide-svelte";
   import Input from "../ui/input/input.svelte";
   import { cn } from "$lib/utils";
   import type { Snippet } from "svelte";
   import Stars from "../custom/stars.svelte";
-
-
-  type ProductData = {
-    quantity: number;
-    unLikedTime: number;
-    likedTime: number;
-    allTime: number;
-    expenses: number;
-    profit: number;
-  }
-  type Scenario = {
-    producctData: Record<string, ProductData>;
-    totalLikedTime: number;
-    totalUnlikedTime: number;
-    totalTime: number;
-    totalExpenses: number;
-    totalProfit: number;
-  }
+  import type { ChartData } from "./diverging-bar-chart.svelte";
 
   let {
     timeSpanDays = $bindable(30),
     class: className = "",
     children,
-    onScenarioChange = ()=>{},
+    onScenarioChange = () => {},
   }: {
     timeSpanDays?: number;
     class?: string;
     children?: Snippet;
-    onScenarioChange?: () => void;
+    onScenarioChange?: (timeData: ChartData) => void;
   } = $props();
 
   const app = getAppContext();
 
-
-  let evalData: Record<string, { quantity: number }> = $state({ test: { quantity: 1 } });
+  let evalData: Record<string, { quantity: number }> = $state(structuredClone(exampleScenario));
   let evalProducts = $derived(app.products.filter((p) => Object.keys(evalData).includes(p.id)));
+
+  let timeData: ChartData = $derived(
+    evalProducts.flatMap((p) =>
+      p.time.map((t) => ({
+        value: t.value * evalData[p.id].quantity,
+        sentiment: t.rating,
+        profitability: p.profitability,
+      }))
+    )
+  );
+
+  $effect(() => onScenarioChange(timeData));
 
   let selectedIds: string[] = $state(Object.keys(evalData));
   $effect(() => {
-    console.log("hi");
-
     // sync selectIds and evalData (update evalData when selectedIds changes)
     untrack(() =>
       Object.keys(evalData).forEach((id) => {
@@ -73,23 +65,10 @@
     timeSpanDays = parseInt(timeSpanString) || 30; // Update timeSpanDays based on timeSpanString
   });
 
-
-  let totalLikedTime = $derived(
-    evalProducts.reduce(
-      (total, product) =>
-        total +
-        evalData[product.id].quantity *
-          (app.productData[product.id].time || 0),
-      0
-    )
-  );
-
   let totalTime = $derived(
     evalProducts.reduce(
       (total, product) =>
-        total +
-        evalData[product.id].quantity *
-          (app.productData[product.id].time || 0),
+        total + evalData[product.id].quantity * (app.productData[product.id].time || 0),
       0
     )
   );
@@ -98,11 +77,15 @@
     evalProducts
       .reduce(
         (total, product) =>
-          total +
-          evalData[product.id].quantity *
-            (app.productData[product.id].expenses || 0),
+          total + evalData[product.id].quantity * (app.productData[product.id].expenses || 0),
         0
       )
+      .toFixed(2)
+  );
+
+  let totalRevenue = $derived(
+    evalProducts
+      .reduce((total, product) => total + evalData[product.id].quantity * product.price || 0, 0)
       .toFixed(2)
   );
 
@@ -110,9 +93,7 @@
     evalProducts
       .reduce(
         (total, product) =>
-          total +
-          evalData[product.id].quantity *
-            (app.productData[product.id].profit || 0),
+          total + evalData[product.id].quantity * (app.productData[product.id].profit || 0),
         0
       )
       .toFixed(2)
@@ -160,25 +141,21 @@
     <Table.Root>
       <Table.Header>
         <Table.Row>
-          <Table.Head></Table.Head>
           <Table.Head class="">Product</Table.Head>
           <Table.Head class="">Sell Price (each)</Table.Head>
           <Table.Head class="">Quantity</Table.Head>
-          <Table.Head class="">Rank</Table.Head>
+          <Table.Head>Profitability</Table.Head>
           <Table.Head class="text-right">Time (hrs)</Table.Head>
-          <Table.Head class="">Expenses ($)</Table.Head>
-          <Table.Head class="text-right">Profit ($)</Table.Head>
+          <Table.Head class="text-right">Revenue</Table.Head>
+          <Table.Head></Table.Head>
+          <Table.Head class="text-right">Expenses</Table.Head>
+          <Table.Head></Table.Head>
+          <Table.Head class="text-right">Profit</Table.Head>
         </Table.Row>
       </Table.Header>
       <Table.Body>
         {#each evalProducts as product}
           <Table.Row>
-            <Table.Cell class="w-12 pr-0 pl-1">
-              <Button size="sm" variant="ghost">
-                <ChevronRight />
-              </Button>
-            </Table.Cell>
-
             <Table.Cell class="pl-0">
               <Button
                 variant="outline"
@@ -227,23 +204,25 @@
             </Table.Cell>
             <Table.Cell>
               <div class="justify-self-start" role="cell" tabindex="-1" onkeydown={() => {}}>
-                <Stars bind:value={product.rank} />
+                <Stars size={3} bind:value={product.profitability} />
               </div>
             </Table.Cell>
-            <Table.Cell class="text-right"
-              >{evalData[product.id].quantity *
-                (app.productData[product.id].time || 0)} hrs</Table.Cell
-            >
+            <Table.Cell class="text-right">
+              {evalData[product.id].quantity * (app.productData[product.id].time || 0)} hrs
+            </Table.Cell>
+            <Table.Cell class="text-right">
+              ${(evalData[product.id].quantity * product.price).toFixed(2)}
+            </Table.Cell>
+            <Table.Cell class="text-right p-0">-</Table.Cell>
+            <Table.Cell class="text-right">
+              ${(
+                evalData[product.id].quantity * (app.productData[product.id].expenses || 0)
+              ).toFixed(2)}
+            </Table.Cell>
+            <Table.Cell class="text-right p-0">=</Table.Cell>
             <Table.Cell class="text-right"
               >${(
-                evalData[product.id].quantity *
-                (app.productData[product.id].expenses || 0)
-              ).toFixed(2)}</Table.Cell
-            >
-            <Table.Cell class="text-right"
-              >${(
-                evalData[product.id].quantity *
-                (app.productData[product.id].profit || 0)
+                evalData[product.id].quantity * (app.productData[product.id].profit || 0)
               ).toFixed(2)}</Table.Cell
             >
           </Table.Row>
@@ -251,16 +230,19 @@
       </Table.Body>
       <Table.Footer>
         <Table.Row>
-          <Table.Cell colspan={5}></Table.Cell>
-          <!-- total time -->
-          <Table.Cell class="text-right">
+          <Table.Cell colspan={4}></Table.Cell>
+          <Table.Cell class="text-right text-amber-600">
             {totalTime} hrs
           </Table.Cell>
-          <!-- total expenses -->
+          <Table.Cell class="text-right">
+            ${totalRevenue}
+          </Table.Cell>
+          <Table.Cell class="text-right p-0">-</Table.Cell>
           <Table.Cell class="text-right">
             ${totalExpenses}
           </Table.Cell>
-          <Table.Cell class="text-right">
+          <Table.Cell class="text-right p-0">=</Table.Cell>
+          <Table.Cell class="text-right text-green-600">
             ${totalProfit}
           </Table.Cell>
         </Table.Row>
