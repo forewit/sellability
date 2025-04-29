@@ -106,9 +106,9 @@
         <Table.Head>Profitability</Table.Head>
         <Table.Head class="text-right">Time (hrs)</Table.Head>
         <Table.Head class="text-right">Revenue</Table.Head>
-        <Table.Head></Table.Head>
+        <Table.Head class="px-0"></Table.Head>
         <Table.Head class="text-right">Expenses</Table.Head>
-        <Table.Head></Table.Head>
+        <Table.Head class="px-0"></Table.Head>
         <Table.Head class="text-right">Profit</Table.Head>
       </Table.Row>
     </Table.Header>
@@ -137,7 +137,7 @@
               <SquarePen />
             </Button>
           </Table.Cell>
-          <Table.Cell class="">
+          <Table.Cell>
             <Input
               class="w-24"
               type="number"
@@ -146,7 +146,7 @@
               min="0"
             />
           </Table.Cell>
-          <Table.Cell class="flex">
+          <Table.Cell class="flex px-0">
             <Button
               size="sm"
               variant="ghost"
@@ -216,8 +216,16 @@
             </Select.Content>
           </Select.Root>
         </Table.Cell>
-        <Table.Cell class="text-right text-amber-600">
-          {totalTime} hrs
+        <Table.Cell class="text-right text-nowrap">
+          <div
+            class={cn(
+              "text-background flex items-center px-3 py-2 rounded-lg bg-red-600",
+              Number(totalTime) <= app.weeklyLaborGoals[1] && "bg-yellow-600",
+              Number(totalTime) <= app.weeklyLaborGoals[0] && "bg-green-600",
+            )}
+          >
+            {totalTime} hrs
+          </div>
         </Table.Cell>
         <Table.Cell class="text-right">
           ${totalRevenue}
@@ -227,8 +235,16 @@
           ${totalExpenses}
         </Table.Cell>
         <Table.Cell class="text-right p-0">=</Table.Cell>
-        <Table.Cell class="text-right text-green-600">
-          ${totalProfit}
+        <Table.Cell class="relative">
+          <div
+            class={cn(
+              "text-background flex items-center px-3 py-2 rounded-lg bg-red-600",
+              Number(totalProfit) >= app.monthlyProfitGoal[1] && "bg-yellow-600",
+              Number(totalProfit) >= app.monthlyProfitGoal[0] && "bg-green-600"
+            )}
+          >
+            ${totalProfit}
+          </div>
         </Table.Cell>
       </Table.Row>
     </Table.Footer>

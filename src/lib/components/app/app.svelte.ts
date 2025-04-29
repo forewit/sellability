@@ -37,7 +37,6 @@ export const exampleInventory: Product[] = [
             { name: "Assembly & packaging", value: 1.0, rating: 1 }
         ],
         price: 49.99,
-        profitability: 3
     },
     {
         id: "wooden-train-set-002",
@@ -56,7 +55,6 @@ export const exampleInventory: Product[] = [
             { name: "Final assembly", value: 1.0, rating: 2 }
         ],
         price: 89.99,
-        profitability: 2
     },
     {
         id: "wooden-puzzle-003",
@@ -74,7 +72,6 @@ export const exampleInventory: Product[] = [
             { name: "Finishing", value: 0.5, rating: 1 }
         ],
         price: 34.99,
-        profitability: 1
     },
     {
         id: "wooden-dollhouse-004",
@@ -93,7 +90,6 @@ export const exampleInventory: Product[] = [
             { name: "Furniture assembly", value: 2.0, rating: 2 }
         ],
         price: 179.99,
-        profitability: 3
     },
     {
         id: "rocking-horse-005",
@@ -111,7 +107,6 @@ export const exampleInventory: Product[] = [
             { name: "Finishing touches", value: 0.5, rating: 2 }
         ],
         price: 129.99,
-        profitability: 2
     }
 ];
 

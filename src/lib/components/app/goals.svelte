@@ -24,7 +24,7 @@
 
   <Card.Content class="flex flex-col gap-8 px-0 pb-0">
     <div>
-      <Label>Profit ($ / month)</Label>
+      <Label>Profit</Label>
       <div class="flex justify-between items-center mt-4">
         <div class="relative">
           <Input
@@ -60,7 +60,7 @@
     </div>
 
     <div>
-      <Label>Time (hours / week)</Label>
+      <Label>Time</Label>
 
       <div class="flex flex-col gap-8 mt-4">
         <Slider
