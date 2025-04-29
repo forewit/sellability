@@ -8,7 +8,6 @@ export type Product = {
     expenses: { name: string; value: number }[];
     time: { name: string; value: number; rating: number }[];
     price: number;
-    profitability: number;
 }
 
 export type ProductData = {
@@ -16,6 +15,8 @@ export type ProductData = {
     expenses: number;
     time: number;
     profit: number;
+    profitability: number;
+    hourlyRate: number;
 }
 
 export const exampleInventory: Product[] = [
@@ -122,6 +123,14 @@ export const exampleScenario: Record<string, { quantity: number }> = {
     "rocking-horse-005": { quantity: 3 }
 };
 
+function rateProfitability(hourlyRate: number) {
+    // rates profitability from 0-3
+    if (hourlyRate < 10) return 0;
+    if (hourlyRate < 20) return 1;
+    if (hourlyRate < 30) return 2;
+    return 3;
+}
+
 function createApp() {
     let products: Product[] = $state(structuredClone(exampleInventory));
 
@@ -129,12 +138,16 @@ function createApp() {
         products.reduce((acc, p) => {
             const expenses = p.expenses.reduce((total, expense) => total + expense.value, 0);
             const time = p.time.reduce((total, time) => total + time.value, 0);
+            const profit = p.price - expenses;
+            const hourlyRate = profit / time;
 
             acc[p.id] = {
                 id: p.id,
                 expenses,
-                profit: p.price - expenses,
+                profit,
                 time,
+                hourlyRate,
+                profitability: rateProfitability(hourlyRate)
             };
             return acc;
         }, {} as Record<string, ProductData>)
@@ -142,7 +155,7 @@ function createApp() {
 
     const newProduct = () => {
         const id = crypto.randomUUID().slice(0, 8)
-        products.push({ id: id, url: '', expenses: [], time: [], price: 0, profitability: 0 })
+        products.push({ id: id, url: '', expenses: [], time: [], price: 0 })
         return id;
     }
 

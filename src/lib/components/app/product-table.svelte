@@ -21,7 +21,6 @@
 
         <Table.Head></Table.Head>
         <Table.Head class="">Name</Table.Head>
-        <Table.Head class="">Profitability</Table.Head>
         <Table.Head class="">Price ($)</Table.Head>
         <Table.Head class="text-right">Expenses ($)</Table.Head>
         <Table.Head class="text-right">Time (hrs)</Table.Head>
@@ -51,11 +50,6 @@
           </Table.Cell>
           <Table.Cell class="pl-0">
             <Input bind:value={product.name} />
-          </Table.Cell>
-          <Table.Cell>
-            <div class="justify-self-start" role="cell" tabindex="-1" onkeydown={() => {}}>
-              <Stars size={3} bind:value={product.profitability} />
-            </div>
           </Table.Cell>
           <Table.Cell>
             <Input inputmode="decimal" type="number" class="w-16" bind:value={product.price} />

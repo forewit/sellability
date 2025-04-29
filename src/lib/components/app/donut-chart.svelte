@@ -35,7 +35,6 @@
   // ==========================================
   // CONSTANTS
   // ==========================================
-  const app = getAppContext();
   const SENTIMENT_LABELS: Record<GroupId, string> = {
     0: "Very Negative",
     1: "Negative",

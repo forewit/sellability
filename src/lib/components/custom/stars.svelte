@@ -2,7 +2,7 @@
   // credit: https://uiverse.io/amikambs/dangerous-impala-17
   import { cn } from "$lib/utils";
 
-  let { class: className = "", value = $bindable(0), size = 5 } = $props();
+  let { class: className = "", value = $bindable(0), size = 5, disabled=false } = $props();
 </script>
 
 <div
@@ -13,13 +13,14 @@
   )}
 >
   {#each Array(size).fill(0) as _, index}
-    <label title="text" class="cursor-pointer text-3xl"
+    <label title="text" class={cn("cursor-pointer text-3xl", disabled && "cursor-auto")}
       ><input
         class="appearance-none absolute peer"
         type="radio"
         tabindex="0"
         value={index + 1 == value ? 0 : index + 1}
         bind:group={value}
+        disabled={disabled}  
       />
       <svg
         viewBox="0 0 576 512"

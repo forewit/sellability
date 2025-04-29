@@ -59,7 +59,7 @@
     <Card.Content class="flex flex-col gap-4 px-0">
       <div class="flex gap-4 place-self-end">
         <Label>Profitability</Label>
-        <Stars size={3} bind:value={product.profitability} class="mr-2" />
+        <Stars size={3} value={app.productData[product.id].profitability} disabled class="mr-2" />
       </div>
 
       <Accordion.Root type="single">
