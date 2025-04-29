@@ -26,11 +26,13 @@
     data?: ChartData;
     groupBy?: GroupByKey;
     highlightedProductId?: string;
+    showLegend?: boolean;
   };
   let {
     data = [],
     groupBy = $bindable("sentiment"),
     highlightedProductId = $bindable(""),
+    showLegend = $bindable(false),
   }: Props = $props();
 
   // ==========================================
@@ -233,7 +235,7 @@
 </script>
 
 <div>
-  <div class="flex flex-col items-center" role="figure" aria-label="Pie chart grouped by {groupBy}">
+  <div class="flex flex-col items-center overflow-hidden min-w-[450px]" role="figure" aria-label="Pie chart grouped by {groupBy}">
     <svg class="overflow-visible p-6" width={SVG_SIZE} height={SVG_SIZE} viewBox="0 0 {SVG_SIZE} {SVG_SIZE}">
       <!-- Outline circle for reference (optional) -->
       <circle 
@@ -248,8 +250,8 @@
     
       <!-- Segments -->
       {#each segmentsWithAngles as seg (seg.key)}
-        {@const id = groupBy === "sentiment" ? seg.sentimentId : seg.profitabilityId}
-        {@const isHighlighted = highlightedProductId === seg.productId}
+      {@const id = groupBy === "sentiment" ? seg.sentimentId : seg.profitabilityId}
+      {@const isHighlighted = highlightedProductId === seg.productId}
         
         <!-- Profitability segment -->
         <path
@@ -353,11 +355,14 @@
           dominant-baseline="middle"
           class="text-xs font-medium fill-stone-400"
         >
-          {group.totalGroupPercentage.toFixed(0)}% - {groupBy === "sentiment" ? SENTIMENT_LABELS[group.id] : PROFITABILITY_LABELS[group.id]}
+          {group.totalGroupPercentage.toFixed(0)}%
+          <tspan x={outerLabelPos.x} dy="1.3em">
+            {groupBy === "sentiment" ? SENTIMENT_LABELS[group.id] : PROFITABILITY_LABELS[group.id]}
+          </tspan>
         </text>
         
         <!-- Connection line from group to label -->
-        <line
+        <!-- <line
           x1={polarToCartesian(CENTER, CENTER, arcRadius, midAngle).x}
           y1={polarToCartesian(CENTER, CENTER, arcRadius, midAngle).y}
           x2={outerLabelPos.x}
@@ -365,44 +370,45 @@
           stroke="#9ca3af"
           stroke-width="1"
           stroke-dasharray="2,2"
-        />
+        /> -->
       {/each}
     </svg>
     
     <!-- Legend -->
-
-    <div class="flex flex-wrap gap-4 mt-4 justify-center">
-      {#if groupBy == "profitability"}
-        <div class="flex flex-wrap gap-2">
-          {#each Object.entries(PROFITABILITY_LABELS) as [id, label]}
-            <div class="flex items-center gap-1">
-              <div class={cn(
-                "w-4 h-4",
-                Number(id) == 0 && "bg-orange-700",
-                Number(id) == 1 && "bg-yellow-500",
-                Number(id) == 2 && "bg-lime-600",
-                Number(id) == 3 && "bg-green-600"
-              )}></div>
-              <span class="text-xs">{label}</span>
-            </div>
-          {/each}
-        </div>
-      {:else}
-        <div class="flex flex-wrap gap-2">
-          {#each Object.entries(SENTIMENT_LABELS) as [id, label]}
-            <div class="flex items-center gap-1">
-              <div class={cn(
-                "w-4 h-4",
-                Number(id) == 0 && "bg-purple-200",
-                Number(id) == 1 && "bg-purple-300",
-                Number(id) == 2 && "bg-indigo-300",
-                Number(id) == 3 && "bg-blue-300"
-              )}></div>
-              <span class="text-xs">{label}</span>
-            </div>
-          {/each}
-        </div>
-      {/if}
-    </div>
+    {#if showLegend}
+      <div class="flex flex-wrap gap-4 mt-4 justify-center">
+        {#if groupBy == "profitability"}
+          <div class="flex flex-wrap gap-2">
+            {#each Object.entries(PROFITABILITY_LABELS) as [id, label]}
+              <div class="flex items-center gap-1">
+                <div class={cn(
+                  "w-4 h-4",
+                  Number(id) == 0 && "bg-orange-700",
+                  Number(id) == 1 && "bg-yellow-500",
+                  Number(id) == 2 && "bg-lime-600",
+                  Number(id) == 3 && "bg-green-600"
+                )}></div>
+                <span class="text-xs">{label}</span>
+              </div>
+            {/each}
+          </div>
+        {:else}
+          <div class="flex flex-wrap gap-2">
+            {#each Object.entries(SENTIMENT_LABELS) as [id, label]}
+              <div class="flex items-center gap-1">
+                <div class={cn(
+                  "w-4 h-4",
+                  Number(id) == 0 && "bg-purple-200",
+                  Number(id) == 1 && "bg-purple-300",
+                  Number(id) == 2 && "bg-indigo-300",
+                  Number(id) == 3 && "bg-blue-300"
+                )}></div>
+                <span class="text-xs">{label}</span>
+              </div>
+            {/each}
+          </div>
+        {/if}
+      </div>
+    {/if}
   </div>
 </div>

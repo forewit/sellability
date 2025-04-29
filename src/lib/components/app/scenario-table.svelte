@@ -1,6 +1,5 @@
 <script lang="ts">
   import { untrack } from "svelte";
-  import * as Card from "$lib/components/ui/card/index.js";
   import * as Select from "$lib/components/ui/select/index.js";
   import * as Table from "$lib/components/ui/table/index.js";
   import Button from "$lib/components/ui/button/button.svelte";
@@ -96,15 +95,6 @@
 </script>
 
 <div class={cn("min-w-[220px]", className)}>
-  <Card.Header class="p-0 grid grid-cols-[1fr,auto] gap-2">
-    <Card.Title class="flex gap-2 items-center">
-      <img src="{base}/images/rocket.png" class="w-8" alt="goals icon" />
-      Scenario
-    </Card.Title>
-
-    
-  </Card.Header>
-  <Card.Content class="px-0 pb-0">
     <!-- {#if evalProducts.length > 0} -->
     <!-- eval products -->
     <Table.Root>
@@ -243,6 +233,5 @@
     <!-- {:else}
       <div class="text-center p-4">Choose one or more products to evaluate</div>
     {/if} -->
-  </Card.Content>
   {@render children?.()}
 </div>

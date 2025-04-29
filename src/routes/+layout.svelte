@@ -32,7 +32,7 @@
   >
     <ScrollArea type="always">
       {@render children?.()}
-      <div class="h-20"></div>
+      <div class="h-24"></div>
     </ScrollArea>
     <Toolbar class="flex-row absolute left-1/2 -translate-x-1/2 bottom-5 z-20" />
   </div>
