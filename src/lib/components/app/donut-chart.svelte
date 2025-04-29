@@ -1,11 +1,6 @@
 <script lang="ts">
   import { cn } from "$lib/utils";
-  import { flip } from "svelte/animate";
-  import Button from "$lib/components/ui/button/button.svelte";
-  import * as Tabs from "$lib/components/ui/tabs/index.js";
   import { getAppContext } from "./app.svelte";
-  import { base } from "$app/paths";
-  import { Minus, X, SquarePen } from "lucide-svelte";
 
   // ==========================================
   // TYPES
@@ -23,12 +18,14 @@
   // PROPS
   // ==========================================
   type Props = {
+    class?: string;
     data?: ChartData;
     groupBy?: GroupByKey;
     highlightedProductId?: string;
     showLegend?: boolean;
   };
   let {
+    class: className = "",
     data = [],
     groupBy = $bindable("sentiment"),
     highlightedProductId = $bindable(""),
@@ -40,13 +37,13 @@
   // ==========================================
   const app = getAppContext();
   const SENTIMENT_LABELS: Record<GroupId, string> = {
-    0: "Bad",
+    0: "Very Negative",
     1: "Negative",
     2: "Positive",
     3: "Very Positive",
   };
   const PROFITABILITY_LABELS: Record<GroupId, string> = {
-    0: "Bad",
+    0: "Very Low",
     1: "Low",
     2: "High",
     3: "Very High",
@@ -81,7 +78,7 @@
       const sA = groupBy === "sentiment" ? a.profitabilityId : a.sentimentId;
       const pB = groupBy === "sentiment" ? b.sentimentId : b.profitabilityId;
       const sB = groupBy === "sentiment" ? b.profitabilityId : b.sentimentId;
-      return pA - pB || sA - sB;
+      return pA - pB || sA - sB || (a.percentage - b.percentage);
     });
   });
 
@@ -234,8 +231,7 @@
   }
 </script>
 
-<div>
-  <div class="flex flex-col items-center overflow-hidden min-w-[450px]" role="figure" aria-label="Pie chart grouped by {groupBy}">
+  <div class={cn("flex flex-col items-center overflow-hidden min-w-[450px]", className)} role="figure" aria-label="Pie chart grouped by {groupBy}">
     <svg class="overflow-visible p-6" width={SVG_SIZE} height={SVG_SIZE} viewBox="0 0 {SVG_SIZE} {SVG_SIZE}">
       <!-- Outline circle for reference (optional) -->
       <circle 
@@ -411,4 +407,3 @@
       </div>
     {/if}
   </div>
-</div>

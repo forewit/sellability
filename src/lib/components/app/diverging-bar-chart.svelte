@@ -1,11 +1,7 @@
 <script lang="ts">
   import { cn } from "$lib/utils";
   import { flip } from "svelte/animate";
-  import Button from "$lib/components/ui/button/button.svelte";
-  import * as Tabs from "$lib/components/ui/tabs/index.js";
   import { getAppContext } from "./app.svelte";
-  import { base } from "$app/paths";
-  import { Minus, X, SquarePen } from "lucide-svelte";
 
   // ==========================================
   // TYPES
@@ -39,15 +35,14 @@
   // CONSTANTS
   // ==========================================
 
-  const app = getAppContext();
   const SENTIMENT_LABELS: Record<GroupId, string> = {
-    0: "Bad",
+    0: "Very Negative",
     1: "Negative",
     2: "Positive",
     3: "Very Positive",
   };
   const PROFITABILITY_LABELS: Record<GroupId, string> = {
-    0: "Bad",
+    0: "Very Low",
     1: "Low",
     2: "High",
     3: "Very High",
@@ -74,14 +69,13 @@
       const sA = groupBy === "sentiment" ? a.profitabilityId : a.sentimentId;
       const pB = groupBy === "sentiment" ? b.sentimentId : b.profitabilityId;
       const sB = groupBy === "sentiment" ? b.profitabilityId : b.sentimentId;
-      return pA - pB || sA - sB;
+      return pA - pB || sA - sB || (a.width - b.width);
     });
   });
 
   let { groupData, groupIndexMap } = $derived.by(() => {
     const groupData: { startingIndex: number; totalGroupWidth: number; id: GroupId }[] = [];
-    const groupIndexMap: Record<GroupId, { startingIndex: number; totalGroupWidth: number }> =
-      {} as any;
+    const groupIndexMap: Record<GroupId, { startingIndex: number; totalGroupWidth: number }> = {};
 
     segments.forEach((seg, index) => {
       const id = groupBy === "sentiment" ? seg.sentimentId : seg.profitabilityId;
@@ -163,10 +157,10 @@
       {#each groupData as group}
         <div style="width: {group.totalGroupWidth}%;">
           <div class="mt-2 h-2 border-2 border-t-0"></div>
-            <div class="bg-background w-min text-xs text-stone-400 font-medium px-1 ml-2 -mt-2">
-              {group.totalGroupWidth.toFixed(0)}%
-            </div>
-            <!-- <div>
+          <div class="bg-background w-min text-xs text-stone-400 font-medium px-1 ml-2 -mt-2">
+            {group.totalGroupWidth.toFixed(0)}%
+          </div>
+          <!-- <div>
               {groupBy === "sentiment"
                 ? SENTIMENT_LABELS[group.id]
                 : PROFITABILITY_LABELS[group.id]}
@@ -176,39 +170,43 @@
     </div>
     <!-- Legend -->
     {#if showLegend}
-    <div class="flex flex-wrap gap-4 mt-4 justify-center">
-      {#if groupBy == "profitability"}
-        <div class="flex flex-wrap gap-2">
-          {#each Object.entries(PROFITABILITY_LABELS) as [id, label]}
-            <div class="flex items-center gap-1">
-              <div class={cn(
-                "w-4 h-4",
-                Number(id) == 0 && "bg-orange-700",
-                Number(id) == 1 && "bg-yellow-500",
-                Number(id) == 2 && "bg-lime-600",
-                Number(id) == 3 && "bg-green-600"
-              )}></div>
-              <span class="text-xs">{label}</span>
-            </div>
-          {/each}
-        </div>
-      {:else}
-        <div class="flex flex-wrap gap-2">
-          {#each Object.entries(SENTIMENT_LABELS) as [id, label]}
-            <div class="flex items-center gap-1">
-              <div class={cn(
-                "w-4 h-4",
-                Number(id) == 0 && "bg-purple-200",
-                Number(id) == 1 && "bg-purple-300",
-                Number(id) == 2 && "bg-indigo-300",
-                Number(id) == 3 && "bg-blue-300"
-              )}></div>
-              <span class="text-xs">{label}</span>
-            </div>
-          {/each}
-        </div>
-      {/if}
-    </div>
+      <div class="flex flex-wrap gap-4 mt-4 justify-center">
+        {#if groupBy == "profitability"}
+          <div class="flex flex-wrap gap-2">
+            {#each Object.entries(PROFITABILITY_LABELS) as [id, label]}
+              <div class="flex items-center gap-1">
+                <div
+                  class={cn(
+                    "w-4 h-4",
+                    Number(id) == 0 && "bg-orange-700",
+                    Number(id) == 1 && "bg-yellow-500",
+                    Number(id) == 2 && "bg-lime-600",
+                    Number(id) == 3 && "bg-green-600"
+                  )}
+                ></div>
+                <span class="text-xs">{label}</span>
+              </div>
+            {/each}
+          </div>
+        {:else}
+          <div class="flex flex-wrap gap-2">
+            {#each Object.entries(SENTIMENT_LABELS) as [id, label]}
+              <div class="flex items-center gap-1">
+                <div
+                  class={cn(
+                    "w-4 h-4",
+                    Number(id) == 0 && "bg-purple-200",
+                    Number(id) == 1 && "bg-purple-300",
+                    Number(id) == 2 && "bg-indigo-300",
+                    Number(id) == 3 && "bg-blue-300"
+                  )}
+                ></div>
+                <span class="text-xs">{label}</span>
+              </div>
+            {/each}
+          </div>
+        {/if}
+      </div>
     {/if}
   </div>
 </div>

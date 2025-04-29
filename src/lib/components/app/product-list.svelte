@@ -1,10 +1,7 @@
 <script lang="ts">
   import { cn } from "$lib/utils";
-  import * as Card from "$lib/components/ui/card/index.js";
   import { Checkbox } from "$lib/components/ui/checkbox/index.js";
-  import { Label } from "$lib/components/ui/label/index.js";
   import Button from "$lib/components/ui/button/button.svelte";
-  import { Plus, ChartLine } from "lucide-svelte";
   import { base } from "$app/paths";
   import { getAppContext } from "./app.svelte";
 
@@ -25,14 +22,7 @@
   });
 </script>
 
-<div class={cn("min-w-[250px]", className)}>
-  <Card.Header class="p-0">
-    <Card.Title class="flex gap-2 items-center">
-      <img src="{base}/images/cube.png" class="w-8" alt="goals icon" />
-      Products
-    </Card.Title>
-  </Card.Header>
-  <Card.Content class="px-0">
+<div class={cn("h-min min-w-[250px]", className)}>
     <div class="flex flex-col gap-2">
       {#each app.products as product, i}
         <div class="relative flex items-center gap-4 h-10">
@@ -54,8 +44,4 @@
         </div>
       {/each}
     </div>
-  </Card.Content>
-  <Card.Footer class="p-0">
-    <Button onclick={newProduct}><Plus />New Product</Button>
-  </Card.Footer>
 </div>
