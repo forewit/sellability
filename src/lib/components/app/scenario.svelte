@@ -6,7 +6,7 @@
   import Button from "$lib/components/ui/button/button.svelte";
   import { base } from "$app/paths";
   import { getAppContext, exampleScenario } from "./app.svelte";
-  import { Minus, Plus, SquarePen, ChevronRight } from "lucide-svelte";
+  import { Minus, Plus, SquarePen } from "lucide-svelte";
   import Input from "../ui/input/input.svelte";
   import { cn } from "$lib/utils";
   import type { Snippet } from "svelte";
@@ -14,15 +14,15 @@
   import type { ChartData } from "./diverging-bar-chart.svelte";
 
   let {
-    timeSpanDays = $bindable(30),
     class: className = "",
     children,
     onScenarioChange = () => {},
+    highlightedProductId = $bindable(""),
   }: {
-    timeSpanDays?: number;
     class?: string;
     children?: Snippet;
     onScenarioChange?: (timeData: ChartData) => void;
+    highlightedProductId?: string;
   } = $props();
 
   const app = getAppContext();
@@ -30,17 +30,17 @@
   let evalData: Record<string, { quantity: number }> = $state(structuredClone(exampleScenario));
   let evalProducts = $derived(app.products.filter((p) => Object.keys(evalData).includes(p.id)));
 
-  let timeData: ChartData = $derived(
-    evalProducts.flatMap((p) =>
+  $effect(() => {
+    let timeData = evalProducts.flatMap((p) =>
       p.time.map((t) => ({
+        productId: p.id,
         value: t.value * evalData[p.id].quantity,
         sentiment: t.rating,
         profitability: p.profitability,
       }))
-    )
-  );
-
-  $effect(() => onScenarioChange(timeData));
+    );
+    onScenarioChange(timeData);
+  });
 
   let selectedIds: string[] = $state(Object.keys(evalData));
   $effect(() => {
@@ -58,11 +58,6 @@
         evalData[id] = { quantity: 0 };
       }
     });
-  });
-
-  let timeSpanString = $state(timeSpanDays.toString());
-  $effect(() => {
-    timeSpanDays = parseInt(timeSpanString) || 30; // Update timeSpanDays based on timeSpanString
   });
 
   let totalTime = $derived(
@@ -101,39 +96,13 @@
 </script>
 
 <div class={cn("min-w-[220px]", className)}>
-  <Card.Header class="p-0 grid grid-cols-[1fr,auto,auto] gap-2">
+  <Card.Header class="p-0 grid grid-cols-[1fr,auto] gap-2">
     <Card.Title class="flex gap-2 items-center">
       <img src="{base}/images/rocket.png" class="w-8" alt="goals icon" />
       Scenario
     </Card.Title>
-    <Select.Root type="single" bind:value={timeSpanString}>
-      <Select.Trigger class="w-28">{timeSpanString + " days"}</Select.Trigger>
-      <Select.Content>
-        <Select.Item value="7">7 days</Select.Item>
-        <Select.Item value="30">30 days</Select.Item>
-        <Select.Item value="90">90 days</Select.Item>
-        <Select.Item value="180">180 days</Select.Item>
-        <Select.Item value="365">365 days</Select.Item>
-      </Select.Content>
-    </Select.Root>
-    <Select.Root type="multiple" bind:value={selectedIds}>
-      <Select.Trigger class="w-48">Select products ({evalProducts.length})</Select.Trigger>
-      <Select.Content>
-        {#each app.products as product}
-          <Select.Item value={product.id}>
-            <img
-              src={product.url || `${base}/images/cube.png`}
-              class="w-6 min-w-6 aspect-square mr-2"
-              alt={product.name}
-            />
-            {product.name}
-          </Select.Item>
-        {/each}
-        <a href="{base}/">
-          <Button class="py-2" variant="link">Manage Products →</Button>
-        </a>
-      </Select.Content>
-    </Select.Root>
+
+    
   </Card.Header>
   <Card.Content class="px-0 pb-0">
     <!-- {#if evalProducts.length > 0} -->
@@ -155,8 +124,11 @@
       </Table.Header>
       <Table.Body>
         {#each evalProducts as product}
-          <Table.Row>
-            <Table.Cell class="pl-0">
+          <Table.Row
+            class={cn("", highlightedProductId == product.id && "ring-primary ring-2 ring-inset ring-offset-1 rounded-md")}
+            onpointerdown={() => (highlightedProductId = product.id)}
+          >
+            <Table.Cell class="">
               <Button
                 variant="outline"
                 class="flex gap-2 pl-3"
@@ -230,7 +202,26 @@
       </Table.Body>
       <Table.Footer>
         <Table.Row>
-          <Table.Cell colspan={4}></Table.Cell>
+          <Table.Cell colspan={4}>
+            <Select.Root type="multiple" bind:value={selectedIds}>
+              <Select.Trigger class="w-48">Select products ({evalProducts.length})</Select.Trigger>
+              <Select.Content>
+                {#each app.products as product}
+                  <Select.Item value={product.id}>
+                    <img
+                      src={product.url || `${base}/images/cube.png`}
+                      class="w-6 min-w-6 aspect-square mr-2"
+                      alt={product.name}
+                    />
+                    {product.name}
+                  </Select.Item>
+                {/each}
+                <a href="{base}/">
+                  <Button class="py-2" variant="link">Manage Products →</Button>
+                </a>
+              </Select.Content>
+            </Select.Root>
+          </Table.Cell>
           <Table.Cell class="text-right text-amber-600">
             {totalTime} hrs
           </Table.Cell>

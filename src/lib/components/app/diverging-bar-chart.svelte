@@ -1,27 +1,43 @@
 <script lang="ts">
   import { cn } from "$lib/utils";
   import { flip } from "svelte/animate";
-  import Button from "../ui/button/button.svelte";
+  import Button from "$lib/components/ui/button/button.svelte";
   import * as Tabs from "$lib/components/ui/tabs/index.js";
-
+  import { getAppContext } from "./app.svelte";
+  import { base } from "$app/paths";
+  import { Minus, X, SquarePen } from "lucide-svelte";
 
   // ==========================================
   // TYPES
   // ==========================================
   type GroupId = number; // 0-3
-  export type ChartData = { value: number; sentiment: number; profitability: number }[];
+  export type ChartData = {
+    value: number;
+    productId: string;
+    sentiment: number;
+    profitability: number;
+  }[];
   type GroupByKey = "sentiment" | "profitability";
 
   // ==========================================
   // PROPS
   // ==========================================
-  type Props = { data?: ChartData; groupBy?: GroupByKey };
-  let { data = [], groupBy = $bindable("sentiment") }: Props = $props();
+  type Props = {
+    data?: ChartData;
+    groupBy?: GroupByKey;
+    highlightedProductId?: string;
+  };
+  let {
+    data = [],
+    groupBy = $bindable("sentiment"),
+    highlightedProductId = $bindable(""),
+  }: Props = $props();
 
   // ==========================================
   // CONSTANTS
   // ==========================================
 
+  const app = getAppContext();
   const SENTIMENT_LABELS: Record<GroupId, string> = {
     0: "Bad",
     1: "Negative",
@@ -42,8 +58,9 @@
   let segments = $derived.by(() => {
     if (totalValue === 0) return [];
 
-    const unsorted = data.map((d, idx) => ({
-      id: idx,
+    const unsorted = data.map((d, i) => ({
+      key: d.productId + i,
+      productId: d.productId,
       sentimentId: d.sentiment,
       profitabilityId: d.profitability,
       value: d.value,
@@ -83,13 +100,21 @@
 <div>
   <div role="figure" aria-label="Nested bar chart grouped by {groupBy}">
     <div class="flex">
-      {#each segments as seg, i (seg.id)}
+      {#each segments as seg, i (seg.key)}
         <!-- lastOfGroup should check using the groupData.segmentCount -->
         {@const id = groupBy === "sentiment" ? seg.sentimentId : seg.profitabilityId}
         {@const group = groupIndexMap[id]}
         {@const inbetweenGroup = i === group.startingIndex && i > 0}
         <div
-          class={cn("overflow-hidden whitespace-nowrap")}
+          onpointerdown={() =>
+            highlightedProductId == seg.productId
+              ? (highlightedProductId = "")
+              : (highlightedProductId = seg.productId)}
+          class={cn(
+            "relative cursor-pointer transition-[margin]",
+            highlightedProductId === seg.productId &&
+              "-mt-3 mb-3 after:absolute after:inset-0 after:content-[''] after:ring-[1px] after:ring-inset after:rounded after:ring-offset-0 after:ring-primary after:z-10  before:absolute before:inset-0 before:content-[''] before:ring-[1px] before:rounded before:ring-offset-0 before:ring-primary before:z-10"
+          )}
           animate:flip={{ duration: 600 }}
           style="
               width: {seg.width}%;
@@ -101,31 +126,33 @@
         >
           <div
             class={cn(
-              "ease-in-out transition-all flex items-center justify-center text-xs text-background h-8 border border-background",
+              "font-medium ease-in-out transition-all flex items-center justify-center text-xs text-background h-8 border border-background",
               groupBy == "sentiment" && "h-2 text-transparent",
               seg.profitabilityId == 0 && "bg-orange-700",
               seg.profitabilityId == 1 && "bg-yellow-500",
               seg.profitabilityId == 2 && "bg-lime-600",
-              seg.profitabilityId == 3 && "bg-green-600"
+              seg.profitabilityId == 3 && "bg-green-600",
+              highlightedProductId === seg.productId && ""
             )}
           >
-            <!-- {#if seg.width >= 5}
+            {#if seg.width >= 5 && highlightedProductId == seg.productId}
               {seg.width.toFixed(0)}%
-            {/if} -->
+            {/if}
           </div>
           <div
             class={cn(
-              "ease-in-out transition-all h-2 text-transparent mt-0.5 border border-background flex items-center justify-center text-xs",
+              "font-medium ease-in-out transition-all h-2 text-transparent mt-0.5 border border-background flex items-center justify-center text-xs",
               groupBy == "sentiment" && "h-8 text-background",
               seg.sentimentId == 0 && "bg-purple-200",
               seg.sentimentId == 1 && "bg-purple-300",
               seg.sentimentId == 2 && "bg-indigo-300",
-              seg.sentimentId == 3 && "bg-blue-300"
+              seg.sentimentId == 3 && "bg-blue-300",
+              highlightedProductId === seg.productId && ""
             )}
           >
-            <!-- {#if seg.width >= 5}
+            {#if seg.width >= 5 && highlightedProductId == seg.productId}
               {seg.width.toFixed(0)}%
-            {/if} -->
+            {/if}
           </div>
         </div>
       {/each}
@@ -141,14 +168,5 @@
         </div>
       {/each}
     </div>
-  </div>
-  <div class="mt-10 flex justify-end">
-    
-    <Tabs.Root bind:value={groupBy} class="">
-      <Tabs.List>
-        <Tabs.Trigger value="sentiment">Sentiment</Tabs.Trigger>
-        <Tabs.Trigger value="profitability">Profitability</Tabs.Trigger>
-      </Tabs.List>
-    </Tabs.Root>
   </div>
 </div>

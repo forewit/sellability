@@ -9,11 +9,18 @@
 
 
   let timeData: ChartData = $state([]);
+  let highlightedProductId = $state("")
 </script>
+
+<svelte:window
+  onkeydown={(e) => {
+    if (e.key == "Escape") highlightedProductId = "";
+  }}
+/>
 
 <Card.Root class="h-min m-3">
   <Card.Content>
-    <Scenario onScenarioChange={(data) => { timeData = data; }}/>
+    <Scenario onScenarioChange={(data) => { timeData = data; }} bind:highlightedProductId/>
   </Card.Content>
 </Card.Root>
 
@@ -27,13 +34,8 @@
   <Card.Root class="h-min">
 
     <Card.Content>
-      <ScenarioTime {timeData}/>
+      <ScenarioTime {timeData} bind:highlightedProductId/>
     </Card.Content>
   </Card.Root>
-
-  <Card.Root class="h-min">
-    <Card.Content>
-      <ScenarioProfit />
-    </Card.Content>
-  </Card.Root>
+\
 </div>
