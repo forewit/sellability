@@ -102,7 +102,7 @@
     <Table.Header>
       <Table.Row>
         <Table.Head class="">Product</Table.Head>
-        <Table.Head class="">Sell Price</Table.Head>
+        <Table.Head class="">Price</Table.Head>
         <Table.Head class="">Quantity</Table.Head>
         <Table.Head>Profitability</Table.Head>
         <Table.Head class="text-right">Time</Table.Head>
