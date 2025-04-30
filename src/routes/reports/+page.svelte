@@ -15,11 +15,18 @@
 
   const app = getAppContext();
 
+  let scenario: Record<string, { quantity: number }> = $state({});
   let timeData: ChartData = $state([]);
   let highlightedProductId = $state("");
   let displayDonutChart = $state(false);
   let showLegend = $state(false);
   let groupBy: "sentiment" | "profitability" = $state("sentiment");
+
+
+  let showChart = $derived(timeData.reduce((acc, curr) => acc + curr.value, 0) > 0);
+  $effect(() => {
+    if (Object.keys(scenario).length == 0) highlightedProductId = "";
+  });
 </script>
 
 <svelte:window
@@ -37,7 +44,11 @@
     </Card.Title>
   </Card.Header>
   <Card.Content class="">
-    <Scenario onScenarioChange={(data) => (timeData = data)} bind:highlightedProductId />
+    <Scenario
+      bind:scenario
+      onScenarioChange={(data) => (timeData = data)}
+      bind:highlightedProductId
+    />
   </Card.Content>
 </Card.Root>
 
@@ -45,7 +56,7 @@
   <!-- Goals -->
   <Card.Root class="h-min">
     <Card.Content>
-      <Goals class="" />
+      <Goals />
     </Card.Content>
   </Card.Root>
 
@@ -71,44 +82,61 @@
         </div>
       </Card.Title>
     </Card.Header>
-    <Card.Content class={cn(displayDonutChart && "py-2 overflow-hidden")}>
-      {#if displayDonutChart}
-        <DonutChart data={timeData} bind:highlightedProductId bind:groupBy bind:showLegend />
-      {:else}
-        <DivergingBarChart data={timeData} bind:highlightedProductId bind:groupBy bind:showLegend />
-      {/if}
-    </Card.Content>
-    <Card.Footer class="flex  gap-4 flex-wrap justify-end">
-      <div class="flex gap-2">
-        {#if highlightedProductId}
-          <Button
-            variant="outline"
-            class="flex gap-2 pl-3"
-            onclick={() => (app.selectedProductId = highlightedProductId)}
-          >
-            {@const product = app.products.find((p) => p.id == highlightedProductId)}
-            <img
-              src={product?.url || `${base}/images/cube.png`}
-              class="w-6 min-w-6 aspect-square"
-              alt={product?.name}
-            />
-            {product?.name}
-            <SquarePen />
-          </Button>
-          <Button
-            onclick={() => (highlightedProductId = "")}
-            class="p-2 hover:bg-transparent"
-            variant="ghost"><X /></Button
-          >
+    {#if showChart}
+      <Card.Content class={cn(displayDonutChart && "py-2 overflow-hidden")}>
+        {#if displayDonutChart}
+          <DonutChart data={timeData} bind:highlightedProductId bind:groupBy bind:showLegend />
+        {:else}
+          <DivergingBarChart
+            data={timeData}
+            bind:highlightedProductId
+            bind:groupBy
+            bind:showLegend
+          />
         {/if}
-      </div>
-      <div class="grow"></div>
-      <Tabs.Root bind:value={groupBy}>
-        <Tabs.List>
-          <Tabs.Trigger value="sentiment">Sentiment</Tabs.Trigger>
-          <Tabs.Trigger value="profitability">Profitability</Tabs.Trigger>
-        </Tabs.List>
-      </Tabs.Root>
-    </Card.Footer>
+      </Card.Content>
+      <Card.Footer class="flex  gap-4 flex-wrap justify-end">
+        <div class="flex gap-2">
+          {#if highlightedProductId}
+            <Button
+              variant="outline"
+              class="flex gap-2 pl-3"
+              onclick={() => (app.selectedProductId = highlightedProductId)}
+            >
+              {@const product = app.products.find((p) => p.id == highlightedProductId)}
+              <img
+                src={product?.url || `${base}/images/cube.png`}
+                class="w-6 min-w-6 aspect-square"
+                alt={product?.name}
+              />
+              {product?.name}
+              <SquarePen />
+            </Button>
+            <Button
+              onclick={() => (highlightedProductId = "")}
+              class="p-2 hover:bg-transparent"
+              variant="ghost"><X /></Button
+            >
+          {/if}
+        </div>
+        <div class="grow"></div>
+        <Tabs.Root bind:value={groupBy}>
+          <Tabs.List>
+            <Tabs.Trigger value="sentiment">Sentiment</Tabs.Trigger>
+            <Tabs.Trigger value="profitability">Profitability</Tabs.Trigger>
+          </Tabs.List>
+        </Tabs.Root>
+      </Card.Footer>
+    {:else}
+      <Card.Content class="">
+        <div class="text-center pb-6">
+          {#if Object.keys(scenario).length > 0}
+            Your selected products don't have any time data
+          {:else}
+            Select products to see time data
+          {/if}
+        </div>
+      </Card.Content>
+    {/if}
   </Card.Root>
 </div>

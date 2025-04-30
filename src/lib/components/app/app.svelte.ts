@@ -1,4 +1,5 @@
 import { getContext, setContext } from 'svelte';
+import { saveToStorage, getFromStorage,  } from './localstorage';
 
 export type Product = {
     id: string;
@@ -118,36 +119,13 @@ export const exampleScenario: Record<string, { quantity: number }> = {
     "rocking-horse-005": { quantity: 3 }
 };
 
+
 // Local storage keys
 const STORAGE_KEYS = {
     PRODUCTS: 'craftify-products',
     PROFIT_GOALS: 'craftify-profit-goals',
     LABOR_GOALS: 'craftify-labor-goals'
 };
-
-// Helper function to safely parse JSON from localStorage
-function getFromStorage<T>(key: string, fallback: T): T {
-    if (typeof window === 'undefined') return fallback;
-
-    try {
-        const storedValue = localStorage.getItem(key);
-        return storedValue ? JSON.parse(storedValue) : fallback;
-    } catch (error) {
-        console.error(`Error loading ${key} from localStorage:`, error);
-        return fallback;
-    }
-}
-
-// Helper function to safely store JSON to localStorage
-function saveToStorage(key: string, value: any): void {
-    if (typeof window === 'undefined') return;
-
-    try {
-        localStorage.setItem(key, JSON.stringify(value));
-    } catch (error) {
-        console.error(`Error saving ${key} to localStorage:`, error);
-    }
-}
 
 function createApp() {
     let products: Product[] = $state(getFromStorage(STORAGE_KEYS.PRODUCTS, []));
@@ -159,7 +137,7 @@ function createApp() {
             const expenses = p.expenses.reduce((total, expense) => total + expense.value, 0);
             const time = p.time.reduce((total, time) => total + time.value, 0);
             const profit = p.price - expenses;
-            const hourlyRate = profit / time;
+            const hourlyRate = profit / Math.max(time, 0.01);
 
             acc[p.id] = {
                 id: p.id,
@@ -174,8 +152,8 @@ function createApp() {
     );
 
     function rateProfitability(rate: number) {
-        const timeMin = timeGoals[0];
-        const timeMax = timeGoals[1];
+        const timeMin = Math.max(timeGoals[0], 0.01);
+        const timeMax = Math.max(timeGoals[1], 0.01);
         const profitMax = profitGoals[0];
         const profitMin = profitGoals[1];
 
@@ -209,16 +187,20 @@ function createApp() {
 
     // Set up effects to sync state with localStorage whenever it changes
     $effect(() => {
+       JSON.stringify(products);
         saveToStorage(STORAGE_KEYS.PRODUCTS, products);
     });
 
     $effect(() => {
+        JSON.stringify(profitGoals);
         saveToStorage(STORAGE_KEYS.PROFIT_GOALS, profitGoals);
     });
 
     $effect(() => {
+        JSON.stringify(timeGoals)
         saveToStorage(STORAGE_KEYS.LABOR_GOALS, timeGoals);
     });
+
 
 
     return {
@@ -226,6 +208,7 @@ function createApp() {
         get products() { return products },
         get selectedProduct() { return selectedProduct },
         get productData() { return productData },
+        get STORAGE_KEYS() { return STORAGE_KEYS },
 
         // helper functions
         newProduct,

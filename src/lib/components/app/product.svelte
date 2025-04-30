@@ -14,9 +14,11 @@
   import Slider from "$lib/components/ui/slider/slider.svelte";
   import Heart from "$lib/components/custom/heart.svelte";
 
-  let { product, class: className = "" }: { product?: Product; class?: string } = $props();
+  let { productId = "", class: className = "" }: { productId?: string; class?: string } = $props();
 
   const app = getAppContext();
+
+  let product = $derived(app.products.find(p=>p.id == productId))
 
   let otherExpense = $state("");
   function addOtherExpense() {
@@ -198,6 +200,6 @@
       </Dialog.Root>
     </Card.Footer>
   {:else}
-    <div class="py-12 text-center p-4">Choose a product to edit</div>
+    <div class="py-12 text-center p-4"></div>
   {/if}
 </div>

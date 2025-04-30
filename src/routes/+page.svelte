@@ -9,7 +9,7 @@
   const app = getAppContext();
 </script>
 
-<Card.Root class="h-min m-2">
+<Card.Root class="h-min m-3">
   <Card.Header>
     <Card.Title class="flex gap-2 items-center">
       <img src="{base}/images/cube.png" class="w-8" alt="goals icon" />
@@ -20,6 +20,6 @@
     <ProductTable />
   </Card.Content>
   <Card.Footer>
-    <Button onclick={app.newProduct}><Plus />New Product</Button>
+    <Button onclick={()=>{const id=app.newProduct(); app.selectedProductId = id;}}><Plus />New Product</Button>
   </Card.Footer>
 </Card.Root>

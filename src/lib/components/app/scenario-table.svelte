@@ -5,7 +5,7 @@
   import Button from "$lib/components/ui/button/button.svelte";
   import { base } from "$app/paths";
   import { getAppContext, exampleScenario } from "./app.svelte";
-  import { Minus, Plus, SquarePen } from "lucide-svelte";
+  import { Minus, Plus, Square, SquareCheck, SquarePen, SquareMinus } from "lucide-svelte";
   import Input from "../ui/input/input.svelte";
   import { cn } from "$lib/utils";
   import type { Snippet } from "svelte";
@@ -17,23 +17,24 @@
     children,
     onScenarioChange = () => {},
     highlightedProductId = $bindable(""),
+    scenario = $bindable({})
   }: {
     class?: string;
     children?: Snippet;
     onScenarioChange?: (timeData: ChartData) => void;
     highlightedProductId?: string;
+    scenario?: Record<string, { quantity: number }>;
   } = $props();
 
   const app = getAppContext();
 
-  let evalData: Record<string, { quantity: number }> = $state(structuredClone(exampleScenario));
-  let evalProducts = $derived(app.products.filter((p) => Object.keys(evalData).includes(p.id)));
+  let evalProducts = $derived(app.products.filter((p) => Object.keys(scenario).includes(p.id)));
 
   $effect(() => {
     let timeData = evalProducts.flatMap((p) =>
       p.time.map((t) => ({
         productId: p.id,
-        value: t.value * evalData[p.id].quantity,
+        value: t.value * scenario[p.id].quantity,
         sentiment: t.rating,
         profitability: app.productData[p.id].profitability,
       }))
@@ -41,20 +42,20 @@
     onScenarioChange(timeData);
   });
 
-  let selectedIds: string[] = $state(Object.keys(evalData));
+  let selectedIds: string[] = $state(Object.keys(scenario));
   $effect(() => {
     // sync selectIds and evalData (update evalData when selectedIds changes)
     untrack(() =>
-      Object.keys(evalData).forEach((id) => {
+      Object.keys(scenario).forEach((id) => {
         if (!selectedIds.includes(id)) {
-          delete evalData[id];
+          delete scenario[id];
         }
       })
     );
 
     selectedIds.forEach((id) => {
-      if (untrack(() => !evalData[id])) {
-        evalData[id] = { quantity: 0 };
+      if (untrack(() => !scenario[id])) {
+        scenario[id] = { quantity: 0 };
       }
     });
   });
@@ -62,7 +63,7 @@
   let totalTime = $derived(
     evalProducts.reduce(
       (total, product) =>
-        total + evalData[product.id].quantity * (app.productData[product.id].time || 0),
+        total + scenario[product.id].quantity * (app.productData[product.id].time || 0),
       0
     )
   );
@@ -71,7 +72,7 @@
     evalProducts
       .reduce(
         (total, product) =>
-          total + evalData[product.id].quantity * (app.productData[product.id].expenses || 0),
+          total + scenario[product.id].quantity * (app.productData[product.id].expenses || 0),
         0
       )
       .toFixed(2)
@@ -79,7 +80,7 @@
 
   let totalRevenue = $derived(
     evalProducts
-      .reduce((total, product) => total + evalData[product.id].quantity * product.price || 0, 0)
+      .reduce((total, product) => total + scenario[product.id].quantity * product.price || 0, 0)
       .toFixed(2)
   );
 
@@ -87,7 +88,7 @@
     evalProducts
       .reduce(
         (total, product) =>
-          total + evalData[product.id].quantity * (app.productData[product.id].profit || 0),
+          total + scenario[product.id].quantity * (app.productData[product.id].profit || 0),
         0
       )
       .toFixed(2)
@@ -101,10 +102,10 @@
     <Table.Header>
       <Table.Row>
         <Table.Head class="">Product</Table.Head>
-        <Table.Head class="">Sell Price (each)</Table.Head>
+        <Table.Head class="">Sell Price</Table.Head>
         <Table.Head class="">Quantity</Table.Head>
         <Table.Head>Profitability</Table.Head>
-        <Table.Head class="text-right">Time (hrs)</Table.Head>
+        <Table.Head class="text-right">Time</Table.Head>
         <Table.Head class="text-right">Revenue</Table.Head>
         <Table.Head class="px-0"></Table.Head>
         <Table.Head class="text-right">Expenses</Table.Head>
@@ -116,9 +117,9 @@
       {#each evalProducts as product}
         <Table.Row
           class={cn(
-            "",
+            "relative",
             highlightedProductId == product.id &&
-              "ring-primary ring-2 ring-inset ring-offset-1 rounded-md"
+              "after:absolute after:inset-0 after:content-[''] after:ring-2 after:ring-inset after:rounded-md after:ring-offset-0 after:ring-primary after:pointer-events-none"
           )}
           onpointerdown={() => (highlightedProductId = product.id)}
         >
@@ -151,8 +152,8 @@
               size="sm"
               variant="ghost"
               onclick={() => {
-                if (evalData[product.id].quantity > 0) evalData[product.id].quantity--;
-                else evalData[product.id].quantity = 0;
+                if (scenario[product.id].quantity > 0) scenario[product.id].quantity--;
+                else scenario[product.id].quantity = 0;
               }}
             >
               <Minus />
@@ -161,10 +162,10 @@
               class="w-16"
               type="number"
               inputmode="numeric"
-              bind:value={evalData[product.id].quantity}
+              bind:value={scenario[product.id].quantity}
               min="0"
             />
-            <Button size="sm" variant="ghost" onclick={() => evalData[product.id].quantity++}>
+            <Button size="sm" variant="ghost" onclick={() => scenario[product.id].quantity++}>
               <Plus />
             </Button>
           </Table.Cell>
@@ -174,20 +175,20 @@
             </div>
           </Table.Cell>
           <Table.Cell class="text-right">
-            {evalData[product.id].quantity * (app.productData[product.id].time || 0)} hrs
+            {scenario[product.id].quantity * (app.productData[product.id].time || 0)} hrs
           </Table.Cell>
           <Table.Cell class="text-right">
-            ${(evalData[product.id].quantity * product.price).toFixed(2)}
+            ${(scenario[product.id].quantity * product.price).toFixed(2)}
           </Table.Cell>
           <Table.Cell class="text-right p-0">-</Table.Cell>
           <Table.Cell class="text-right">
-            ${(evalData[product.id].quantity * (app.productData[product.id].expenses || 0)).toFixed(
+            ${(scenario[product.id].quantity * (app.productData[product.id].expenses || 0)).toFixed(
               2
             )}
           </Table.Cell>
           <Table.Cell class="text-right p-0">=</Table.Cell>
           <Table.Cell class="text-right"
-            >${(evalData[product.id].quantity * (app.productData[product.id].profit || 0)).toFixed(
+            >${(scenario[product.id].quantity * (app.productData[product.id].profit || 0)).toFixed(
               2
             )}</Table.Cell
           >
@@ -200,6 +201,21 @@
           <Select.Root type="multiple" bind:value={selectedIds}>
             <Select.Trigger class="w-48">Select products ({evalProducts.length})</Select.Trigger>
             <Select.Content>
+              {#if evalProducts.length <= 0}
+                  <Button
+                    variant="link"
+                    class="mb-1 pl-2 font-normal"
+                    onclick={() => (selectedIds = app.products.map((p) => p.id))}><Square/>Select all</Button
+                  >
+                {:else if evalProducts.length < app.products.length}
+                  <Button variant="link" class="mb-1 pl-2 font-normal" onclick={() => (selectedIds = [])}
+                    ><SquareMinus />Deselect all</Button
+                  >
+                {:else}
+                  <Button variant="link" class="mb-1 pl-2 font-normal" onclick={() => (selectedIds = [])}
+                    ><SquareCheck />Deselect all</Button
+                  >
+                {/if}
               {#each app.products as product}
                 <Select.Item value={product.id}>
                   <img
@@ -210,9 +226,7 @@
                   {product.name}
                 </Select.Item>
               {/each}
-              <a href="{base}/">
-                <Button class="py-2" variant="link">Manage Products →</Button>
-              </a>
+                <Button href="{base}/" class="" variant="link">Manage Products →</Button>
             </Select.Content>
           </Select.Root>
         </Table.Cell>
