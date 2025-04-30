@@ -28,7 +28,7 @@
 <SafeAreas>
   <!-- main page with toolbar -->
   <div
-    class="h-lvh w-lvw grid relative pl-[var(--safe-area-left)] pr-[var(--safe-area-right)]"
+    class="h-full w-full grid relative pl-[var(--safe-area-left)] pr-[var(--safe-area-right)]"
   >
     <ScrollArea type="always">
       
