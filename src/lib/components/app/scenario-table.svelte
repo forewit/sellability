@@ -115,7 +115,7 @@
     </Table.Header>
     <Table.Body>
       {#each evalProducts as product}
-        <Table.Row class="relative" onpointerdown={() => (highlightedProductId = product.id)}>
+        <Table.Row class="md:relative relative" onpointerdown={() => (highlightedProductId = product.id)}>
           <Table.Cell class="">
             <Button
               variant="outline"
