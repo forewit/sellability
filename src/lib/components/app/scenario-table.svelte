@@ -115,9 +115,8 @@
     </Table.Header>
     <Table.Body>
       {#each evalProducts as product}
-      <div class="relative">
         <Table.Row
-          class={cn(
+          class={cn("relative",
             highlightedProductId == product.id &&
               "after:absolute after:inset-0 after:content-[''] after:ring-2 after:ring-inset after:rounded-md after:ring-offset-0 after:ring-primary after:pointer-events-none"
           )}
@@ -192,14 +191,7 @@
               2
             )}</Table.Cell
           >
-          <div class={cn(
-            "absolute",
-                      highlightedProductId == product.id &&
-                        "inset-0 ring-2 ring-inset rounded-md ring-offset-0 ring-primary pointer-events-none"
-                    )}></div>
         </Table.Row>
-      </div>
-
       {/each}
     </Table.Body>
     <Table.Footer>
