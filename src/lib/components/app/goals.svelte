@@ -30,8 +30,8 @@
           <Input
             id="profit-target-input"
             type="number"
-            min={app.monthlyProfitGoal[1]}
-            bind:value={app.monthlyProfitGoal[0]}
+            min={app.profitGoals[1]}
+            bind:value={app.profitGoals[0]}
             class="w-24 border-green-600 text-green-600"
           />
           <Label
@@ -44,9 +44,9 @@
           <Input
             id="profit-min-input"
             type="number"
-            bind:value={app.monthlyProfitGoal[1]}
+            bind:value={app.profitGoals[1]}
             class="w-24 border-yellow-600 text-yellow-600"
-            max={app.monthlyProfitGoal[0]}
+            max={app.profitGoals[0]}
             min={0}
             step={1}
           />
@@ -70,7 +70,7 @@
             "[&>span:nth-child(3)]:bg-yellow-400 [&>span:nth-child(3)]:w-1.5 [&>span:nth-child(3)]:h-4 [&>span:nth-child(3)]:border"
           )}
           type="multiple"
-          bind:value={app.weeklyLaborGoals}
+          bind:value={app.timeGoals}
           max={app.MAX_WEEKLY_HOURS}
           min={0}
           step={1}
@@ -81,8 +81,8 @@
               id="time-target-input"
               type="number"
               min={0}
-              max={app.weeklyLaborGoals[1]}
-              bind:value={app.weeklyLaborGoals[0]}
+              max={app.timeGoals[1]}
+              bind:value={app.timeGoals[0]}
               class="w-24 border-green-600 text-green-600"
             />
             <Label
@@ -95,10 +95,10 @@
             <Input
               id="time-max-input"
               type="number"
-              bind:value={app.weeklyLaborGoals[1]}
+              bind:value={app.timeGoals[1]}
               class="w-24 border-yellow-600 text-yellow-600"
               max={app.MAX_WEEKLY_HOURS}
-              min={app.weeklyLaborGoals[0]}
+              min={app.timeGoals[0]}
               step={1}
             />
             <Label

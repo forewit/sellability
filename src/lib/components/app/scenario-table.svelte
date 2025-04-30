@@ -220,8 +220,8 @@
           <div
             class={cn(
               "text-background flex items-center px-3 py-2 rounded-lg bg-red-600",
-              Number(totalTime) <= app.weeklyLaborGoals[1] && "bg-yellow-600",
-              Number(totalTime) <= app.weeklyLaborGoals[0] && "bg-green-600",
+              Number(totalTime) <= app.timeGoals[1] && "bg-yellow-600",
+              Number(totalTime) <= app.timeGoals[0] && "bg-green-600",
             )}
           >
             {totalTime} hrs
@@ -239,8 +239,8 @@
           <div
             class={cn(
               "text-background flex items-center px-3 py-2 rounded-lg bg-red-600",
-              Number(totalProfit) >= app.monthlyProfitGoal[1] && "bg-yellow-600",
-              Number(totalProfit) >= app.monthlyProfitGoal[0] && "bg-green-600"
+              Number(totalProfit) >= app.profitGoals[1] && "bg-yellow-600",
+              Number(totalProfit) >= app.profitGoals[0] && "bg-green-600"
             )}
           >
             ${totalProfit}

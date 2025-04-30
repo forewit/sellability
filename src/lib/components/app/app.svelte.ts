@@ -118,16 +118,41 @@ export const exampleScenario: Record<string, { quantity: number }> = {
     "rocking-horse-005": { quantity: 3 }
 };
 
-function rateProfitability(hourlyRate: number) {
-    // rates profitability from 0-3
-    if (hourlyRate < 10) return 0;
-    if (hourlyRate < 20) return 1;
-    if (hourlyRate < 30) return 2;
-    return 3;
+// Local storage keys
+const STORAGE_KEYS = {
+    PRODUCTS: 'craftify-products',
+    PROFIT_GOALS: 'craftify-profit-goals',
+    LABOR_GOALS: 'craftify-labor-goals'
+};
+
+// Helper function to safely parse JSON from localStorage
+function getFromStorage<T>(key: string, fallback: T): T {
+    if (typeof window === 'undefined') return fallback;
+
+    try {
+        const storedValue = localStorage.getItem(key);
+        return storedValue ? JSON.parse(storedValue) : fallback;
+    } catch (error) {
+        console.error(`Error loading ${key} from localStorage:`, error);
+        return fallback;
+    }
+}
+
+// Helper function to safely store JSON to localStorage
+function saveToStorage(key: string, value: any): void {
+    if (typeof window === 'undefined') return;
+
+    try {
+        localStorage.setItem(key, JSON.stringify(value));
+    } catch (error) {
+        console.error(`Error saving ${key} to localStorage:`, error);
+    }
 }
 
 function createApp() {
-    let products: Product[] = $state(structuredClone(exampleInventory));
+    let products: Product[] = $state(getFromStorage(STORAGE_KEYS.PRODUCTS, []));
+    let profitGoals = $state(getFromStorage(STORAGE_KEYS.PROFIT_GOALS, [0, 0])); // [target, min]
+    let timeGoals = $state(getFromStorage(STORAGE_KEYS.LABOR_GOALS, [0, 0])); // [target, max]
 
     let productData: Record<string, ProductData> = $derived(
         products.reduce((acc, p) => {
@@ -148,6 +173,22 @@ function createApp() {
         }, {} as Record<string, ProductData>)
     );
 
+    function rateProfitability(rate: number) {
+        const timeMin = timeGoals[0];
+        const timeMax = timeGoals[1];
+        const profitMax = profitGoals[0];
+        const profitMin = profitGoals[1];
+
+        const minRate = profitMin / timeMax;
+        const midRate = ((profitMax / timeMax) + (profitMin / timeMin)) / 2;
+        const targetRate = profitMax / timeMin;
+
+        if (rate < minRate) return 0;
+        if (rate < midRate) return 1;
+        if (rate < targetRate) return 2;
+        return 3;
+    }
+
     const newProduct = () => {
         const id = crypto.randomUUID().slice(0, 8)
         products.push({ id: id, url: '', expenses: [], time: [], price: 0 })
@@ -161,22 +202,30 @@ function createApp() {
         }
     }
 
-    const MAX_WEEKLY_HOURS = 80;
-    let monthlyProfitGoal = $state([2000, 500]); // [target, minimum]
-    let weeklyLaborGoals = $state([30, 40]); // [target, maximum]
+
 
     let selectedProductId = $state("")
     let selectedProduct = $derived(products.find(p => p.id === selectedProductId))
 
-    let hoveringProdcutId = $state("")
-    let hoveringProduct = $derived(products.find(p => p.id === selectedProductId))
+    // Set up effects to sync state with localStorage whenever it changes
+    $effect(() => {
+        saveToStorage(STORAGE_KEYS.PRODUCTS, products);
+    });
+
+    $effect(() => {
+        saveToStorage(STORAGE_KEYS.PROFIT_GOALS, profitGoals);
+    });
+
+    $effect(() => {
+        saveToStorage(STORAGE_KEYS.LABOR_GOALS, timeGoals);
+    });
+
 
     return {
         // read only state
         get products() { return products },
         get selectedProduct() { return selectedProduct },
         get productData() { return productData },
-        MAX_WEEKLY_HOURS,
 
         // helper functions
         newProduct,
@@ -185,12 +234,10 @@ function createApp() {
         // editable state
         get selectedProductId() { return selectedProductId },
         set selectedProductId(value: string) { selectedProductId = value },
-        get hoveringProductId() { return hoveringProdcutId },
-        set hoveringProductId(value: string) { hoveringProdcutId = value },
-        get monthlyProfitGoal() { return monthlyProfitGoal },
-        set monthlyProfitGoal(value: number[]) { monthlyProfitGoal = value },
-        get weeklyLaborGoals() { return weeklyLaborGoals },
-        set weeklyLaborGoals(value: number[]) { weeklyLaborGoals = value },
+        get profitGoals() { return profitGoals },
+        set profitGoals(value: number[]) { profitGoals = value },
+        get timeGoals() { return timeGoals },
+        set timeGoals(value: number[]) { timeGoals = value },
     }
 }
 
