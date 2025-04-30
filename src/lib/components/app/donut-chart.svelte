@@ -49,8 +49,8 @@
   };
   
   const SVG_SIZE = 400;
-  const INNER_RADIUS = 115;
-  const OUTER_RADIUS = 180;
+  const INNER_RADIUS = 100;
+  const OUTER_RADIUS = 165;
   const CENTER = SVG_SIZE / 2;
   const GROUP_GAP = 10; // Gap between groups in degrees
   const SEGMENT_GAP = 0.5; // Gap between segments in degrees
@@ -230,8 +230,8 @@
   }
 </script>
 
-  <div class={cn("flex flex-col items-center overflow-hidden min-w-[450px]", className)} role="figure" aria-label="Pie chart grouped by {groupBy}">
-    <svg class="overflow-visible p-6" width={SVG_SIZE} height={SVG_SIZE} viewBox="0 0 {SVG_SIZE} {SVG_SIZE}">
+  <div class={cn("flex flex-col items-center", className)} role="figure" aria-label="Pie chart grouped by {groupBy}">
+    <svg class="overflow-visible" width={SVG_SIZE} height={SVG_SIZE} viewBox="0 0 {SVG_SIZE} {SVG_SIZE}">
       <!-- Outline circle for reference (optional) -->
       <circle 
         cx={CENTER} 

@@ -41,7 +41,7 @@
   </Card.Content>
 </Card.Root>
 
-<div class="flex md:flex-row flex-col justify-between gap-3 p-3">
+<div class="flex md:flex-row flex-col justify-between gap-3 px-3">
   <!-- Goals -->
   <Card.Root class="h-min">
     <Card.Content>
@@ -50,7 +50,7 @@
   </Card.Root>
 
   <!-- Scenario Chart -->
-  <Card.Root class={cn("h-min grow", displayDonutChart && "grow-0 w-[500px]")}>
+  <Card.Root class={cn("h-min grow")}>
     <Card.Header>
       <Card.Title class="flex items-center gap-2">
         <img src={`${base}/images/pie2.png`} class="w-8" alt="" />
@@ -71,7 +71,7 @@
         </div>
       </Card.Title>
     </Card.Header>
-    <Card.Content>
+    <Card.Content class={cn(displayDonutChart && "py-2 overflow-hidden")}>
       {#if displayDonutChart}
         <DonutChart data={timeData} bind:highlightedProductId bind:groupBy bind:showLegend />
       {:else}
