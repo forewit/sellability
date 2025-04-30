@@ -122,22 +122,24 @@ export const exampleScenario: Record<string, { quantity: number }> = {
 
 // Local storage keys
 const STORAGE_KEYS = {
-    PRODUCTS: 'craftify-products',
-    PROFIT_GOALS: 'craftify-profit-goals',
-    LABOR_GOALS: 'craftify-labor-goals'
+    PRODUCTS: 'sellability-products',
+    PROFIT_GOALS: 'sellability-profit-goals',
+    LABOR_GOALS: 'sellability-labor-goals',
+    SCENARIO: 'sellability-scenario'
 };
 
 function createApp() {
     let products: Product[] = $state(getFromStorage(STORAGE_KEYS.PRODUCTS, []));
     let profitGoals = $state(getFromStorage(STORAGE_KEYS.PROFIT_GOALS, [0, 0])); // [target, min]
     let timeGoals = $state(getFromStorage(STORAGE_KEYS.LABOR_GOALS, [0, 0])); // [target, max]
+    let scenario: Record<string, { quantity: number }> = $state(getFromStorage(STORAGE_KEYS.SCENARIO, {}));
 
     let productData: Record<string, ProductData> = $derived(
         products.reduce((acc, p) => {
             const expenses = p.expenses.reduce((total, expense) => total + expense.value, 0);
             const time = p.time.reduce((total, time) => total + time.value, 0);
             const profit = p.price - expenses;
-            const hourlyRate = profit / Math.max(time, 0.01);
+            const hourlyRate = profit / time;
 
             acc[p.id] = {
                 id: p.id,
@@ -152,8 +154,10 @@ function createApp() {
     );
 
     function rateProfitability(rate: number) {
-        const timeMin = Math.max(timeGoals[0], 0.01);
-        const timeMax = Math.max(timeGoals[1], 0.01);
+        if (isNaN(rate) || !isFinite(rate)) return 0;
+
+        const timeMin = timeGoals[0];
+        const timeMax = timeGoals[1];
         const profitMax = profitGoals[0];
         const profitMin = profitGoals[1];
 
@@ -201,7 +205,10 @@ function createApp() {
         saveToStorage(STORAGE_KEYS.LABOR_GOALS, timeGoals);
     });
 
-
+    $effect(() => {
+        JSON.stringify(scenario);
+        saveToStorage(STORAGE_KEYS.SCENARIO, scenario);
+    });
 
     return {
         // read only state
@@ -221,6 +228,9 @@ function createApp() {
         set profitGoals(value: number[]) { profitGoals = value },
         get timeGoals() { return timeGoals },
         set timeGoals(value: number[]) { timeGoals = value },
+        get scenario() { return scenario },
+        set scenario(value: Record<string, { quantity: number }>) { scenario = value },
+        
     }
 }
 

@@ -204,15 +204,15 @@
               {#if evalProducts.length <= 0}
                   <Button
                     variant="link"
-                    class="mb-1 pl-2 font-normal"
+                    class="mb-1 pl-2 font-normal hover:no-underline"
                     onclick={() => (selectedIds = app.products.map((p) => p.id))}><Square/>Select all</Button
                   >
                 {:else if evalProducts.length < app.products.length}
-                  <Button variant="link" class="mb-1 pl-2 font-normal" onclick={() => (selectedIds = [])}
+                  <Button variant="link" class="mb-1 pl-2 font-normal hover:no-underline" onclick={() => (selectedIds = [])}
                     ><SquareMinus />Deselect all</Button
                   >
                 {:else}
-                  <Button variant="link" class="mb-1 pl-2 font-normal" onclick={() => (selectedIds = [])}
+                  <Button variant="link" class="mb-1 pl-2 font-normal hover:no-underline" onclick={() => (selectedIds = [])}
                     ><SquareCheck />Deselect all</Button
                   >
                 {/if}

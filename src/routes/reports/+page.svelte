@@ -15,7 +15,6 @@
 
   const app = getAppContext();
 
-  let scenario: Record<string, { quantity: number }> = $state({});
   let timeData: ChartData = $state([]);
   let highlightedProductId = $state("");
   let displayDonutChart = $state(false);
@@ -25,7 +24,7 @@
 
   let showChart = $derived(timeData.reduce((acc, curr) => acc + curr.value, 0) > 0);
   $effect(() => {
-    if (Object.keys(scenario).length == 0) highlightedProductId = "";
+    if (Object.keys(app.scenario).length == 0) highlightedProductId = "";
   });
 </script>
 
@@ -45,7 +44,7 @@
   </Card.Header>
   <Card.Content class="">
     <Scenario
-      bind:scenario
+      bind:scenario={app.scenario}
       onScenarioChange={(data) => (timeData = data)}
       bind:highlightedProductId
     />
@@ -130,7 +129,7 @@
     {:else}
       <Card.Content class="">
         <div class="text-center pb-6">
-          {#if Object.keys(scenario).length > 0}
+          {#if Object.keys(app.scenario).length > 0}
             Your selected products don't have any time data
           {:else}
             Select products to see time data
