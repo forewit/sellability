@@ -30,6 +30,7 @@
           <Input
             id="profit-target-input"
             type="number"
+            inputmode="decimal"
             min={app.profitGoals[1]}
             bind:value={app.profitGoals[0]}
             class="w-24 border-green-600 text-green-600"
@@ -44,6 +45,7 @@
           <Input
             id="profit-min-input"
             type="number"
+            inputmode="decimal"
             bind:value={app.profitGoals[1]}
             class="w-24 border-yellow-600 text-yellow-600"
             max={app.profitGoals[0]}
@@ -71,7 +73,8 @@
           )}
           type="multiple"
           bind:value={app.timeGoals}
-          max={app.MAX_WEEKLY_HOURS}
+          inputmode="decimal"
+          max={80}
           min={0}
           step={1}
         />
@@ -82,6 +85,7 @@
               type="number"
               min={0}
               max={app.timeGoals[1]}
+              inputmode="decimal"
               bind:value={app.timeGoals[0]}
               class="w-24 border-green-600 text-green-600"
             />
@@ -96,8 +100,9 @@
               id="time-max-input"
               type="number"
               bind:value={app.timeGoals[1]}
+              inputmode="decimal"
               class="w-24 border-yellow-600 text-yellow-600"
-              max={app.MAX_WEEKLY_HOURS}
+              max={80}
               min={app.timeGoals[0]}
               step={1}
             />

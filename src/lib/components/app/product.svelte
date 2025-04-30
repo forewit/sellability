@@ -76,7 +76,7 @@
             <div class="flex flex-col gap-4">
               <div class="flex flex-col gap-2">
                 <Label for="price">Sell Price ($)</Label>
-                <Input id="price" type="number" bind:value={product.price} placeholder="0" />
+                <Input id="price" type="number" inputmode="decimal" bind:value={product.price} placeholder="0" />
               </div>
               <div class="flex flex-col gap-2">
                 <Label for="image">Image</Label>
