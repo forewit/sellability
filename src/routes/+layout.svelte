@@ -28,14 +28,14 @@
 <SafeAreas>
   <!-- main page with toolbar -->
   <div
-    class="h-svh w-svw grid relative pl-[var(--safe-area-left)] pr-[var(--safe-area-right)] pt-[var(--safe-area-top)]"
+    class="h-lvh w-lvw grid relative pl-[var(--safe-area-left)] pr-[var(--safe-area-right)]"
   >
     <ScrollArea type="always">
-      <div class="max-w-[1200px] m-auto">
-
-      {@render children?.()}
+      
+      <div class="max-w-[1200px] m-auto pt-[var(--safe-area-top)]">
+        {@render children?.()}
       </div>
-      <div class="h-24"></div>
+      <div class="h-24 pb-[var(--safe-area-bottom)]"></div>
     </ScrollArea>
     <Toolbar class="flex-row absolute left-1/2 -translate-x-1/2 bottom-5 z-20" />
   </div>
@@ -43,7 +43,7 @@
   <!-- product editing sheet -->
   <Sheet.Root open={productSheetOpen} {onOpenChange}>
     <Sheet.Content
-      class="p-0 pr-[var(--safe-area-right)] pt-[var(--safe-area-top)]"
+      class="pl-0 pr-[var(--safe-area-right)] pt-[var(--safe-area-top)] pb-[var(--safe-area-bottom)]"
       hideCloseButton
     >
       <ScrollArea class="h-full" type="scroll">

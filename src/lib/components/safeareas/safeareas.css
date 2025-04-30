@@ -3,5 +3,7 @@
   --safe-area-left: 0px; /* overwritten by env("safe-area-inset-left") */
   --safe-area-right: 0px; /* overwritten by env("safe-area-inset-right") */
   --safe-area-top: 0px; /* overwritten by env("safe-area-inset-top") */
+  --safe-area-bottom: 0px; /* overwritten by env("safe-area-inset-bottom") */
   --safe-area-inline: max(var(--safe-area-left), var(--safe-area-right));  
+  --safe-area-block: max(var(--safe-area-top), var(--safe-area-bottom));  
 }
