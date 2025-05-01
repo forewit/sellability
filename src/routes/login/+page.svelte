@@ -13,6 +13,6 @@
 </script>
 
 
-<div class="h-screen grid items-center">
+<div class="h-svh grid items-center p-3">
   <AuthForm onSuccessfulLogin={redirect} />
 </div>

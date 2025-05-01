@@ -50,7 +50,7 @@
   <div>Loading...</div>
 {:else if firebase.user}
 
-  <div class="z-10 pointer-events-none absolute bottom-4 right-4 mr-[var(--safe-area-right)] mb-[var(--safe-area-bottom)]">
+  <div class="z-10 pointer-events-none fixed bottom-4 right-4">
     <PublishingStatus />
   </div>
 
@@ -64,7 +64,7 @@
       </div>
       <div class="h-24 pb-[var(--safe-area-bottom)]"></div>
     </ScrollArea>
-    <Toolbar class="flex-row absolute left-1/2 -translate-x-1/2 bottom-5 z-20" />
+    <Toolbar class="flex-row fixed left-1/2 -translate-x-1/2 bottom-5 z-20" />
   </div>
 
   <!-- product editing sheet -->
