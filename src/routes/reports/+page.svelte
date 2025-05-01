@@ -16,8 +16,10 @@
   import ScenarioList from "$lib/components/sellability/scenario-list.svelte";
   import Skeleton from "$lib/components/ui/skeleton/skeleton.svelte";
   import Input from "$lib/components/ui/input/input.svelte";
+  import { getFirebaseContext } from "$lib/firebase/firebase.svelte";
 
   const app = getAppContext();
+  const firebase = getFirebaseContext();
 
   let dialogOpen = $state(false)
   let timeData: ChartData = $state([]);
@@ -28,9 +30,10 @@
 
 
   let showChart = $derived(timeData.reduce((acc, curr) => acc + curr.value, 0) > 0);
-  $effect(() => {
-    if (app.selectedScenario && Object.keys(app.selectedScenario).length == 0) highlightedProductId = "";
-  });
+  
+  $effect(()=>{
+    if (app.selectedScenarioId == "") app.selectedScenarioId = app.scenarios[0]?.id || "";
+  })
 </script>
 
 <svelte:window
@@ -42,8 +45,9 @@
 
 <!-- Scenario List -->
 <Card.Root class="h-min m-3">
-  <Card.Content class="">
+  <Card.Content class="grid grid-cols-[1fr,auto] items-center">
     <ScenarioList />
+    <p class="text-2xl font-medium pr-8">{app.settings.username ? "Hi, " + app.settings.username : "Welcome!"}</p>
   </Card.Content>
 </Card.Root>
 
@@ -55,7 +59,6 @@
     <Card.Title class="flex gap-2 items-center">
       <img src="{base}/images/rocket.png" class="w-8" alt="Scenario icon" />
       <Input placeholder="Scenario Name" class="font-medium text-2xl md:text-2xl border-none" bind:value={app.selectedScenario.name} />
-      <Button variant="ghost" size="icon" class="ml-auto" ><Trash2/></Button>
       <Dialog.Root bind:open={dialogOpen}>
         <Dialog.Trigger
           ><Button size="icon" variant="ghost"><Trash2/></Button></Dialog.Trigger
@@ -64,14 +67,14 @@
           <Dialog.Header>
             <Dialog.Title>Are you sure absolutely sure?</Dialog.Title>
             <Dialog.Description>
-              This action cannot be undone. This will permanently delete your product.
+              This action cannot be undone. This will permanently delete your scenario. Your products will not be affected.
             </Dialog.Description>
           </Dialog.Header>
           <Dialog.Footer>
             <Button
               variant="destructive"
               onclick={() => {
-                app.deleteScenario(app.selectedProductId);
+                app.deleteScenario(app.selectedScenarioId);
                 dialogOpen = false;
               }}>Yes, delete</Button
             >
