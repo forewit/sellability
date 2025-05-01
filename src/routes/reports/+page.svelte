@@ -29,7 +29,7 @@
 </script>
 
 <svelte:window
- onpointerdown={() => highlightedProductId = ""}
+ onclick={() => highlightedProductId = ""}
  onkeydown={(e) => {
     if (e.key == "Escape") highlightedProductId = "";
   }}
@@ -55,9 +55,16 @@
 <div class="flex md:flex-row flex-col justify-between gap-3 px-3">
   <!-- Goals -->
   <Card.Root class="h-min">
+    <Card.Header>
+      <Card.Title class="flex gap-2 items-center">
+        <img src="{base}/images/pie.png" class="w-8" alt="goals icon" />
+        Goals
+      </Card.Title>
+    </Card.Header>
     <Card.Content>
       <Goals />
     </Card.Content>
+    <Card.Footer></Card.Footer>
   </Card.Root>
 
   <!-- Scenario Chart -->

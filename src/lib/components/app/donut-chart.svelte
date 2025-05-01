@@ -244,11 +244,13 @@
       />
     
       <!-- Segments -->
+      <!-- svelte-ignore a11y_no_static_element_interactions -->
       {#each segmentsWithAngles as seg (seg.key)}
       {@const id = groupBy === "sentiment" ? seg.sentimentId : seg.profitabilityId}
       {@const isHighlighted = highlightedProductId === seg.productId}
         
         <!-- Profitability segment -->
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
         <path
           d={describeArc(
             CENTER, 
@@ -271,7 +273,7 @@
             seg.profitabilityId == 3 && "fill-green-600",
             isHighlighted && "stroke-primary stroke-2 opacity-90"
           )}
-          onpointerdown={(e) => {
+          onclick={(e) => {
             e.stopPropagation();
             highlightedProductId === seg.productId
               ? (highlightedProductId = "")
@@ -282,6 +284,7 @@
         </path>
         
         <!-- Sentiment segment -->
+                 <!-- svelte-ignore a11y_click_events_have_key_events -->
         <path
           d={describeArc(
             CENTER, 
@@ -304,10 +307,11 @@
             seg.sentimentId == 3 && "fill-blue-300",
             isHighlighted && "stroke-primary stroke-2 opacity-90"
           )}
-          onpointerdown={() => 
+          onclick={(e) => {
+            e.stopPropagation()
             highlightedProductId === seg.productId
               ? (highlightedProductId = "")
-              : (highlightedProductId = seg.productId)
+              : (highlightedProductId = seg.productId)}
           }
         >
           <title>{SENTIMENT_LABELS[seg.sentimentId]} | {PROFITABILITY_LABELS[seg.profitabilityId]}: {seg.value}</title>

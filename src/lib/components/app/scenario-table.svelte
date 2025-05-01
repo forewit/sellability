@@ -119,8 +119,8 @@
       {#each evalProducts as product}
       <!-- inline style for highlight border because iOS safari SUCKS -->
         <Table.Row
-          style={cn(highlightedProductId == product.id && "outline: 2px solid black; border-radius: var(--radius); outline-offset: -2px")}
-          onpointerdown={(e) => {e.stopPropagation(); highlightedProductId = product.id}}
+          style={cn(highlightedProductId == product.id && "outline: 2px solid hsl(var(--primary)); border-radius: var(--radius); outline-offset: -2px")}
+          onclick={(e) => {e.stopPropagation(); highlightedProductId = product.id}}
         >
           <Table.Cell class="">
             <Button
@@ -200,6 +200,7 @@
           <Select.Root type="multiple" bind:value={selectedIds}>
             <Select.Trigger class="w-48">Select products ({evalProducts.length})</Select.Trigger>
             <Select.Content>
+              {#if app.products.length > 0}
               {#if evalProducts.length <= 0}
                 <Button
                   variant="link"
@@ -219,6 +220,7 @@
                   class="mb-1 pl-2 font-normal hover:no-underline"
                   onclick={() => (selectedIds = [])}><SquareCheck />Deselect all</Button
                 >
+              {/if}
               {/if}
               {#each app.products as product}
                 <Select.Item value={product.id}>

@@ -101,8 +101,10 @@
         {@const id = groupBy === "sentiment" ? seg.sentimentId : seg.profitabilityId}
         {@const group = groupIndexMap[id]}
         {@const inbetweenGroup = i === group.startingIndex && i > 0}
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div
-          onpointerdown={(e) => {
+          onclick={(e) => {
             e.stopPropagation();
             highlightedProductId == seg.productId
               ? (highlightedProductId = "")
