@@ -102,10 +102,11 @@
         {@const group = groupIndexMap[id]}
         {@const inbetweenGroup = i === group.startingIndex && i > 0}
         <div
-          onpointerdown={() =>
+          onpointerdown={(e) => {
+            e.stopPropagation();
             highlightedProductId == seg.productId
               ? (highlightedProductId = "")
-              : (highlightedProductId = seg.productId)}
+              : (highlightedProductId = seg.productId)}}
           class={cn(
             "relative cursor-pointer transition-[margin]",
             highlightedProductId === seg.productId &&

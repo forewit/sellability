@@ -29,7 +29,8 @@
 </script>
 
 <svelte:window
-  onkeydown={(e) => {
+ onpointerdown={() => highlightedProductId = ""}
+ onkeydown={(e) => {
     if (e.key == "Escape") highlightedProductId = "";
   }}
 />

@@ -271,10 +271,11 @@
             seg.profitabilityId == 3 && "fill-green-600",
             isHighlighted && "stroke-primary stroke-2 opacity-90"
           )}
-          onpointerdown={() => 
+          onpointerdown={(e) => {
+            e.stopPropagation();
             highlightedProductId === seg.productId
               ? (highlightedProductId = "")
-              : (highlightedProductId = seg.productId)
+              : (highlightedProductId = seg.productId)}
           }
         >
           <title>{PROFITABILITY_LABELS[seg.profitabilityId]} | {SENTIMENT_LABELS[seg.sentimentId]}: {seg.value}</title>

@@ -17,7 +17,7 @@
     children,
     onScenarioChange = () => {},
     highlightedProductId = $bindable(""),
-    scenario = $bindable({})
+    scenario = $bindable({}),
   }: {
     class?: string;
     children?: Snippet;
@@ -95,6 +95,8 @@
   );
 </script>
 
+<svelte:window></svelte:window>
+
 <div class={cn("min-w-[220px]", className)}>
   <!-- {#if evalProducts.length > 0} -->
   <!-- eval products -->
@@ -115,12 +117,10 @@
     </Table.Header>
     <Table.Body>
       {#each evalProducts as product}
+      <!-- inline style for highlight border because iOS safari SUCKS -->
         <Table.Row
-          class={cn("relative",
-            highlightedProductId == product.id &&
-              "after:absolute after:inset-0 after:content-[''] after:ring-2 after:ring-inset after:rounded-md after:ring-offset-0 after:ring-primary after:pointer-events-none"
-          )}
-          onpointerdown={() => (highlightedProductId = product.id)}
+          style={cn(highlightedProductId == product.id && "outline: 2px solid black; border-radius: var(--radius); outline-offset: -2px")}
+          onpointerdown={(e) => {e.stopPropagation(); highlightedProductId = product.id}}
         >
           <Table.Cell class="">
             <Button
@@ -201,20 +201,25 @@
             <Select.Trigger class="w-48">Select products ({evalProducts.length})</Select.Trigger>
             <Select.Content>
               {#if evalProducts.length <= 0}
-                  <Button
-                    variant="link"
-                    class="mb-1 pl-2 font-normal hover:no-underline"
-                    onclick={() => (selectedIds = app.products.map((p) => p.id))}><Square/>Select all</Button
-                  >
-                {:else if evalProducts.length < app.products.length}
-                  <Button variant="link" class="mb-1 pl-2 font-normal hover:no-underline" onclick={() => (selectedIds = [])}
-                    ><SquareMinus />Deselect all</Button
-                  >
-                {:else}
-                  <Button variant="link" class="mb-1 pl-2 font-normal hover:no-underline" onclick={() => (selectedIds = [])}
-                    ><SquareCheck />Deselect all</Button
-                  >
-                {/if}
+                <Button
+                  variant="link"
+                  class="mb-1 pl-2 font-normal hover:no-underline"
+                  onclick={() => (selectedIds = app.products.map((p) => p.id))}
+                  ><Square />Select all</Button
+                >
+              {:else if evalProducts.length < app.products.length}
+                <Button
+                  variant="link"
+                  class="mb-1 pl-2 font-normal hover:no-underline"
+                  onclick={() => (selectedIds = [])}><SquareMinus />Deselect all</Button
+                >
+              {:else}
+                <Button
+                  variant="link"
+                  class="mb-1 pl-2 font-normal hover:no-underline"
+                  onclick={() => (selectedIds = [])}><SquareCheck />Deselect all</Button
+                >
+              {/if}
               {#each app.products as product}
                 <Select.Item value={product.id}>
                   <img
@@ -225,7 +230,7 @@
                   {product.name}
                 </Select.Item>
               {/each}
-                <Button href="{base}/" class="" variant="link">Manage Products →</Button>
+              <Button href="{base}/" class="" variant="link">Manage Products →</Button>
             </Select.Content>
           </Select.Root>
         </Table.Cell>
@@ -234,7 +239,7 @@
             class={cn(
               "text-background flex items-center px-3 py-2 rounded-lg bg-red-600",
               Number(totalTime) <= app.timeGoals[1] && "bg-yellow-600",
-              Number(totalTime) <= app.timeGoals[0] && "bg-green-600",
+              Number(totalTime) <= app.timeGoals[0] && "bg-green-600"
             )}
           >
             {totalTime} hrs
