@@ -2,7 +2,6 @@
   import "./safeareas.css";
   import { onMount, type Snippet } from "svelte";
 
-  let { children }: { children: Snippet } = $props();
 
   function updateSafeAreas() {
     if (!screen) throw new Error("Cannot update safe areas: screen is not defined");
@@ -45,4 +44,3 @@
   });
 </script>
 
-{@render children()}

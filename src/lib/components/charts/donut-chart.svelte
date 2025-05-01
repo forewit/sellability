@@ -1,6 +1,6 @@
 <script lang="ts">
   import { cn } from "$lib/utils";
-  import { getAppContext } from "./app.svelte";
+  import { getAppContext } from "../../app/app.svelte";
 
   // ==========================================
   // TYPES

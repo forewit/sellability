@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { getAppContext, type Product } from "$lib/components/app/app.svelte";
+  import { getAppContext, type Product } from "$lib/app/app.svelte";
   import { cn } from "$lib/utils";
   import * as Card from "$lib/components/ui/card/index.js";
   import * as Accordion from "$lib/components/ui/accordion/index.js";
   import * as Dialog from "$lib/components/ui/dialog/index.js";
-  import Stars from "$lib/components/custom/stars.svelte";
+  import Stars from "$lib/components/ratings/stars.svelte";
   import { base } from "$app/paths";
   import { Label } from "$lib/components/ui/label/index.js";
   import { Input } from "$lib/components/ui/input/index.js";
@@ -12,7 +12,7 @@
   import Textarea from "$lib/components/ui/textarea/textarea.svelte";
   import { Trash2, Plus } from "lucide-svelte";
   import Slider from "$lib/components/ui/slider/slider.svelte";
-  import Heart from "$lib/components/custom/heart.svelte";
+  import Heart from "$lib/components/ratings/heart.svelte";
 
   let { productId = "", class: className = "" }: { productId?: string; class?: string } = $props();
 

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { cn } from "$lib/utils";
   import { flip } from "svelte/animate";
-  import { getAppContext } from "./app.svelte";
+  import { getAppContext } from "../../app/app.svelte";
 
   // ==========================================
   // TYPES

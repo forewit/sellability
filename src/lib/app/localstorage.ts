@@ -17,7 +17,7 @@ export const subscribeToSave = (key: string, listener: (value: any, error?: stri
     };
 };
 
-const saveTimers: Record<string, number> = {};
+const saveTimers: Record<string, NodeJS.Timeout> = {};
 const DEBOUNCE_DELAY = 500;
 
 // Helper function to safely parse JSON from localStorage

@@ -2,10 +2,10 @@
   import * as Table from "$lib/components/ui/table/index.js";
   import * as Dialog from "$lib/components/ui/dialog/index.js";
 
-  import Stars from "$lib/components/custom/stars.svelte";
+  import Stars from "$lib/components/ratings/stars.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import { base } from "$app/paths";
-  import { getAppContext } from "./app.svelte";
+  import { getAppContext } from "../../app/app.svelte";
   import { SquarePen, Trash2 } from "lucide-svelte";
   import Input from "../ui/input/input.svelte";
   import { cn } from "$lib/utils";

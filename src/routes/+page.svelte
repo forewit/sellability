@@ -1,9 +1,9 @@
 <script lang="ts">
-  import ProductTable from "$lib/components/app/product-table.svelte";
+  import ProductTable from "$lib/components/sellability/product-table.svelte";
   import * as Card from "$lib/components/ui/card/index.js";
   import { base } from "$app/paths";
   import Button from "$lib/components/ui/button/button.svelte";
-  import { getAppContext } from "$lib/components/app/app.svelte";
+  import { getAppContext } from "$lib/app/app.svelte";
   import { Plus } from "lucide-svelte";
 
   const app = getAppContext();

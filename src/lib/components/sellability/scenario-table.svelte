@@ -4,13 +4,13 @@
   import * as Table from "$lib/components/ui/table/index.js";
   import Button from "$lib/components/ui/button/button.svelte";
   import { base } from "$app/paths";
-  import { getAppContext, exampleScenario } from "./app.svelte";
+  import { getAppContext, exampleScenario } from "../../app/app.svelte";
   import { Minus, Plus, Square, SquareCheck, SquarePen, SquareMinus } from "lucide-svelte";
   import Input from "../ui/input/input.svelte";
   import { cn } from "$lib/utils";
   import type { Snippet } from "svelte";
-  import Stars from "../custom/stars.svelte";
-  import type { ChartData } from "./diverging-bar-chart.svelte";
+  import Stars from "../ratings/stars.svelte";
+  import type { ChartData } from "../charts/diverging-bar-chart.svelte";
 
   let {
     class: className = "",

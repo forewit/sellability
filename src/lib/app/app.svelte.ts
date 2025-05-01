@@ -1,5 +1,7 @@
-import { getContext, setContext } from 'svelte';
-import { saveToStorage, getFromStorage,  } from './localstorage';
+import { getContext, setContext, untrack } from 'svelte';
+import { saveToStorage, getFromStorage, } from '$lib/app/localstorage';
+import { getFirebaseContext } from '$lib/firebase/firebase.svelte';
+import type { DocumentData } from 'firebase/firestore';
 
 export type Product = {
     id: string;
@@ -122,6 +124,7 @@ export const exampleScenario: Record<string, { quantity: number }> = {
 
 // Local storage keys
 const STORAGE_KEYS = {
+    USERP: 'sellability-user',
     PRODUCTS: 'sellability-products',
     PROFIT_GOALS: 'sellability-profit-goals',
     LABOR_GOALS: 'sellability-labor-goals',
@@ -129,10 +132,23 @@ const STORAGE_KEYS = {
 };
 
 function createApp() {
-    let products: Product[] = $state(getFromStorage(STORAGE_KEYS.PRODUCTS, []));
-    let profitGoals = $state(getFromStorage(STORAGE_KEYS.PROFIT_GOALS, [0, 0])); // [target, min]
-    let timeGoals = $state(getFromStorage(STORAGE_KEYS.LABOR_GOALS, [0, 0])); // [target, max]
-    let scenario: Record<string, { quantity: number }> = $state(getFromStorage(STORAGE_KEYS.SCENARIO, {}));
+    const firebase = getFirebaseContext();
+
+    let lastUpdated = 0;
+    let remoteUpdate = $state(true);
+
+    let products: Product[] = $state([]);
+    let profitGoals = $state([0, 0]); // [target, min]
+    let timeGoals = $state([0, 0]); // [target, max]
+    let scenario: Record<string, { quantity: number }> = $state({});
+    let username = $state('');
+
+    // ---- local storage version ----
+    // let products: Product[] = $state(getFromStorage(STORAGE_KEYS.PRODUCTS, []));
+    // let profitGoals = $state(getFromStorage(STORAGE_KEYS.PROFIT_GOALS, [0, 0])); // [target, min]
+    // let timeGoals = $state(getFromStorage(STORAGE_KEYS.LABOR_GOALS, [0, 0])); // [target, max]
+    // let scenario: Record<string, { quantity: number }> = $state(getFromStorage(STORAGE_KEYS.SCENARIO, {}));
+    // let username = $state(getFromStorage(STORAGE_KEYS.USERP, ''));
 
     let productData: Record<string, ProductData> = $derived(
         products.reduce((acc, p) => {
@@ -185,29 +201,77 @@ function createApp() {
     }
 
 
-
+    // ephemeral state
+    let authRedirect = $state("")
     let selectedProductId = $state("")
     let selectedProduct = $derived(products.find(p => p.id === selectedProductId))
 
+
+    function publish() {
+        firebase.publishDoc([], { lastUpdated, username, products, profitGoals, timeGoals, scenario })
+    }
+
+    function loadAndValidate(data: DocumentData) {
+        if (Object.hasOwn(data, "username") && typeof data.username === "string") {
+            username = data.username;
+        }
+        if (Object.hasOwn(data, "products") && Array.isArray(data.products)) {
+            // Basic validation: check each product has required fields
+            products = data.products.filter((p: any) =>
+                typeof p.id === "string" &&
+                Array.isArray(p.expenses) &&
+                Array.isArray(p.time) &&
+                typeof p.price === "number"
+            );
+        }
+        if (Object.hasOwn(data, "profitGoals") && Array.isArray(data.profitGoals) && data.profitGoals.length === 2) {
+            profitGoals = [
+                typeof data.profitGoals[0] === "number" ? data.profitGoals[0] : 0,
+                typeof data.profitGoals[1] === "number" ? data.profitGoals[1] : 0
+            ];
+        }
+        if (Object.hasOwn(data, "timeGoals") && Array.isArray(data.timeGoals) && data.timeGoals.length === 2) {
+            timeGoals = [
+                typeof data.timeGoals[0] === "number" ? data.timeGoals[0] : 0,
+                typeof data.timeGoals[1] === "number" ? data.timeGoals[1] : 0
+            ];
+        }
+    }
+
+    firebase.subscribeToDoc([], (id, doc) =>{
+        if (firebase.isLoading || doc === null) return
+        if (doc.lastUpdated === undefined || doc.lastUpdated < lastUpdated) {
+            publish()
+        } else if (doc.lastUpdated > lastUpdated) {
+            remoteUpdate = true;
+            loadAndValidate(doc)
+        } else if (doc.lastUpdated === lastUpdated) {
+            console.log("app in sync with user doc")
+        }
+    })
+
     // Set up effects to sync state with localStorage whenever it changes
     $effect(() => {
-       JSON.stringify(products);
-        saveToStorage(STORAGE_KEYS.PRODUCTS, products);
-    });
-
-    $effect(() => {
+        JSON.stringify(products);
         JSON.stringify(profitGoals);
-        saveToStorage(STORAGE_KEYS.PROFIT_GOALS, profitGoals);
-    });
-
-    $effect(() => {
         JSON.stringify(timeGoals)
-        saveToStorage(STORAGE_KEYS.LABOR_GOALS, timeGoals);
-    });
-
-    $effect(() => {
         JSON.stringify(scenario);
-        saveToStorage(STORAGE_KEYS.SCENARIO, scenario);
+        JSON.stringify(username);
+
+        // ----- local storage version -----
+        // saveToStorage(STORAGE_KEYS.PRODUCTS, products);
+        // saveToStorage(STORAGE_KEYS.PROFIT_GOALS, profitGoals);
+        // saveToStorage(STORAGE_KEYS.LABOR_GOALS, timeGoals);
+        // saveToStorage(STORAGE_KEYS.SCENARIO, scenario);
+
+        untrack(()=>{
+            if (remoteUpdate) {
+                remoteUpdate = false
+                return;
+            }
+            lastUpdated=Date.now();
+            publish();
+        })
     });
 
     return {
@@ -222,6 +286,10 @@ function createApp() {
         deleteProduct,
 
         // editable state
+        get authRedirect() { return authRedirect },
+        set authRedirect(value) { authRedirect = value },
+        get username() { return username },
+        set username(value: string) { username = value },
         get selectedProductId() { return selectedProductId },
         set selectedProductId(value: string) { selectedProductId = value },
         get profitGoals() { return profitGoals },
@@ -230,7 +298,7 @@ function createApp() {
         set timeGoals(value: number[]) { timeGoals = value },
         get scenario() { return scenario },
         set scenario(value: Record<string, { quantity: number }>) { scenario = value },
-        
+
     }
 }
 

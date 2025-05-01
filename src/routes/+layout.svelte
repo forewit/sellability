@@ -1,25 +1,59 @@
 <script lang="ts">
   import "../app.css";
-  import { setAppContext } from "$lib/components/app/app.svelte";
-  import Toolbar from "$lib/components/app/toolbar.svelte";
+  import { setAppContext } from "$lib/app/app.svelte";
+  import Toolbar from "$lib/components/sellability/toolbar.svelte";
   import * as Sheet from "$lib/components/ui/sheet/index.js";
-  import Product from "$lib/components/app/product.svelte";
+  import Product from "$lib/components/sellability/product.svelte";
   import { ScrollArea } from "$lib/components/ui/scroll-area/index.js";
   import SafeAreas from "$lib/components/safeareas/safe-areas.svelte";
+  import { setFirebaseContext } from "$lib/firebase/firebase.svelte";
+  import { goto } from "$app/navigation";
+  import { base } from "$app/paths";
+  import { onMount } from "svelte";
+  import PublishingStatus from "$lib/components/firebase/PublishingStatus.svelte";
 
   let { children } = $props();
 
+  const firebase = setFirebaseContext();
   const app = setAppContext();
 
   let productSheetOpen = $derived(!!app.selectedProduct);
+
+  $effect(() => {
+    app.authRedirect = window.location.pathname;
+  });
+
+  $effect(() => {
+    if (!firebase.user && !firebase.isLoading) {
+      goto(`${base}/login/`);
+    }
+  });
+
+  onMount(() => {
+    window.addEventListener("beforeunload", (e) => {
+      if (firebase.isPublishing) e.preventDefault();
+    });
+
+    return () => {
+      firebase.destroy();
+    };
+  });
 </script>
 
 <svelte:head>
   <title>Sellability</title>
 </svelte:head>
 
+<SafeAreas />
 
-<SafeAreas>
+{#if firebase.isLoading}
+  <div>Loading...</div>
+{:else if firebase.user}
+
+  <div class="z-10 pointer-events-none absolute bottom-4 right-4">
+    <PublishingStatus />
+  </div>
+
   <!-- main page with toolbar -->
   <div
     class="bg-stone-200 h-screen w-screen grid relative pl-[var(--safe-area-left)] pr-[var(--safe-area-right)]"
@@ -49,4 +83,7 @@
       </ScrollArea>
     </Sheet.Content>
   </Sheet.Root>
-</SafeAreas>
+{:else}
+{@render children?.()}
+
+{/if}

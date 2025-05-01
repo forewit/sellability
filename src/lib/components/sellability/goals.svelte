@@ -5,9 +5,9 @@
   import { Label } from "$lib/components/ui/label/index.js";
   import { Input } from "$lib/components/ui/input/index.js";
   import { base } from "$app/paths";
-  import { getAppContext } from "./app.svelte";
+  import { getAppContext } from "../../app/app.svelte";
   import { Switch } from "$lib/components/ui/switch/index.js";
-  import Heart from "../custom/heart.svelte";
+  import Heart from "../ratings/heart.svelte";
   import * as Tabs from "$lib/components/ui/tabs/index.js";
 
   let { class: className = "" } = $props();

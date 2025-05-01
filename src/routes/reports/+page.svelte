@@ -1,16 +1,16 @@
 <script lang="ts">
   import * as Card from "$lib/components/ui/card/index.js";
   import { Toggle } from "$lib/components/ui/toggle/index.js";
-  import Goals from "$lib/components/app/goals.svelte";
-  import Scenario from "$lib/components/app/scenario-table.svelte";
+  import Goals from "$lib/components/sellability/goals.svelte";
+  import Scenario from "$lib/components/sellability/scenario-table.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import { base } from "$app/paths";
   import * as Tabs from "$lib/components/ui/tabs/index.js";
-  import type { ChartData } from "$lib/components/app/diverging-bar-chart.svelte";
+  import type { ChartData } from "$lib/components/charts/diverging-bar-chart.svelte";
   import { ChartPie, ChartBarStacked, X, SquarePen, Info } from "lucide-svelte";
-  import DonutChart from "$lib/components/app/donut-chart.svelte";
-  import DivergingBarChart from "$lib/components/app/diverging-bar-chart.svelte";
-  import { getAppContext } from "$lib/components/app/app.svelte";
+  import DonutChart from "$lib/components/charts/donut-chart.svelte";
+  import DivergingBarChart from "$lib/components/charts/diverging-bar-chart.svelte";
+  import { getAppContext } from "$lib/app/app.svelte";
   import { cn } from "$lib/utils";
 
   const app = getAppContext();
