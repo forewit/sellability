@@ -22,6 +22,13 @@ export type ProductData = {
     hourlyRate: number;
 }
 
+export type UserSettings = {
+    username: string;
+    color: string;
+}
+
+export type Scenario = Record<string, { quantity: number }>
+
 export const exampleInventory: Product[] = [
     {
         id: "wooden-block-set-001",
@@ -113,7 +120,7 @@ export const exampleInventory: Product[] = [
     }
 ];
 
-export const exampleScenario: Record<string, { quantity: number }> = {
+export const exampleScenario:Scenario = {
     "wooden-block-set-001": { quantity: 12 },
     "wooden-train-set-002": { quantity: 5 },
     "wooden-puzzle-003": { quantity: 20 },
@@ -121,35 +128,25 @@ export const exampleScenario: Record<string, { quantity: number }> = {
     "rocking-horse-005": { quantity: 3 }
 };
 
-
-// Local storage keys
-const STORAGE_KEYS = {
-    USERP: 'sellability-user',
-    PRODUCTS: 'sellability-products',
-    PROFIT_GOALS: 'sellability-profit-goals',
-    LABOR_GOALS: 'sellability-labor-goals',
-    SCENARIO: 'sellability-scenario'
-};
-
 function createApp() {
     const firebase = getFirebaseContext();
 
-    let lastUpdated = 0;
-    let remoteUpdate = $state(true);
-
+    // saved state
     let products: Product[] = $state([]);
     let profitGoals = $state([0, 0]); // [target, min]
     let timeGoals = $state([0, 0]); // [target, max]
-    let scenario: Record<string, { quantity: number }> = $state({});
-    let username = $state('');
+    let scenario: Scenario = $state({});
+    let settings: UserSettings = $state({
+        username: "",
+        color: ""
+    });
 
-    // ---- local storage version ----
-    // let products: Product[] = $state(getFromStorage(STORAGE_KEYS.PRODUCTS, []));
-    // let profitGoals = $state(getFromStorage(STORAGE_KEYS.PROFIT_GOALS, [0, 0])); // [target, min]
-    // let timeGoals = $state(getFromStorage(STORAGE_KEYS.LABOR_GOALS, [0, 0])); // [target, max]
-    // let scenario: Record<string, { quantity: number }> = $state(getFromStorage(STORAGE_KEYS.SCENARIO, {}));
-    // let username = $state(getFromStorage(STORAGE_KEYS.USERP, ''));
-
+    // ephemeral state
+    let lastUpdated = 0;
+    let remoteUpdate = $state(true);
+    let authRedirect = $state("")
+    let selectedProductId = $state("")
+    let selectedProduct = $derived(products.find(p => p.id === selectedProductId))
     let productData: Record<string, ProductData> = $derived(
         products.reduce((acc, p) => {
             const expenses = p.expenses.reduce((total, expense) => total + expense.value, 0);
@@ -169,6 +166,8 @@ function createApp() {
         }, {} as Record<string, ProductData>)
     );
 
+
+    // helper functions
     function rateProfitability(rate: number) {
         if (isNaN(rate) || !isFinite(rate)) return 0;
 
@@ -195,25 +194,19 @@ function createApp() {
 
     const deleteProduct = (id: string) => {
         const index = products.findIndex(p => p.id === id);
-        if (index !== -1) {
-            products.splice(index, 1);
-        }
+        if (index !== -1) products.splice(index, 1);
     }
 
-
-    // ephemeral state
-    let authRedirect = $state("")
-    let selectedProductId = $state("")
-    let selectedProduct = $derived(products.find(p => p.id === selectedProductId))
-
-
     function publish() {
-        firebase.publishDoc([], { lastUpdated, username, products, profitGoals, timeGoals, scenario })
+        firebase.publishDoc([], { lastUpdated, settings, products, profitGoals, timeGoals, scenario })
     }
 
     function loadAndValidate(data: DocumentData) {
-        if (Object.hasOwn(data, "username") && typeof data.username === "string") {
-            username = data.username;
+        if (Object.hasOwn(data, "settings") && typeof data.settings === "object" && data.settings !== null) {
+            settings = {
+                username: typeof data.settings.username === "string" ? data.settings.username : "",
+                color: typeof data.settings.color === "string" ? data.settings.color : ""
+            };
         }
         if (Object.hasOwn(data, "products") && Array.isArray(data.products)) {
             // Basic validation: check each product has required fields
@@ -238,7 +231,7 @@ function createApp() {
         }
     }
 
-    firebase.subscribeToDoc([], (id, doc) =>{
+    firebase.subscribeToDoc([], (id, doc) => {
         if (firebase.isLoading || doc === null) return
         if (doc.lastUpdated === undefined || doc.lastUpdated < lastUpdated) {
             publish()
@@ -256,20 +249,14 @@ function createApp() {
         JSON.stringify(profitGoals);
         JSON.stringify(timeGoals)
         JSON.stringify(scenario);
-        JSON.stringify(username);
+        JSON.stringify(settings);
 
-        // ----- local storage version -----
-        // saveToStorage(STORAGE_KEYS.PRODUCTS, products);
-        // saveToStorage(STORAGE_KEYS.PROFIT_GOALS, profitGoals);
-        // saveToStorage(STORAGE_KEYS.LABOR_GOALS, timeGoals);
-        // saveToStorage(STORAGE_KEYS.SCENARIO, scenario);
-
-        untrack(()=>{
+        untrack(() => {
             if (remoteUpdate) {
                 remoteUpdate = false
                 return;
             }
-            lastUpdated=Date.now();
+            lastUpdated = Date.now();
             publish();
         })
     });
@@ -279,7 +266,6 @@ function createApp() {
         get products() { return products },
         get selectedProduct() { return selectedProduct },
         get productData() { return productData },
-        get STORAGE_KEYS() { return STORAGE_KEYS },
 
         // helper functions
         newProduct,
@@ -288,8 +274,8 @@ function createApp() {
         // editable state
         get authRedirect() { return authRedirect },
         set authRedirect(value) { authRedirect = value },
-        get username() { return username },
-        set username(value: string) { username = value },
+        get settings() { return settings },
+        set settings(value: UserSettings) { settings = value },
         get selectedProductId() { return selectedProductId },
         set selectedProductId(value: string) { selectedProductId = value },
         get profitGoals() { return profitGoals },
@@ -297,7 +283,7 @@ function createApp() {
         get timeGoals() { return timeGoals },
         set timeGoals(value: number[]) { timeGoals = value },
         get scenario() { return scenario },
-        set scenario(value: Record<string, { quantity: number }>) { scenario = value },
+        set scenario(value: Scenario) { scenario = value },
 
     }
 }

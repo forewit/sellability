@@ -24,7 +24,7 @@
     <img src={`${base}/images/pie.png`} class="w-8 min-w-8" alt="products" />
   </Button>
   <Separator class="mx-2 h-6" orientation="vertical" />
-  <Button href="{base}/settings/" class="h-12 w-12" size="icon" variant="ghost">
+  <Button href="{base}/profile/" class="h-12 w-12" size="icon" variant="ghost">
     <CircleUser  />
   </Button>
 </div>

@@ -1,5 +1,5 @@
 import { auth, db } from "$lib/firebase/firebase.client";
-import { type User, signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { type User, signInWithEmailAndPassword, signOut, sendPasswordResetEmail } from "firebase/auth";
 import { doc, deleteDoc, collection, onSnapshot, setDoc, type DocumentData } from "firebase/firestore";
 import { debounce } from "$lib/utils";
 import { getContext, setContext } from 'svelte';
@@ -90,6 +90,19 @@ function createFirebase() {
         await signOut(auth)
     }
 
+    async function resetPassword(email: string) {
+        sendPasswordResetEmail(auth, email)
+          .then(() => {
+            // Password reset email sent!
+            // ..
+          })
+          .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            console.error("Error during password reset:", errorCode, errorMessage);
+          });
+    }
+
     const unsubAuth = auth.onAuthStateChanged((currentUser) => {
         user = currentUser
         isLoading = false
@@ -113,6 +126,7 @@ function createFirebase() {
     }
 
     return {
+        get resetPassword() { return resetPassword },
         get user() { return user },
         get isLoading() { return isLoading },
         get isPublishing() { return isPublishing },

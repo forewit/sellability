@@ -11,6 +11,7 @@
   import { base } from "$app/paths";
   import { onMount } from "svelte";
   import PublishingStatus from "$lib/components/firebase/PublishingStatus.svelte";
+import { Loader2 } from "lucide-svelte";
 
   let { children } = $props();
 
@@ -47,16 +48,18 @@
 <SafeAreas />
 
 {#if firebase.isLoading}
-  <div>Loading...</div>
-{:else if firebase.user}
+  <div class="h-svh w-svw grid place-items-center">
+  <Loader2 class="h-4 w-4 animate-spin" />
+</div>
 
-  <div class="z-10 pointer-events-none fixed bottom-4 right-4">
+{:else if firebase.user}
+  <div class="z-10 pointer-events-none fixed bottom-8 right-8">
     <PublishingStatus />
   </div>
 
   <!-- main page with toolbar -->
   <div
-    class="bg-stone-200 h-screen w-screen grid relative pl-[var(--safe-area-left)] pr-[var(--safe-area-right)]"
+    class="h-screen w-screen grid relative pl-[var(--safe-area-left)] pr-[var(--safe-area-right)]"
   >
     <ScrollArea type="always">
       <div class="max-w-[1200px] m-auto pt-[var(--safe-area-top)]">
@@ -84,6 +87,5 @@
     </Sheet.Content>
   </Sheet.Root>
 {:else}
-{@render children?.()}
-
+  {@render children?.()}
 {/if}
