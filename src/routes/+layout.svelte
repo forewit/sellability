@@ -50,7 +50,7 @@
   <div>Loading...</div>
 {:else if firebase.user}
 
-  <div class="z-10 pointer-events-none absolute bottom-4 right-4">
+  <div class="z-10 pointer-events-none absolute bottom-4 right-4 mr-[var(--safe-area-right)] mb-[var(--safe-area-bottom)]">
     <PublishingStatus />
   </div>
 
