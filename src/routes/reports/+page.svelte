@@ -1,5 +1,6 @@
 <script lang="ts">
   import * as Card from "$lib/components/ui/card/index.js";
+  import * as Dialog from "$lib/components/ui/dialog/index.js";
   import { Toggle } from "$lib/components/ui/toggle/index.js";
   import Goals from "$lib/components/sellability/goals.svelte";
   import Scenario from "$lib/components/sellability/scenario-table.svelte";
@@ -7,14 +8,18 @@
   import { base } from "$app/paths";
   import * as Tabs from "$lib/components/ui/tabs/index.js";
   import type { ChartData } from "$lib/components/charts/diverging-bar-chart.svelte";
-  import { ChartPie, ChartBarStacked, X, SquarePen, Info } from "lucide-svelte";
+  import { ChartPie, ChartBarStacked, X, SquarePen, Info, Trash2 } from "lucide-svelte";
   import DonutChart from "$lib/components/charts/donut-chart.svelte";
   import DivergingBarChart from "$lib/components/charts/diverging-bar-chart.svelte";
   import { getAppContext } from "$lib/app/app.svelte";
   import { cn } from "$lib/utils";
+  import ScenarioList from "$lib/components/sellability/scenario-list.svelte";
+  import Skeleton from "$lib/components/ui/skeleton/skeleton.svelte";
+  import Input from "$lib/components/ui/input/input.svelte";
 
   const app = getAppContext();
 
+  let dialogOpen = $state(false)
   let timeData: ChartData = $state([]);
   let highlightedProductId = $state("");
   let displayDonutChart = $state(false);
@@ -24,7 +29,7 @@
 
   let showChart = $derived(timeData.reduce((acc, curr) => acc + curr.value, 0) > 0);
   $effect(() => {
-    if (Object.keys(app.scenario).length == 0) highlightedProductId = "";
+    if (app.selectedScenario && Object.keys(app.selectedScenario).length == 0) highlightedProductId = "";
   });
 </script>
 
@@ -35,17 +40,49 @@
   }}
 />
 
+<!-- Scenario List -->
+<Card.Root class="h-min m-3">
+  <Card.Content class="">
+    <ScenarioList />
+  </Card.Content>
+</Card.Root>
+
+
+{#if app.selectedScenario}
 <!-- Scenario Table -->
 <Card.Root class="h-min m-3">
   <Card.Header>
     <Card.Title class="flex gap-2 items-center">
       <img src="{base}/images/rocket.png" class="w-8" alt="Scenario icon" />
-      Scenario
+      <Input placeholder="Scenario Name" class="font-medium text-2xl md:text-2xl border-none" bind:value={app.selectedScenario.name} />
+      <Button variant="ghost" size="icon" class="ml-auto" ><Trash2/></Button>
+      <Dialog.Root bind:open={dialogOpen}>
+        <Dialog.Trigger
+          ><Button size="icon" variant="ghost"><Trash2/></Button></Dialog.Trigger
+        >
+        <Dialog.Content>
+          <Dialog.Header>
+            <Dialog.Title>Are you sure absolutely sure?</Dialog.Title>
+            <Dialog.Description>
+              This action cannot be undone. This will permanently delete your product.
+            </Dialog.Description>
+          </Dialog.Header>
+          <Dialog.Footer>
+            <Button
+              variant="destructive"
+              onclick={() => {
+                app.deleteScenario(app.selectedProductId);
+                dialogOpen = false;
+              }}>Yes, delete</Button
+            >
+          </Dialog.Footer>
+        </Dialog.Content>
+      </Dialog.Root>
     </Card.Title>
   </Card.Header>
   <Card.Content class="">
     <Scenario
-      bind:scenario={app.scenario}
+      bind:data={app.selectedScenario}
       onScenarioChange={(data) => (timeData = data)}
       bind:highlightedProductId
     />
@@ -62,7 +99,7 @@
       </Card.Title>
     </Card.Header>
     <Card.Content>
-      <Goals />
+      <Goals bind:data={app.selectedScenario.goals} />
     </Card.Content>
     <Card.Footer></Card.Footer>
   </Card.Root>
@@ -137,8 +174,9 @@
     {:else}
       <Card.Content class="">
         <div class="text-center pb-6">
-          {#if Object.keys(app.scenario).length > 0}
-            Your selected products don't have any time data
+          {#if Object.keys(app.selectedScenario).length > 0}
+
+            No info to show yet
           {:else}
             Select products to see time data
           {/if}
@@ -147,3 +185,13 @@
     {/if}
   </Card.Root>
 </div>
+{:else}
+<div class="grid gap-6 m-3 mt-6">
+    <Skeleton class="h-[150px]"/>
+  <div class="flex gap-6">
+    <Skeleton class="h-[250px] w-[250px]"/>
+    <Skeleton class="h-[150px] grow"/>
+
+  </div>
+</div>
+{/if}

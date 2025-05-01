@@ -5,23 +5,37 @@
   import { Label } from "$lib/components/ui/label/index.js";
   import { Input } from "$lib/components/ui/input/index.js";
   import { base } from "$app/paths";
-  import { getAppContext } from "../../app/app.svelte";
+  import { getAppContext, type Goals, type Scenario } from "$lib/app/app.svelte";
   import { Switch } from "$lib/components/ui/switch/index.js";
   import Heart from "../ratings/heart.svelte";
   import * as Tabs from "$lib/components/ui/tabs/index.js";
 
-  let { class: className = "" } = $props();
+  let { class: className = "", data: goals = $bindable()}: {class?: string, data: Goals} = $props();
 
   const app = getAppContext();
 
   let maxHoursPerDay = $state(16);
   let timespanDaysString = $state("5");
-  let timespanDays = $derived(parseInt(timespanDaysString));
+
+
+
+  function updateTimespan(days: string) {
+    // update profit and time goals
+    const oldDays = goals.timespanDays;
+    const newDays = parseInt(days);
+    const multiplier = newDays / oldDays;
+
+    goals.time.target *= multiplier;
+    goals.time.max *= multiplier;
+    goals.profit.target *= multiplier;
+    goals.profit.min *= multiplier;
+    goals.timespanDays = newDays;
+  }
 </script>
 
 <div class={cn("flex flex-col gap-8", className)}>
   <div class="flex justify-center">
-    <Tabs.Root bind:value={timespanDaysString}>
+    <Tabs.Root value={goals.timespanDays.toString()} onValueChange={updateTimespan}>
       <Tabs.List>
         <Tabs.Trigger value="1">Daily</Tabs.Trigger>
         <Tabs.Trigger value="5">Weekly</Tabs.Trigger>
@@ -33,7 +47,9 @@
 
   <div>
     <div class="font-medium text-lg text-center">
-      Profit <span class="ml-2 text-sm font-normal">($ over {timespanDaysString} business days)</span>
+      Profit <span class="ml-2 text-sm font-normal"
+        >($ over {timespanDaysString} business days)</span
+      >
     </div>
     <div class="flex gap-4 justify-center items-center mt-4">
       <div class="relative">
@@ -41,8 +57,8 @@
           id="profit-target-input"
           type="number"
           inputmode="decimal"
-          min={app.profitGoals[1]}
-          bind:value={app.profitGoals[0]}
+          min={goals.profit.min}
+          bind:value={goals.profit.target}
           class="w-24 border-green-600 text-green-600"
         />
         <Label
@@ -56,9 +72,9 @@
           id="profit-min-input"
           type="number"
           inputmode="decimal"
-          bind:value={app.profitGoals[1]}
+          bind:value={goals.profit.min}
           class="w-24 border-yellow-600 text-yellow-600"
-          max={app.profitGoals[0]}
+          max={goals.profit.target}
           min={0}
           step={1}
         />
@@ -83,9 +99,9 @@
           id="time-target-input"
           type="number"
           min={0}
-          max={app.timeGoals[1]}
+          max={goals.time.max}
           inputmode="decimal"
-          bind:value={app.timeGoals[0]}
+          bind:value={goals.time.target}
           class="w-24 border-green-600 text-green-600"
         />
         <Label
@@ -98,11 +114,11 @@
         <Input
           id="time-max-input"
           type="number"
-          bind:value={app.timeGoals[1]}
+          bind:value={goals.time.max}
           inputmode="decimal"
           class="w-24 border-yellow-600 text-yellow-600"
-          max={80}
-          min={app.timeGoals[0]}
+          max={goals.timespanDays * maxHoursPerDay}
+          min={goals.time.target}
           step={1}
         />
         <Label
@@ -120,12 +136,15 @@
         "[&>span:nth-child(3)]:bg-yellow-400 [&>span:nth-child(3)]:w-4 [&>span:nth-child(3)]:h-6 [&>span:nth-child(3)]:border"
       )}
       type="multiple"
-      bind:value={app.timeGoals}
+      value={[goals.time.target, goals.time.max]}
+      onValueChange={(detail) => {
+        goals.time.target = detail[0];
+        goals.time.max = detail[1];
+      }}
       inputmode="decimal"
-      max={timespanDays * maxHoursPerDay}
+      max={goals.timespanDays * maxHoursPerDay}
       min={0}
       step={1}
     />
-    
   </div>
 </div>

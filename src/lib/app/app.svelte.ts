@@ -27,115 +27,25 @@ export type UserSettings = {
     color: string;
 }
 
-export type Scenario = Record<string, { quantity: number }>
+export type Scenario = {
+    id: string
+    name: string
+    quantities: Record<string, number>
+    goals: Goals;
+}
 
-export const exampleInventory: Product[] = [
-    {
-        id: "wooden-block-set-001",
-        url: "",
-        name: "Classic Wooden Block Set",
-        description: "A set of 50 smooth, sanded wooden blocks in assorted shapes and colors.",
-        expenses: [
-            { name: "Wood (cypress)", value: 15.0 },
-            { name: "Non-toxic paint", value: 8.0 },
-            { name: "Packaging", value: 2.5 },
-            { name: "Labor", value: 12.0 }
-        ],
-        time: [
-            { name: "Cutting & sanding", value: 3.0, rating: 2 },
-            { name: "Painting", value: 1.5, rating: 3 },
-            { name: "Assembly & packaging", value: 1.0, rating: 1 }
-        ],
-        price: 49.99,
-    },
-    {
-        id: "wooden-train-set-002",
-        url: "",
-        name: "Hand-crafted Wooden Train Set",
-        description: "Locomotive and three carriages on a curved track, all carved from solid oak.",
-        expenses: [
-            { name: "Wood (oak)", value: 20.0 },
-            { name: "Non-toxic varnish", value: 5.0 },
-            { name: "Magnetic couplers", value: 3.0 },
-            { name: "Labor", value: 18.0 }
-        ],
-        time: [
-            { name: "Carving & shaping", value: 4.0, rating: 2 },
-            { name: "Sanding & varnishing", value: 2.0, rating: 1 },
-            { name: "Final assembly", value: 1.0, rating: 2 }
-        ],
-        price: 89.99,
-    },
-    {
-        id: "wooden-puzzle-003",
-        url: "",
-        name: "Animal Shape Puzzle",
-        description: "A 12-piece wooden jigsaw puzzle featuring farm animals, perfect for toddlers.",
-        expenses: [
-            { name: "Wood (maple)", value: 10.0 },
-            { name: "Non-toxic paint", value: 6.0 },
-            { name: "Labor", value: 10.0 }
-        ],
-        time: [
-            { name: "Laser cutting", value: 1.5, rating: 1 },
-            { name: "Painting details", value: 1.0, rating: 3 },
-            { name: "Finishing", value: 0.5, rating: 1 }
-        ],
-        price: 34.99,
-    },
-    {
-        id: "wooden-dollhouse-004",
-        url: "",
-        name: "Miniature Wooden Dollhouse",
-        description: "Two-story dollhouse with removable roof and furniture, expertly crafted from birch.",
-        expenses: [
-            { name: "Wood (birch)", value: 25.0 },
-            { name: "Acrylic paint", value: 7.0 },
-            { name: "Mini-furnishings", value: 15.0 },
-            { name: "Labor", value: 30.0 }
-        ],
-        time: [
-            { name: "Structure build", value: 5.0, rating: 1 },
-            { name: "Painting & detailing", value: 3.0, rating: 2 },
-            { name: "Furniture assembly", value: 2.0, rating: 2 }
-        ],
-        price: 179.99,
-    },
-    {
-        id: "rocking-horse-005",
-        url: "",
-        name: "Mini Rocking Horse",
-        description: "Classic rocking horse with hand-carved mane and tail, perfect for nurseries.",
-        expenses: [
-            { name: "Wood (pine)", value: 18.0 },
-            { name: "Faux leather", value: 5.0 },
-            { name: "Labor", value: 20.0 }
-        ],
-        time: [
-            { name: "Carving & assembly", value: 4.5, rating: 2 },
-            { name: "Upholstery", value: 1.0, rating: 1 },
-            { name: "Finishing touches", value: 0.5, rating: 2 }
-        ],
-        price: 129.99,
-    }
-];
-
-export const exampleScenario:Scenario = {
-    "wooden-block-set-001": { quantity: 12 },
-    "wooden-train-set-002": { quantity: 5 },
-    "wooden-puzzle-003": { quantity: 20 },
-    "wooden-dollhouse-004": { quantity: 2 },
-    "rocking-horse-005": { quantity: 3 }
-};
+export type Goals = {
+    time: { target: number, max: number };
+    profit: { target: number, min: number };
+    timespanDays: number;
+}
 
 function createApp() {
     const firebase = getFirebaseContext();
 
     // saved state
     let products: Product[] = $state([]);
-    let profitGoals = $state([0, 0]); // [target, min]
-    let timeGoals = $state([0, 0]); // [target, max]
-    let scenario: Scenario = $state({});
+    let scenarios: Scenario[] = $state([]);
     let settings: UserSettings = $state({
         username: "",
         color: ""
@@ -146,6 +56,8 @@ function createApp() {
     let remoteUpdate = $state(true);
     let authRedirect = $state("")
     let selectedProductId = $state("")
+    let selectedScenarioId = $state("")
+    let selectedScenario = $derived(scenarios.find(s => s.id === selectedScenarioId));
     let selectedProduct = $derived(products.find(p => p.id === selectedProductId))
     let productData: Record<string, ProductData> = $derived(
         products.reduce((acc, p) => {
@@ -169,16 +81,11 @@ function createApp() {
 
     // helper functions
     function rateProfitability(rate: number) {
-        if (isNaN(rate) || !isFinite(rate)) return 0;
+        if (isNaN(rate) || !isFinite(rate) || !selectedScenario) return 0;
 
-        const timeMin = timeGoals[0];
-        const timeMax = timeGoals[1];
-        const profitMax = profitGoals[0];
-        const profitMin = profitGoals[1];
-
-        const minRate = profitMin / timeMax;
-        const midRate = ((profitMax / timeMax) + (profitMin / timeMin)) / 2;
-        const targetRate = profitMax / timeMin;
+        const minRate = selectedScenario.goals.profit.min / selectedScenario.goals.time.max;
+        const midRate = ((selectedScenario.goals.profit.target / selectedScenario.goals.time.max) + (selectedScenario.goals.profit.min / selectedScenario.goals.time.target)) / 2;
+        const targetRate = selectedScenario.goals.profit.target / selectedScenario.goals.time.target;
 
         if (rate < minRate) return 0;
         if (rate < midRate) return 1;
@@ -193,12 +100,25 @@ function createApp() {
     }
 
     const deleteProduct = (id: string) => {
+        if (selectedProductId == id) selectedProductId = "";
         const index = products.findIndex(p => p.id === id);
         if (index !== -1) products.splice(index, 1);
     }
 
+    const newScenario = () => {
+        const id = crypto.randomUUID().slice(0, 8);
+        scenarios.push({ id, name:"", quantities: {}, goals: { time: { target: 30, max: 50 }, profit: { target: 1200, min: 800 }, timespanDays: 5 } });
+        return id;
+    }
+
+    const deleteScenario = (id: string) => {
+        if (selectedScenarioId == id) selectedScenarioId = "";
+        const index = scenarios.findIndex(s => s.id === id);
+        if (index !== -1) scenarios.splice(index, 1);
+    }
+
     function publish() {
-        firebase.publishDoc([], { lastUpdated, settings, products, profitGoals, timeGoals, scenario })
+        firebase.publishDoc([], { lastUpdated, selectedScenarioId, settings, products, scenarios })
     }
 
     function loadAndValidate(data: DocumentData) {
@@ -208,6 +128,27 @@ function createApp() {
                 color: typeof data.settings.color === "string" ? data.settings.color : ""
             };
         }
+        if (Object.hasOwn(data, "scenarios") && Array.isArray(data.scenarios)) {
+            // Validate each scenario: must have id, productData, and goals
+            scenarios = data.scenarios.filter((s: any) =>
+                typeof s.id === "string" &&
+                typeof s.name === "string" &&
+                typeof s.quantities === "object" && s.quantities !== null &&
+                typeof s.goals === "object" && s.goals !== null &&
+                typeof s.goals.time === "object" && s.goals.time !== null &&
+                typeof s.goals.time.target === "number" &&
+                typeof s.goals.time.max === "number" &&
+                typeof s.goals.profit === "object" && s.goals.profit !== null &&
+                typeof s.goals.profit.target === "number" &&
+                typeof s.goals.profit.min === "number" &&
+                typeof s.goals.timespanDays === "number"
+            );
+        }
+        if (Object.hasOwn(data, "selectedScenarioId") && typeof data.selectedScenarioId === "string") {
+            // Only set if the scenario exists in the loaded scenarios
+            const scenarioExists = Array.isArray(data.scenarios) && data.scenarios.some((s: any) => s.id === data.selectedScenarioId);
+            selectedScenarioId = scenarioExists ? data.selectedScenarioId : "";
+        }
         if (Object.hasOwn(data, "products") && Array.isArray(data.products)) {
             // Basic validation: check each product has required fields
             products = data.products.filter((p: any) =>
@@ -216,18 +157,6 @@ function createApp() {
                 Array.isArray(p.time) &&
                 typeof p.price === "number"
             );
-        }
-        if (Object.hasOwn(data, "profitGoals") && Array.isArray(data.profitGoals) && data.profitGoals.length === 2) {
-            profitGoals = [
-                typeof data.profitGoals[0] === "number" ? data.profitGoals[0] : 0,
-                typeof data.profitGoals[1] === "number" ? data.profitGoals[1] : 0
-            ];
-        }
-        if (Object.hasOwn(data, "timeGoals") && Array.isArray(data.timeGoals) && data.timeGoals.length === 2) {
-            timeGoals = [
-                typeof data.timeGoals[0] === "number" ? data.timeGoals[0] : 0,
-                typeof data.timeGoals[1] === "number" ? data.timeGoals[1] : 0
-            ];
         }
     }
 
@@ -246,9 +175,8 @@ function createApp() {
     // Set up effects to sync state with localStorage whenever it changes
     $effect(() => {
         JSON.stringify(products);
-        JSON.stringify(profitGoals);
-        JSON.stringify(timeGoals)
-        JSON.stringify(scenario);
+        JSON.stringify(scenarios);
+        JSON.stringify(selectedScenarioId)
         JSON.stringify(settings);
 
         untrack(() => {
@@ -264,12 +192,16 @@ function createApp() {
     return {
         // read only state
         get products() { return products },
+        get scenarios() { return scenarios; },
         get selectedProduct() { return selectedProduct },
+        get selectedScenario() { return selectedScenario },
         get productData() { return productData },
 
         // helper functions
         newProduct,
         deleteProduct,
+        newScenario,
+        deleteScenario,
 
         // editable state
         get authRedirect() { return authRedirect },
@@ -278,13 +210,8 @@ function createApp() {
         set settings(value: UserSettings) { settings = value },
         get selectedProductId() { return selectedProductId },
         set selectedProductId(value: string) { selectedProductId = value },
-        get profitGoals() { return profitGoals },
-        set profitGoals(value: number[]) { profitGoals = value },
-        get timeGoals() { return timeGoals },
-        set timeGoals(value: number[]) { timeGoals = value },
-        get scenario() { return scenario },
-        set scenario(value: Scenario) { scenario = value },
-
+        get selectedScenarioId() { return selectedScenarioId },
+        set selectedScenarioId(value: string) { selectedScenarioId = value }
     }
 }
 

@@ -20,15 +20,14 @@
 <Card.Root class="m-3">
   <Card.Header>
     <Card.Title class="flex gap-2 items-center">
-        <img src="{base}/images/mail.png" class="w-8" alt="profile icon" />
+      <img src="{base}/images/profile.png" class="w-8" alt="profile icon" />
 
-        Profile
+      Profile
     </Card.Title>
   </Card.Header>
   <Card.Content>
-      
     <div class="grid grid-cols-[auto,1fr] items-center gap-6">
-        <Label for="username">Nickname:</Label>
+      <Label for="username">Nickname:</Label>
       <Input
         id="username"
         bind:value={app.settings.username}
@@ -38,16 +37,15 @@
 
       <Label>Email:</Label>
       <div>{firebase.user?.email}</div>
+
+      <Label>Background:</Label>
+      <Input type="color" bind:value={app.settings.color} class="w-12"/>
     </div>
   </Card.Content>
   <Card.Footer>
-    <Button
-        variant="destructive"
-        onclick={firebase.logout}
-        size="sm"
-      >
-        <LogOut class="h-4 w-4" />
-        Logout
-      </Button>
+    <Button variant="destructive" onclick={firebase.logout} size="sm">
+      <LogOut class="h-4 w-4" />
+      Logout
+    </Button>
   </Card.Footer>
 </Card.Root>

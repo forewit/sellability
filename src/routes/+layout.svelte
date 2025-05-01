@@ -60,6 +60,7 @@ import { Loader2 } from "lucide-svelte";
   <!-- main page with toolbar -->
   <div
     class="h-screen w-screen grid relative pl-[var(--safe-area-left)] pr-[var(--safe-area-right)]"
+    style="background-color: hsl(from {app.settings.color} h s l);"
   >
     <ScrollArea type="always">
       <div class="max-w-[1200px] m-auto pt-[var(--safe-area-top)]">

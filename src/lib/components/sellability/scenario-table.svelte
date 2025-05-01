@@ -1,40 +1,41 @@
 <script lang="ts">
-  import { untrack } from "svelte";
-  import * as Select from "$lib/components/ui/select/index.js";
+import * as Select from "$lib/components/ui/select/index.js";
   import * as Table from "$lib/components/ui/table/index.js";
   import Button from "$lib/components/ui/button/button.svelte";
   import { base } from "$app/paths";
-  import { getAppContext, exampleScenario } from "../../app/app.svelte";
+  import { getAppContext } from "../../app/app.svelte";
   import { Minus, Plus, Square, SquareCheck, SquarePen, SquareMinus } from "lucide-svelte";
   import Input from "../ui/input/input.svelte";
   import { cn } from "$lib/utils";
   import type { Snippet } from "svelte";
   import Stars from "../ratings/stars.svelte";
   import type { ChartData } from "../charts/diverging-bar-chart.svelte";
+  import type { Scenario } from "$lib/app/app.svelte";
 
   let {
     class: className = "",
     children,
     onScenarioChange = () => {},
     highlightedProductId = $bindable(""),
-    scenario = $bindable({}),
+    data: scenario = $bindable(),
   }: {
     class?: string;
     children?: Snippet;
     onScenarioChange?: (timeData: ChartData) => void;
     highlightedProductId?: string;
-    scenario?: Record<string, { quantity: number }>;
+    data: Scenario;
   } = $props();
 
   const app = getAppContext();
 
-  let evalProducts = $derived(app.products.filter((p) => Object.keys(scenario).includes(p.id)));
+  let evalProducts = $derived(app.products.filter((p) => Object.keys(scenario.quantities).includes(p.id)));
 
+  $inspect(scenario)
   $effect(() => {
     let timeData = evalProducts.flatMap((p) =>
       p.time.map((t) => ({
         productId: p.id,
-        value: t.value * scenario[p.id].quantity,
+        value: t.value * scenario.quantities[p.id],
         sentiment: t.rating,
         profitability: app.productData[p.id].profitability,
       }))
@@ -42,28 +43,24 @@
     onScenarioChange(timeData);
   });
 
-  let selectedIds: string[] = $state(Object.keys(scenario));
-  $effect(() => {
-    // sync selectIds and evalData (update evalData when selectedIds changes)
-    untrack(() =>
-      Object.keys(scenario).forEach((id) => {
-        if (!selectedIds.includes(id)) {
-          delete scenario[id];
-        }
-      })
-    );
-
-    selectedIds.forEach((id) => {
-      if (untrack(() => !scenario[id])) {
-        scenario[id] = { quantity: 0 };
+  function changeSelectedIds(selectedIds: string[]) {
+    Object.keys(scenario.quantities).forEach((id) => {
+      if (!selectedIds.includes(id)) {
+        delete scenario.quantities[id];
       }
     });
-  });
+
+    selectedIds.forEach((id) => {
+      if (!scenario.quantities[id]) {
+        scenario.quantities[id] =  0;
+      }
+    });
+  }
 
   let totalTime = $derived(
     evalProducts.reduce(
       (total, product) =>
-        total + scenario[product.id].quantity * (app.productData[product.id].time || 0),
+        total + scenario.quantities[product.id] * (app.productData[product.id].time || 0),
       0
     )
   );
@@ -72,7 +69,7 @@
     evalProducts
       .reduce(
         (total, product) =>
-          total + scenario[product.id].quantity * (app.productData[product.id].expenses || 0),
+          total + scenario.quantities[product.id] * (app.productData[product.id].expenses || 0),
         0
       )
       .toFixed(2)
@@ -80,7 +77,7 @@
 
   let totalRevenue = $derived(
     evalProducts
-      .reduce((total, product) => total + scenario[product.id].quantity * product.price || 0, 0)
+      .reduce((total, product) => total + scenario.quantities[product.id] * product.price || 0, 0)
       .toFixed(2)
   );
 
@@ -88,14 +85,14 @@
     evalProducts
       .reduce(
         (total, product) =>
-          total + scenario[product.id].quantity * (app.productData[product.id].profit || 0),
+          total + scenario.quantities[product.id] * (app.productData[product.id].profit || 0),
         0
       )
       .toFixed(2)
   );
 </script>
 
-<svelte:window></svelte:window>
+<svelte:window />
 
 <div class={cn("min-w-[220px]", className)}>
   <!-- {#if evalProducts.length > 0} -->
@@ -117,10 +114,16 @@
     </Table.Header>
     <Table.Body>
       {#each evalProducts as product}
-      <!-- inline style for highlight border because iOS safari SUCKS -->
+        <!-- inline style for highlight border because iOS safari SUCKS -->
         <Table.Row
-          style={cn(highlightedProductId == product.id && "outline: 2px solid hsl(var(--primary)); border-radius: var(--radius); outline-offset: -2px")}
-          onclick={(e) => {e.stopPropagation(); highlightedProductId = product.id}}
+          style={cn(
+            highlightedProductId == product.id &&
+              "outline: 2px solid hsl(var(--primary)); border-radius: var(--radius); outline-offset: -2px"
+          )}
+          onclick={(e) => {
+            e.stopPropagation();
+            highlightedProductId = product.id;
+          }}
         >
           <Table.Cell class="">
             <Button
@@ -151,8 +154,8 @@
               size="sm"
               variant="ghost"
               onclick={() => {
-                if (scenario[product.id].quantity > 0) scenario[product.id].quantity--;
-                else scenario[product.id].quantity = 0;
+                if (scenario.quantities[product.id] > 0) scenario.quantities[product.id]--;
+                else scenario.quantities[product.id] = 0;
               }}
             >
               <Minus />
@@ -161,10 +164,10 @@
               class="w-16"
               type="number"
               inputmode="numeric"
-              bind:value={scenario[product.id].quantity}
+              bind:value={scenario.quantities[product.id]}
               min="0"
             />
-            <Button size="sm" variant="ghost" onclick={() => scenario[product.id].quantity++}>
+            <Button size="sm" variant="ghost" onclick={() => scenario.quantities[product.id]++}>
               <Plus />
             </Button>
           </Table.Cell>
@@ -174,20 +177,20 @@
             </div>
           </Table.Cell>
           <Table.Cell class="text-right">
-            {scenario[product.id].quantity * (app.productData[product.id].time || 0)} hrs
+            {scenario.quantities[product.id] * (app.productData[product.id].time || 0)} hrs
           </Table.Cell>
           <Table.Cell class="text-right">
-            ${(scenario[product.id].quantity * product.price).toFixed(2)}
+            ${(scenario.quantities[product.id] * product.price).toFixed(2)}
           </Table.Cell>
           <Table.Cell class="text-right p-0">-</Table.Cell>
           <Table.Cell class="text-right">
-            ${(scenario[product.id].quantity * (app.productData[product.id].expenses || 0)).toFixed(
+            ${(scenario.quantities[product.id] * (app.productData[product.id].expenses || 0)).toFixed(
               2
             )}
           </Table.Cell>
           <Table.Cell class="text-right p-0">=</Table.Cell>
           <Table.Cell class="text-right"
-            >${(scenario[product.id].quantity * (app.productData[product.id].profit || 0)).toFixed(
+            >${(scenario.quantities[product.id] * (app.productData[product.id].profit || 0)).toFixed(
               2
             )}</Table.Cell
           >
@@ -197,30 +200,34 @@
     <Table.Footer>
       <Table.Row>
         <Table.Cell colspan={4}>
-          <Select.Root type="multiple" bind:value={selectedIds}>
+          <Select.Root
+            type="multiple"
+            value={Object.keys(scenario)}
+            onValueChange={changeSelectedIds}
+          >
             <Select.Trigger class="w-48">Select products ({evalProducts.length})</Select.Trigger>
             <Select.Content>
               {#if app.products.length > 0}
-              {#if evalProducts.length <= 0}
-                <Button
-                  variant="link"
-                  class="mb-1 pl-2 font-normal hover:no-underline"
-                  onclick={() => (selectedIds = app.products.map((p) => p.id))}
-                  ><Square />Select all</Button
-                >
-              {:else if evalProducts.length < app.products.length}
-                <Button
-                  variant="link"
-                  class="mb-1 pl-2 font-normal hover:no-underline"
-                  onclick={() => (selectedIds = [])}><SquareMinus />Deselect all</Button
-                >
-              {:else}
-                <Button
-                  variant="link"
-                  class="mb-1 pl-2 font-normal hover:no-underline"
-                  onclick={() => (selectedIds = [])}><SquareCheck />Deselect all</Button
-                >
-              {/if}
+                {#if evalProducts.length <= 0}
+                  <Button
+                    variant="link"
+                    class="mb-1 pl-2 font-normal hover:no-underline"
+                    onclick={() => (changeSelectedIds(app.products.map((p) => p.id)))}
+                    ><Square />Select all</Button
+                  >
+                {:else if evalProducts.length < app.products.length}
+                  <Button
+                    variant="link"
+                    class="mb-1 pl-2 font-normal hover:no-underline"
+                    onclick={() => (changeSelectedIds([]))}><SquareMinus />Deselect all</Button
+                  >
+                {:else}
+                  <Button
+                    variant="link"
+                    class="mb-1 pl-2 font-normal hover:no-underline"
+                    onclick={() => (changeSelectedIds([]))}><SquareCheck />Deselect all</Button
+                  >
+                {/if}
               {/if}
               {#each app.products as product}
                 <Select.Item value={product.id}>
@@ -240,8 +247,8 @@
           <div
             class={cn(
               "text-background flex items-center px-3 py-2 rounded-lg bg-red-600",
-              Number(totalTime) <= app.timeGoals[1] && "bg-yellow-600",
-              Number(totalTime) <= app.timeGoals[0] && "bg-green-600"
+              Number(totalTime) <= scenario.goals.time.max && "bg-yellow-600",
+              Number(totalTime) <= scenario.goals.time.target && "bg-green-600"
             )}
           >
             {totalTime} hrs
@@ -259,8 +266,8 @@
           <div
             class={cn(
               "text-background flex items-center px-3 py-2 rounded-lg bg-red-600",
-              Number(totalProfit) >= app.profitGoals[1] && "bg-yellow-600",
-              Number(totalProfit) >= app.profitGoals[0] && "bg-green-600"
+              Number(totalProfit) >= scenario.goals.profit.min && "bg-yellow-600",
+              Number(totalProfit) >= scenario.goals.profit.target && "bg-green-600"
             )}
           >
             ${totalProfit}

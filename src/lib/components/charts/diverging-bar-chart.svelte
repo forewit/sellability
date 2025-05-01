@@ -160,9 +160,11 @@
       {#each groupData as group}
         <div style="width: {group.totalGroupWidth}%;">
           <div class="mt-2 h-2 border-2 border-t-0"></div>
+          {#if group.totalGroupWidth >= 4}
           <div class="bg-background w-min text-xs text-stone-400 font-medium px-1 ml-2 -mt-2">
             {group.totalGroupWidth.toFixed(0)}%
           </div>
+          {/if}
           <!-- <div>
               {groupBy === "sentiment"
                 ? SENTIMENT_LABELS[group.id]
