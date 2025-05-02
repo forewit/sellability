@@ -103,8 +103,7 @@ function createApp() {
 
     const deleteProduct = (id: string) => {
         if (selectedProductId == id) selectedProductId = "";
-        const index = products.findIndex(p => p.id === id);
-        if (index !== -1) products.splice(index, 1);
+        products = products.filter(p => p.id !== id);
     }
 
     const newScenario = () => {
@@ -115,8 +114,7 @@ function createApp() {
 
     const deleteScenario = (id: string) => {
         if (selectedScenarioId == id) selectedScenarioId = "";
-        const index = scenarios.findIndex(s => s.id === id);
-        if (index !== -1) scenarios.splice(index, 1);
+        scenarios = scenarios.filter(s => s.id !== id);
     }
 
     function publish() {
@@ -124,6 +122,12 @@ function createApp() {
     }
 
     function loadAndValidate(data: DocumentData) {
+        scenarios = data.scenarios;
+        selectedScenarioId = data.selectedScenarioId;
+        products = data.products;
+        settings = data.settings;
+
+        /* TODO: validation
         if (Object.hasOwn(data, "settings") && typeof data.settings === "object" && data.settings !== null) {
             settings = {
                 username: typeof data.settings.username === "string" ? data.settings.username : "",
@@ -131,22 +135,7 @@ function createApp() {
                 theme: typeof data.settings.theme === "string" ? data.settings.theme : "system"
             };
         }
-        if (Object.hasOwn(data, "scenarios") && Array.isArray(data.scenarios)) {
-            // Validate each scenario: must have id, productData, and goals
-            scenarios = data.scenarios.filter((s: any) =>
-                typeof s.id === "string" &&
-                typeof s.name === "string" &&
-                typeof s.quantities === "object" && s.quantities !== null &&
-                typeof s.goals === "object" && s.goals !== null &&
-                typeof s.goals.time === "object" && s.goals.time !== null &&
-                typeof s.goals.time.target === "number" &&
-                typeof s.goals.time.max === "number" &&
-                typeof s.goals.profit === "object" && s.goals.profit !== null &&
-                typeof s.goals.profit.target === "number" &&
-                typeof s.goals.profit.min === "number" &&
-                typeof s.goals.timespanDays === "number"
-            );
-        }
+        
         if (Object.hasOwn(data, "selectedScenarioId") && typeof data.selectedScenarioId === "string") {
             // Only set if the scenario exists in the loaded scenarios
             const scenarioExists = Array.isArray(data.scenarios) && data.scenarios.some((s: any) => s.id === data.selectedScenarioId);
@@ -161,6 +150,24 @@ function createApp() {
                 typeof p.price === "number"
             );
         }
+
+        if (Object.hasOwn(data, "scenarios") && Array.isArray(data.scenarios)) {
+            // Validate each scenario has required fields and correct types
+            scenarios = data.scenarios.filter((s: any) =>
+                typeof s.id === "string" &&
+                typeof s.name === "string" &&
+                typeof s.quantities === "object" && s.quantities !== null &&
+                typeof s.goals === "object" && s.goals !== null &&
+                typeof s.goals.time === "object" && s.goals.time !== null &&
+                typeof s.goals.time.targetHours === "number" &&
+                typeof s.goals.time.maxHours === "number" &&
+                typeof s.goals.profit === "object" && s.goals.profit !== null &&
+                typeof s.goals.profit.target === "number" &&
+                typeof s.goals.profit.min === "number" &&
+                typeof s.goals.timespanDays === "number"
+            );
+        }
+            */
     }
 
     firebase.subscribeToDoc([], (id, doc) => {

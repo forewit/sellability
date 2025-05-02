@@ -17,16 +17,29 @@
     class: className = "",
     children,
     highlightedProductId = $bindable(""),
-    data: scenario = $bindable(),
+    scenarioId = "",
   }: {
     class?: string;
     children?: Snippet;
     highlightedProductId?: string;
-    data: Scenario;
+    scenarioId: string;
   } = $props();
 
   const app = getAppContext();
 
+  let blankScenario: Scenario = {
+    id: "",
+    name: "",
+    quantities: {},
+    goals: { time: { targetHours: 0, maxHours: 0 }, profit: { target: 0, min: 0 }, timespanDays: 0 }
+  }
+
+  let scenario = $state(app.scenarios.find(s => s.id === scenarioId) || blankScenario);
+
+  $effect(()=>{
+    scenario = app.scenarios.find(s => s.id === scenarioId) || blankScenario
+  })
+  
   let evalProducts = $derived(
     app.products.filter((p) => Object.keys(scenario.quantities).includes(p.id))
   );
@@ -52,7 +65,6 @@
       0
     )
   );
-  $inspect(totalTime);
 
   let totalExpenses = $derived(
     evalProducts

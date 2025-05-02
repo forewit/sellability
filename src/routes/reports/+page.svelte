@@ -114,7 +114,7 @@
       </Card.Title>
     </Card.Header>
     <Card.Content class="">
-      <Scenario bind:data={app.selectedScenario} bind:highlightedProductId />
+      <Scenario scenarioId={app.selectedScenarioId} bind:highlightedProductId />
     </Card.Content>
   </Card.Root>
 

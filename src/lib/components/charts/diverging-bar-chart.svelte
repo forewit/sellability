@@ -125,7 +125,7 @@
         >
           <div
             class={cn(
-              "font-medium ease-in-out transition-all flex items-center justify-center text-xs text-background h-8 border border-background",
+              "font-medium ease-in-out transition-[margin] flex items-center justify-center text-xs text-background h-8 border border-background",
               groupBy == "sentiment" && "h-2 text-transparent",
               seg.profitabilityId == 0 && "bg-orange-700",
               seg.profitabilityId == 1 && "bg-yellow-500",
@@ -140,7 +140,7 @@
           </div>
           <div
             class={cn(
-              "font-medium ease-in-out transition-all h-2 text-transparent mt-0.5 border border-background flex items-center justify-center text-xs",
+              "font-medium ease-in-out transition-[margin] h-2 text-transparent mt-0.5 border border-background flex items-center justify-center text-xs",
               groupBy == "sentiment" && "h-8 text-background",
               seg.sentimentId == 0 && "bg-purple-200",
               seg.sentimentId == 1 && "bg-purple-300",
