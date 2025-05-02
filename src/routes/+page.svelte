@@ -11,7 +11,7 @@
 
 <Card.Root class="h-min m-3">
   <Card.Header>
-    <Card.Title class="flex gap-2 items-center">
+    <Card.Title class="flex gap-3 items-center">
       <img src="{base}/images/cube.png" class="w-8" alt="goals icon" />
       Products
     </Card.Title>

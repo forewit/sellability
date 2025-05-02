@@ -25,6 +25,7 @@ export type ProductData = {
 export type UserSettings = {
     username: string;
     color: string;
+    theme: "light" | "dark" | "system"
 }
 
 export type Scenario = {
@@ -35,7 +36,7 @@ export type Scenario = {
 }
 
 export type Goals = {
-    time: { target: number, max: number };
+    time: { targetHours: number, maxHours: number };
     profit: { target: number, min: number };
     timespanDays: number;
 }
@@ -48,7 +49,8 @@ function createApp() {
     let scenarios: Scenario[] = $state([]);
     let settings: UserSettings = $state({
         username: "",
-        color: ""
+        color: "",
+        theme: "system"
     });
 
     // ephemeral state
@@ -64,7 +66,7 @@ function createApp() {
             const expenses = p.expenses.reduce((total, expense) => total + expense.value, 0);
             const time = p.time.reduce((total, time) => total + time.value, 0);
             const profit = p.price - expenses;
-            const hourlyRate = profit / time;
+            const hourlyRate = profit / (time / 60);
 
             acc[p.id] = {
                 id: p.id,
@@ -80,16 +82,16 @@ function createApp() {
 
 
     // helper functions
-    function rateProfitability(rate: number) {
-        if (isNaN(rate) || !isFinite(rate) || !selectedScenario) return 0;
+    function rateProfitability(profitPerHour: number) {
+        if (isNaN(profitPerHour) || !isFinite(profitPerHour) || !selectedScenario) return 0;
 
-        const minRate = selectedScenario.goals.profit.min / selectedScenario.goals.time.max;
-        const midRate = ((selectedScenario.goals.profit.target / selectedScenario.goals.time.max) + (selectedScenario.goals.profit.min / selectedScenario.goals.time.target)) / 2;
-        const targetRate = selectedScenario.goals.profit.target / selectedScenario.goals.time.target;
+        const minRate = selectedScenario.goals.profit.min / selectedScenario.goals.time.maxHours;
+        const midRate = ((selectedScenario.goals.profit.target / selectedScenario.goals.time.maxHours) + (selectedScenario.goals.profit.min / selectedScenario.goals.time.targetHours)) / 2;
+        const targetRate = selectedScenario.goals.profit.target / selectedScenario.goals.time.targetHours;
 
-        if (rate < minRate) return 0;
-        if (rate < midRate) return 1;
-        if (rate < targetRate) return 2;
+        if (profitPerHour < minRate) return 0;
+        if (profitPerHour < midRate) return 1;
+        if (profitPerHour < targetRate) return 2;
         return 3;
     }
 
@@ -107,7 +109,7 @@ function createApp() {
 
     const newScenario = () => {
         const id = crypto.randomUUID().slice(0, 8);
-        scenarios.push({ id, name:"", quantities: {}, goals: { time: { target: 30, max: 50 }, profit: { target: 1200, min: 800 }, timespanDays: 5 } });
+        scenarios.push({ id, name: "", quantities: {}, goals: { time: { targetHours: 30, maxHours: 50 }, profit: { target: 1200, min: 800 }, timespanDays: 5 } });
         return id;
     }
 
@@ -125,7 +127,8 @@ function createApp() {
         if (Object.hasOwn(data, "settings") && typeof data.settings === "object" && data.settings !== null) {
             settings = {
                 username: typeof data.settings.username === "string" ? data.settings.username : "",
-                color: typeof data.settings.color === "string" ? data.settings.color : ""
+                color: typeof data.settings.color === "string" ? data.settings.color : "",
+                theme: typeof data.settings.theme === "string" ? data.settings.theme : "system"
             };
         }
         if (Object.hasOwn(data, "scenarios") && Array.isArray(data.scenarios)) {

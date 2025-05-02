@@ -1,5 +1,5 @@
 <script lang="ts">
-import * as Select from "$lib/components/ui/select/index.js";
+  import * as Select from "$lib/components/ui/select/index.js";
   import * as Table from "$lib/components/ui/table/index.js";
   import Button from "$lib/components/ui/button/button.svelte";
   import { base } from "$app/paths";
@@ -11,37 +11,25 @@ import * as Select from "$lib/components/ui/select/index.js";
   import Stars from "../ratings/stars.svelte";
   import type { ChartData } from "../charts/diverging-bar-chart.svelte";
   import type { Scenario } from "$lib/app/app.svelte";
+  import Time from "../ui/time.svelte";
 
   let {
     class: className = "",
     children,
-    onScenarioChange = () => {},
     highlightedProductId = $bindable(""),
     data: scenario = $bindable(),
   }: {
     class?: string;
     children?: Snippet;
-    onScenarioChange?: (timeData: ChartData) => void;
     highlightedProductId?: string;
     data: Scenario;
   } = $props();
 
   const app = getAppContext();
 
-  let evalProducts = $derived(app.products.filter((p) => Object.keys(scenario.quantities).includes(p.id)));
-
-  $inspect(scenario)
-  $effect(() => {
-    let timeData = evalProducts.flatMap((p) =>
-      p.time.map((t) => ({
-        productId: p.id,
-        value: t.value * scenario.quantities[p.id],
-        sentiment: t.rating,
-        profitability: app.productData[p.id].profitability,
-      }))
-    );
-    onScenarioChange(timeData);
-  });
+  let evalProducts = $derived(
+    app.products.filter((p) => Object.keys(scenario.quantities).includes(p.id))
+  );
 
   function changeSelectedIds(selectedIds: string[]) {
     Object.keys(scenario.quantities).forEach((id) => {
@@ -52,7 +40,7 @@ import * as Select from "$lib/components/ui/select/index.js";
 
     selectedIds.forEach((id) => {
       if (!scenario.quantities[id]) {
-        scenario.quantities[id] =  0;
+        scenario.quantities[id] = 0;
       }
     });
   }
@@ -64,6 +52,7 @@ import * as Select from "$lib/components/ui/select/index.js";
       0
     )
   );
+  $inspect(totalTime);
 
   let totalExpenses = $derived(
     evalProducts
@@ -100,11 +89,11 @@ import * as Select from "$lib/components/ui/select/index.js";
   <Table.Root>
     <Table.Header>
       <Table.Row>
-        <Table.Head class="">Product</Table.Head>
-        <Table.Head class="">Price</Table.Head>
-        <Table.Head class="">Quantity</Table.Head>
+        <Table.Head>Product</Table.Head>
+        <Table.Head>Price</Table.Head>
+        <Table.Head>Quantity</Table.Head>
         <Table.Head>Profitability</Table.Head>
-        <Table.Head class="text-right">Time</Table.Head>
+        <Table.Head class="text-right min-w-[125px]">Time</Table.Head>
         <Table.Head class="text-right">Revenue</Table.Head>
         <Table.Head class="px-0"></Table.Head>
         <Table.Head class="text-right">Expenses</Table.Head>
@@ -177,32 +166,36 @@ import * as Select from "$lib/components/ui/select/index.js";
             </div>
           </Table.Cell>
           <Table.Cell class="text-right">
-            {scenario.quantities[product.id] * (app.productData[product.id].time || 0)} hrs
+            <Time
+              class="text-nowrap"
+              value={scenario.quantities[product.id] * (app.productData[product.id].time || 0)}
+              disabled
+            />
           </Table.Cell>
           <Table.Cell class="text-right">
             ${(scenario.quantities[product.id] * product.price).toFixed(2)}
           </Table.Cell>
           <Table.Cell class="text-right p-0">-</Table.Cell>
           <Table.Cell class="text-right">
-            ${(scenario.quantities[product.id] * (app.productData[product.id].expenses || 0)).toFixed(
-              2
-            )}
+            ${(
+              scenario.quantities[product.id] * (app.productData[product.id].expenses || 0)
+            ).toFixed(2)}
           </Table.Cell>
           <Table.Cell class="text-right p-0">=</Table.Cell>
           <Table.Cell class="text-right"
-            >${(scenario.quantities[product.id] * (app.productData[product.id].profit || 0)).toFixed(
-              2
-            )}</Table.Cell
+            >${(
+              scenario.quantities[product.id] * (app.productData[product.id].profit || 0)
+            ).toFixed(2)}</Table.Cell
           >
         </Table.Row>
       {/each}
     </Table.Body>
     <Table.Footer>
       <Table.Row>
-        <Table.Cell colspan={4}>
+        <Table.Cell colspan={3}>
           <Select.Root
             type="multiple"
-            value={Object.keys(scenario)}
+            value={Object.keys(scenario.quantities)}
             onValueChange={changeSelectedIds}
           >
             <Select.Trigger class="w-48">Select products ({evalProducts.length})</Select.Trigger>
@@ -212,20 +205,20 @@ import * as Select from "$lib/components/ui/select/index.js";
                   <Button
                     variant="link"
                     class="mb-1 pl-2 font-normal hover:no-underline"
-                    onclick={() => (changeSelectedIds(app.products.map((p) => p.id)))}
+                    onclick={() => changeSelectedIds(app.products.map((p) => p.id))}
                     ><Square />Select all</Button
                   >
                 {:else if evalProducts.length < app.products.length}
                   <Button
                     variant="link"
                     class="mb-1 pl-2 font-normal hover:no-underline"
-                    onclick={() => (changeSelectedIds([]))}><SquareMinus />Deselect all</Button
+                    onclick={() => changeSelectedIds([])}><SquareMinus />Deselect all</Button
                   >
                 {:else}
                   <Button
                     variant="link"
                     class="mb-1 pl-2 font-normal hover:no-underline"
-                    onclick={() => (changeSelectedIds([]))}><SquareCheck />Deselect all</Button
+                    onclick={() => changeSelectedIds([])}><SquareCheck />Deselect all</Button
                   >
                 {/if}
               {/if}
@@ -243,15 +236,17 @@ import * as Select from "$lib/components/ui/select/index.js";
             </Select.Content>
           </Select.Root>
         </Table.Cell>
-        <Table.Cell class="text-right text-nowrap">
-          <div
-            class={cn(
-              "text-background flex items-center px-3 py-2 rounded-lg bg-red-600",
-              Number(totalTime) <= scenario.goals.time.max && "bg-yellow-600",
-              Number(totalTime) <= scenario.goals.time.target && "bg-green-600"
-            )}
-          >
-            {totalTime} hrs
+        <Table.Cell colspan={2}>
+          <div class="flex justify-end">
+            <div
+              class={cn(
+                "text-background px-3 py-2 rounded-lg bg-red-600",
+                Number(totalTime) / 60 <= scenario.goals.time.maxHours && "bg-yellow-600",
+                Number(totalTime) / 60 <= scenario.goals.time.targetHours && "bg-green-600"
+              )}
+            >
+              <Time class="text-nowrap" value={totalTime} disabled />
+            </div>
           </div>
         </Table.Cell>
         <Table.Cell class="text-right">
@@ -263,14 +258,16 @@ import * as Select from "$lib/components/ui/select/index.js";
         </Table.Cell>
         <Table.Cell class="text-right p-0">=</Table.Cell>
         <Table.Cell class="relative">
-          <div
-            class={cn(
-              "text-background flex items-center px-3 py-2 rounded-lg bg-red-600",
-              Number(totalProfit) >= scenario.goals.profit.min && "bg-yellow-600",
-              Number(totalProfit) >= scenario.goals.profit.target && "bg-green-600"
-            )}
-          >
-            ${totalProfit}
+          <div class="flex justify-end">
+            <div
+              class={cn(
+                "text-background flex items-center px-3 py-2 rounded-lg bg-red-600",
+                Number(totalProfit) >= scenario.goals.profit.min && "bg-yellow-600",
+                Number(totalProfit) >= scenario.goals.profit.target && "bg-green-600"
+              )}
+            >
+              ${totalProfit}
+            </div>
           </div>
         </Table.Cell>
       </Table.Row>

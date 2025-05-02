@@ -11,7 +11,8 @@
   import { base } from "$app/paths";
   import { onMount } from "svelte";
   import PublishingStatus from "$lib/components/firebase/PublishingStatus.svelte";
-import { Loader2 } from "lucide-svelte";
+  import { Loader2 } from "lucide-svelte";
+  import { ModeWatcher, setMode } from "mode-watcher";
 
   let { children } = $props();
 
@@ -30,6 +31,10 @@ import { Loader2 } from "lucide-svelte";
     }
   });
 
+  $effect(() => {
+    setMode(app.settings.theme);
+  });
+
   onMount(() => {
     window.addEventListener("beforeunload", (e) => {
       if (firebase.isPublishing) e.preventDefault();
@@ -45,13 +50,13 @@ import { Loader2 } from "lucide-svelte";
   <title>Sellability</title>
 </svelte:head>
 
+<ModeWatcher />
 <SafeAreas />
 
 {#if firebase.isLoading}
   <div class="h-svh w-svw grid place-items-center">
-  <Loader2 class="h-4 w-4 animate-spin" />
-</div>
-
+    <Loader2 class="h-4 w-4 animate-spin" />
+  </div>
 {:else if firebase.user}
   <div class="z-10 pointer-events-none fixed bottom-8 right-8">
     <PublishingStatus />
@@ -60,7 +65,6 @@ import { Loader2 } from "lucide-svelte";
   <!-- main page with toolbar -->
   <div
     class="h-screen w-screen grid relative pl-[var(--safe-area-left)] pr-[var(--safe-area-right)]"
-    style="background-color: hsl(from {app.settings.color} h s l);"
   >
     <ScrollArea type="scroll">
       <div class="max-w-[1200px] m-auto pt-[var(--safe-area-top)]">

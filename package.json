@@ -28,7 +28,7 @@
 		"formsnap": "^2.0.1",
 		"gh-pages": "^6.3.0",
 		"lucide-svelte": "^0.477.0",
-		"mode-watcher": "^1.0.3",
+		"mode-watcher": "^0.5.1",
 		"paneforge": "^1.0.0-next.4",
 		"postcss": "^8.5.3",
 		"svelte": "^5.0.0",

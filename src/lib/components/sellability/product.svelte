@@ -13,6 +13,7 @@
   import { Trash2, Plus } from "lucide-svelte";
   import Slider from "$lib/components/ui/slider/slider.svelte";
   import Heart from "$lib/components/ratings/heart.svelte";
+  import Time from "../ui/time.svelte";
 
   let { productId = "", class: className = "" }: { productId?: string; class?: string } = $props();
 
@@ -78,10 +79,10 @@
                 <Label for="price">Sell Price ($)</Label>
                 <Input id="price" type="number" inputmode="decimal" bind:value={product.price} placeholder="0" />
               </div>
-              <div class="flex flex-col gap-2">
+              <!-- <div class="flex flex-col gap-2">
                 <Label for="image">Image</Label>
                 <Input onchange={handleImageChange} id="image" type="file" accept="image/*" />
-              </div>
+              </div> -->
               <div class="flex flex-col gap-2">
                 <Label for="details">Description</Label>
                 <Textarea
@@ -116,7 +117,6 @@
                   </div>
                 </div>
               {/each}
-              <div class="w-[200px] pt-2 place-self-end">
                 <form class="grid grid-cols-[1fr,auto] gap-2 items-center">
                   <Input id="add-expense" placeholder="Add expense" bind:value={otherExpense} />
                   <Button
@@ -129,7 +129,6 @@
                     <Plus />
                   </Button>
                 </form>
-              </div>
             </div>
           </Accordion.Content>
         </Accordion.Item>
@@ -137,7 +136,7 @@
           <Accordion.Trigger class="gap-4">
             Time
             <div class="grow"></div>
-            {app.productData[product.id].time} hrs
+            <Time value={app.productData[product.id].time} disabled/>
           </Accordion.Trigger>
           <Accordion.Content class="p-2">
             <div class="flex flex-col gap-2">
@@ -147,7 +146,8 @@
                     <Label>{time.name}</Label>
                     <div class="grid grid-cols-[auto,1fr,auto] gap-2 items-center">
                       <Stars size={3} bind:value={time.rating} />
-                      <Input type="number" inputmode="decimal" min="0" bind:value={time.value} />
+                      <Time bind:value={time.value}/>
+
                       <Button
                         variant="ghost"
                         class="p-2 opacity-30 hover:opacity-100"
@@ -158,7 +158,6 @@
                     </div>
                   </div>
                 {/each}
-                <div class="w-[200px] pt-2 place-self-end">
                   <form class="grid grid-cols-[1fr,auto] gap-2 items-center">
                     <Input id="add-time" placeholder="Add time" bind:value={otherTime} />
                     <Button
@@ -171,7 +170,6 @@
                       <Plus />
                     </Button>
                   </form>
-                </div>
               </div>
             </div>
           </Accordion.Content>

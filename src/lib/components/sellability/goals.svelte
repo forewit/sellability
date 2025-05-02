@@ -17,16 +17,14 @@
   let maxHoursPerDay = $state(16);
   let timespanDaysString = $state("5");
 
-
-
   function updateTimespan(days: string) {
     // update profit and time goals
     const oldDays = goals.timespanDays;
     const newDays = parseInt(days);
     const multiplier = newDays / oldDays;
 
-    goals.time.target *= multiplier;
-    goals.time.max *= multiplier;
+    goals.time.targetHours *= multiplier;
+    goals.time.maxHours *= multiplier;
     goals.profit.target *= multiplier;
     goals.profit.min *= multiplier;
     goals.timespanDays = newDays;
@@ -99,9 +97,9 @@
           id="time-target-input"
           type="number"
           min={0}
-          max={goals.time.max}
+          max={goals.time.maxHours}
           inputmode="decimal"
-          bind:value={goals.time.target}
+          bind:value={goals.time.targetHours}
           class="w-24 border-green-600 text-green-600"
         />
         <Label
@@ -114,11 +112,11 @@
         <Input
           id="time-max-input"
           type="number"
-          bind:value={goals.time.max}
+          bind:value={goals.time.maxHours}
           inputmode="decimal"
           class="w-24 border-yellow-600 text-yellow-600"
           max={goals.timespanDays * maxHoursPerDay}
-          min={goals.time.target}
+          min={goals.time.targetHours}
           step={1}
         />
         <Label
@@ -136,10 +134,10 @@
         "[&>span:nth-child(3)]:bg-yellow-400 [&>span:nth-child(3)]:w-4 [&>span:nth-child(3)]:h-6 [&>span:nth-child(3)]:border"
       )}
       type="multiple"
-      value={[goals.time.target, goals.time.max]}
+      value={[goals.time.targetHours, goals.time.maxHours]}
       onValueChange={(detail) => {
-        goals.time.target = detail[0];
-        goals.time.max = detail[1];
+        goals.time.targetHours = detail[0];
+        goals.time.maxHours = detail[1];
       }}
       inputmode="decimal"
       max={goals.timespanDays * maxHoursPerDay}

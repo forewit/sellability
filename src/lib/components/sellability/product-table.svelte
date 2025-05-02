@@ -9,6 +9,7 @@
   import { SquarePen, Trash2 } from "lucide-svelte";
   import Input from "../ui/input/input.svelte";
   import { cn } from "$lib/utils";
+  import Time from "../ui/time.svelte";
 
   let { class: className = "" } = $props();
 
@@ -55,7 +56,7 @@
             ${app.productData[product.id].expenses || 0}
           </Table.Cell>
           <Table.Cell class="text-right">
-            {app.productData[product.id].time || 0} hrs
+            <Time class="justify-end" value={app.productData[product.id].time} disabled />
           </Table.Cell>
           <Table.Cell class="flex gap-2 justify-end pl-0">
             <Button size="sm" variant="secondary" onclick={() => (app.selectedProductId = product.id)}><SquarePen /></Button>

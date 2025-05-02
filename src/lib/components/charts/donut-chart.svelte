@@ -233,7 +233,7 @@
   <div class={cn("flex flex-col items-center", className)} role="figure" aria-label="Pie chart grouped by {groupBy}">
     <svg class="overflow-visible" width={SVG_SIZE} height={SVG_SIZE} viewBox="0 0 {SVG_SIZE} {SVG_SIZE}">
       <!-- Outline circle for reference (optional) -->
-      <circle 
+      <!-- <circle 
         cx={CENTER} 
         cy={CENTER} 
         r={OUTER_RADIUS} 
@@ -241,7 +241,7 @@
         stroke="#f1f1f1" 
         stroke-width="1" 
         stroke-dasharray="2,2"
-      />
+      /> -->
     
       <!-- Segments -->
       <!-- svelte-ignore a11y_no_static_element_interactions -->
