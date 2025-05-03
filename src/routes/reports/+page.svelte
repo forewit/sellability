@@ -18,10 +18,12 @@
   import Input from "$lib/components/ui/input/input.svelte";
   import { getFirebaseContext } from "$lib/firebase/firebase.svelte";
   import { toggleMode } from "mode-watcher";
+  import { IsMobile } from "$lib/hooks/is-mobile.svelte";
 
   const app = getAppContext();
   const firebase = getFirebaseContext();
 
+  let isMobile = new IsMobile();
   let dialogOpen = $state(false);
   let highlightedProductId = $state("");
   let displayDonutChart = $state(false);
@@ -63,6 +65,7 @@
 <Card.Root class="h-min m-3 transition-[height]">
   <Card.Content class="grid grid-cols-[1fr,auto] items-center">
     <ScenarioList />
+    {#if !isMobile.current}
     <Button onclick={toggleMode} variant="ghost" size="icon" class="relative">
       <Sun
         class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
@@ -71,6 +74,7 @@
         class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
       />
     </Button>
+    {/if}
   </Card.Content>
   {#if !app.selectedScenario}
     <Card.Footer>
