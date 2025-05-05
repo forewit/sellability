@@ -1,5 +1,5 @@
 import { auth, db } from "$lib/firebase/firebase.client";
-import { type User, signInWithEmailAndPassword, signOut, sendPasswordResetEmail } from "firebase/auth";
+import { type User, signInWithEmailAndPassword, signOut, sendPasswordResetEmail, createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, deleteDoc, collection, onSnapshot, setDoc, type DocumentData } from "firebase/firestore";
 import { debounce } from "$lib/utils";
 import { getContext, setContext } from 'svelte';
@@ -25,7 +25,7 @@ function createFirebase() {
         const docRef = doc(db, userDocPath, ...path);
         const unsub = onSnapshot(docRef,
             (snap) => { fn(snap.id, snap.exists() ? snap.data() : null) },
-            (error) => { console.error("Error while syncing firestore doc", path, error) }
+            (error) => { console.warn("Error while syncing firestore doc", path, error) }
         )
         cleanupFunctions.push(unsub)
     }
@@ -45,7 +45,7 @@ function createFirebase() {
                     fn(change.doc.id, change.type === "removed" ? null : change.doc.data())
                 });
             },
-            (error) => { console.error("Error while syncing firestore collection", path, error) }
+            (error) => { console.warn("Error while syncing firestore collection", path, error) }
         )
         cleanupFunctions.push(unsub)
     }
@@ -71,7 +71,7 @@ function createFirebase() {
                         await setDoc(docRef, publishQueue[pathStr].data);
                     }
                 } catch (error) {
-                    console.error("Error while publishing doc to firestore", pathStr, error);
+                    console.warn("Error while publishing doc to firestore", pathStr, error);
                 } finally {
                     delete publishQueue[pathStr];
                 }
@@ -83,24 +83,42 @@ function createFirebase() {
 
 
     async function login(email: string, password: string) {
-        await signInWithEmailAndPassword(auth, email, password)
+        return signInWithEmailAndPassword(auth, email, password)
     }
 
     async function logout() {
-        await signOut(auth)
+        return signOut(auth)
     }
 
     async function resetPassword(email: string) {
-        sendPasswordResetEmail(auth, email)
-          .then(() => {
-            // Password reset email sent!
-            // ..
-          })
-          .catch((error) => {
-            const errorCode = error.code;
-            const errorMessage = error.message;
-            console.error("Error during password reset:", errorCode, errorMessage);
-          });
+        return sendPasswordResetEmail(auth, email)
+            .then(() => {
+                // Password reset email sent!
+                // ..
+                console.info("Password reset email sent to:", email, );
+            })
+            .catch((error) => {
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                console.warn("Error during password reset:", errorCode, errorMessage);
+                throw error
+            });
+    }
+
+    async function signUp(email: string, password: string) {
+
+        return createUserWithEmailAndPassword(auth, email, password)
+            .then((userCredential) => {
+                const user = userCredential.user;
+                console.info("User signed up:", user.email);
+            })
+            .catch((error) => {
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                console.warn("Error during sign up:", errorCode, errorMessage);
+                throw error
+
+            });
     }
 
     const unsubAuth = auth.onAuthStateChanged((currentUser) => {
@@ -108,11 +126,11 @@ function createFirebase() {
         isLoading = false
 
         if (currentUser === null) {
-            console.warn("Logged out, unsubscribing from docs");
+            console.info("Logged out, unsubscribing from docs");
             cleanupFunctions.forEach((unsub) => unsub())
             cleanupFunctions = []
         } else {
-            console.warn("Logged in, subscribing to docs");
+            console.info("Logged in, subscribing to docs");
             pendingSubscriptions.forEach(fn => fn())
             pendingSubscriptions = []
         }
@@ -127,6 +145,7 @@ function createFirebase() {
 
     return {
         get resetPassword() { return resetPassword },
+        get signUp() { return signUp },
         get user() { return user },
         get isLoading() { return isLoading },
         get isPublishing() { return isPublishing },

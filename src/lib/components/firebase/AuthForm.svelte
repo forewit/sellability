@@ -6,44 +6,109 @@
   import * as Alert from "$lib/components/ui/alert/index.js";
   import { Loader2, Mail, Terminal, TriangleAlert } from "lucide-svelte";
   import { base } from "$app/paths";
+  import Label from "../ui/label/label.svelte";
 
   let { onSuccessfulLogin }: { onSuccessfulLogin: () => void } = $props();
   const firebase = getFirebaseContext();
 
   let email = $state("");
   let password = $state("");
+  let confirmPassword = $state("");
   let failedLogin = $state(false);
   let emailSent = $state(false);
   let isLoading = $state(false);
   let forgotPassword = $state(false);
 
+  let alertTitle = $state("");
+  let alertDescription = $state("");
+
+  let failedSignUp = $state(false);
+  let signUp = $state(false);
+
+  function parseError(err: any) {
+    if (err.code === "auth/user-not-found") {
+      alertTitle = "User not found.";
+      alertDescription = "Try creating an account";
+    } else if (err.code === "auth/wrong-password") {
+      alertTitle = "Incorrect password.";
+      alertDescription = "Please check your password and try again.";
+    } else if (err.code === "auth/invalid-email") {
+      alertTitle = "Invalid email.";
+      alertDescription = "Please enter a valid email address.";
+    } else if (err.code === "auth/weak-password") {
+      alertTitle = "Password is too weak.";
+      alertDescription = "Please choose a stronger password.";
+    } else if (err.code === "auth/email-already-in-use") {
+      alertTitle = "Email address is already in use.";
+      alertDescription = "Please use a different email address.";
+    } else {
+      alertTitle = "An unexpected error occurred.";
+      alertDescription = "Uh that's awkward...";
+    }
+  }
+
   async function handleLogin(e: SubmitEvent) {
     e.preventDefault();
-    try {
-      failedLogin = false;
-      isLoading = true;
-      await firebase.login(email, password);
-      onSuccessfulLogin();
-    } catch (err) {
-      console.log("Login failed!");
-      failedLogin = true;
-    } finally {
-      isLoading = false;
-    }
+
+    firebase
+      .login(email, password)
+      .then(() => {
+        failedLogin = false;
+        isLoading = true;
+        onSuccessfulLogin();
+      })
+      .catch((err) => {
+        failedLogin = true;
+
+        parseError(err);
+      })
+      .finally(() => {
+        isLoading = false;
+      });
   }
 
   async function handlePasswordReset(e: SubmitEvent) {
     e.preventDefault();
-    try {
-      emailSent = true;
-      isLoading = true;
-      await firebase.resetPassword(email);
-    } catch (err) {
-      console.log("Password reset failed!");
-      emailSent = false;
-    } finally {
-      isLoading = false;
+
+    firebase
+      .resetPassword(email)
+      .then(() => {
+        emailSent = true;
+        isLoading = true;
+      })
+      .catch((err) => {
+        emailSent = false;
+        parseError(err);
+      })
+      .finally(() => {
+        isLoading = false;
+      });
+  }
+
+  async function handleSignUp(e: SubmitEvent) {
+    // check if passwords match
+    if (password !== confirmPassword) {
+      alertDescription = "Passwords do not match.";
+      failedSignUp = true;
+      return;
     }
+
+    e.preventDefault();
+
+    isLoading = true;
+    failedSignUp = false;
+    await firebase
+      .signUp(email, password)
+      .then(() => {
+        onSuccessfulLogin();
+      })
+      .catch((err) => {
+        failedSignUp = true;
+        parseError(err);
+      })
+      .finally(() => {
+        isLoading = false;
+      });
   }
 
   $effect(() => {
@@ -69,7 +134,6 @@
       {#if forgotPassword}
         <form class="flex flex-col gap-4" onsubmit={handlePasswordReset}>
           <Input bind:value={email} type="email" placeholder="Email" required class="w-full" />
-
           {#if emailSent}
             <Alert.Root class="py-2">
               <Mail class="size-4" />
@@ -91,6 +155,48 @@
             onclick={() => {
               forgotPassword = false;
               failedLogin = false;
+              failedSignUp = false;
+            }}>Back to sign in</Button
+          >
+        </form>
+      {:else if signUp}
+        <form class="flex flex-col gap-4" onsubmit={handleSignUp}>
+          <Input bind:value={email} type="email" placeholder="Email" required class="w-full" />
+          <Input
+            bind:value={password}
+            type="password"
+            placeholder="Password"
+            required
+            class="w-full"
+          />
+          <Input
+            bind:value={confirmPassword}
+            type="password"
+            placeholder="Confirm Password"
+            required
+            class="w-full"
+          />
+
+          {#if failedSignUp}
+            <Alert.Root variant="destructive" class="py-2">
+              <TriangleAlert class="size-4" />
+              <Alert.Title>{alertTitle}</Alert.Title>
+              <Alert.Description>{alertDescription}</Alert.Description>
+            </Alert.Root>
+          {/if}
+
+          <Button type="submit" class="w-full" disabled={isLoading}>
+            {#if isLoading}
+              <Loader2 class="mr-2 h-4 w-4 animate-spin" />
+            {/if}
+            Create account
+          </Button>
+          <Button
+            variant="link"
+            class=""
+            onclick={() => {
+              signUp = false;
+              failedSignUp = false;
             }}>Back to sign in</Button
           >
         </form>
@@ -119,13 +225,24 @@
             {/if}
             Login
           </Button>
-          <Button
-            variant="link"
-            onclick={() => {
-              forgotPassword = true;
-              emailSent = false;
-            }}>Forgot password?</Button
-          >
+          <div class="flex justify-between">
+            <Button
+              variant="link"
+              class=""
+              onclick={() => {
+                signUp = true;
+                emailSent = false;
+              }}>Create an account</Button
+            >
+            <Button
+              variant="link"
+              class=""
+              onclick={() => {
+                forgotPassword = true;
+                emailSent = false;
+              }}>Forgot password?</Button
+            >
+          </div>
         </form>
       {/if}
     </Card.Content>
