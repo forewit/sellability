@@ -4,7 +4,7 @@
   import { Input } from "$lib/components/ui/input/index.js";
   import { Button } from "$lib/components/ui/button/index.js";
   import * as Alert from "$lib/components/ui/alert/index.js";
-  import { Loader2, Mail, Terminal, TriangleAlert } from "lucide-svelte";
+  import { Loader2, Mail, Info, TriangleAlert, CheckCheck } from "lucide-svelte";
   import { base } from "$app/paths";
   import Label from "../ui/label/label.svelte";
 
@@ -14,14 +14,13 @@
   let email = $state("");
   let password = $state("");
   let confirmPassword = $state("");
+  let alertTitle = $state("");
+  let alertDescription = $state("");
+
   let failedLogin = $state(false);
   let emailSent = $state(false);
   let isLoading = $state(false);
   let forgotPassword = $state(false);
-
-  let alertTitle = $state("");
-  let alertDescription = $state("");
-
   let failedSignUp = $state(false);
   let signUp = $state(false);
 
@@ -60,7 +59,8 @@
       .catch((err) => {
         failedLogin = true;
 
-        parseError(err);
+        alertTitle = "Username or password is incorrect."; 
+        alertDescription = "Please check your credentials and try again."; 
       })
       .finally(() => {
         isLoading = false;
@@ -75,6 +75,9 @@
       .then(() => {
         emailSent = true;
         isLoading = true;
+        
+        alertTitle = "Password Reset Email Sent";
+        alertDescription = "Please check your inbox for further instructions.";
       })
       .catch((err) => {
         emailSent = false;
@@ -86,9 +89,9 @@
   }
 
   async function handleSignUp(e: SubmitEvent) {
-    // check if passwords match
     if (password !== confirmPassword) {
-      alertDescription = "Passwords do not match.";
+      alertTitle = "Passwords do not match."; 
+      alertDescription = "Please check your password and try again."; ;
       failedSignUp = true;
       return;
     }
@@ -118,6 +121,18 @@
   });
 </script>
 
+{#snippet FeedbackAlert(error: boolean = false)}
+  <Alert.Root class="py-2" variant={error ? "destructive" : "default"}>
+    {#if error}
+      <TriangleAlert class="size-4" />
+    {:else}
+      <CheckCheck class="size-4" />
+    {/if}
+    <Alert.Title>{alertTitle}</Alert.Title>
+    <Alert.Description>{alertDescription}</Alert.Description>
+  </Alert.Root>
+{/snippet}
+
 {#if firebase.user}
   <div class="w-full flex justify-center">
     <div
@@ -135,13 +150,7 @@
         <form class="flex flex-col gap-4" onsubmit={handlePasswordReset}>
           <Input bind:value={email} type="email" placeholder="Email" required class="w-full" />
           {#if emailSent}
-            <Alert.Root class="py-2">
-              <Mail class="size-4" />
-              <Alert.Title>Email Sent!</Alert.Title>
-              <Alert.Description
-                >Please check your inbox for the password reset link.</Alert.Description
-              >
-            </Alert.Root>
+            {@render FeedbackAlert()}
           {/if}
           <Button type="submit" class="w-full" disabled={isLoading || emailSent}>
             {#if isLoading}
@@ -178,11 +187,7 @@
           />
 
           {#if failedSignUp}
-            <Alert.Root variant="destructive" class="py-2">
-              <TriangleAlert class="size-4" />
-              <Alert.Title>{alertTitle}</Alert.Title>
-              <Alert.Description>{alertDescription}</Alert.Description>
-            </Alert.Root>
+            {@render FeedbackAlert(true)}
           {/if}
 
           <Button type="submit" class="w-full" disabled={isLoading}>
@@ -212,11 +217,7 @@
           />
 
           {#if failedLogin}
-            <Alert.Root variant="destructive" class="py-2">
-              <TriangleAlert class="size-4" />
-              <Alert.Title>Wrong password!</Alert.Title>
-              <Alert.Description>Please try again.</Alert.Description>
-            </Alert.Root>
+            {@render FeedbackAlert(true)}
           {/if}
 
           <Button type="submit" class="w-full" disabled={isLoading}>
