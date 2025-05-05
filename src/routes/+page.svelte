@@ -16,10 +16,20 @@
       Products
     </Card.Title>
   </Card.Header>
+  {#if app.products.length > 0}
   <Card.Content>
     <ProductTable />
   </Card.Content>
   <Card.Footer>
-    <Button onclick={()=>{const id=app.newProduct(); app.selectedProductId = id;}}><Plus />New Product</Button>
+      <Button onclick={()=>{const id=app.newProduct(); app.selectedProductId = id;}}><Plus />New Product</Button>
   </Card.Footer>
+  {:else}
+  
+  <div class="grid place-items-center pt-6 pb-10">
+    <div class="grid place-items-center gap-6 justify-center">
+      <p>You don't have any products. Create one to start your journey!</p>
+      <Button onclick={()=>{const id=app.newProduct(); app.selectedProductId = id;}}><Plus />New Product</Button>
+    </div>
+  </div>
+  {/if}
 </Card.Root>

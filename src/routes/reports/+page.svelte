@@ -215,8 +215,7 @@
 {:else}
   <div class="grid place-items-center h-[50vh]">
     <div class="grid place-items-center gap-8 justify-center">
-      <p>You don't have any scenarios yet. Lets get started!</p>
-      <Button onclick={app.newScenario}>Create a scenario</Button>
+      <p>Create a scenario to get started!</p>
     </div>
   </div>
 {/if}
