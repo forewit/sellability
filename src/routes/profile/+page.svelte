@@ -9,6 +9,10 @@
   import { Button } from "$lib/components/ui/button/index.js";
   import { Input } from "$lib/components/ui/input/index.js";
   import { LogOut, Home, Sun, Moon } from "lucide-svelte";
+  import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
+  import { buttonVariants } from "$lib/components/ui/button/index.js";
+  import { resetMode, setMode } from "mode-watcher";
+
   import Label from "$lib/components/ui/label/label.svelte";
   import Time from "$lib/components/ui/time.svelte";
 
@@ -31,22 +35,25 @@
       <div>{firebase.user?.email}</div>
 
       <Label>Theme:</Label>
-      <Select.Root bind:value={app.settings.theme} type="single">
-        <Select.Trigger class="w-min flex gap-2">
+      <DropdownMenu.Root>
+        <DropdownMenu.Trigger
+          class={buttonVariants({ variant: "outline", size: "icon" })}
+        >
           <Sun
             class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
           />
           <Moon
             class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
           />
-          {app.settings.theme.charAt(0).toUpperCase() + app.settings.theme.slice(1)}
-        </Select.Trigger>
-        <Select.Content align="start">
-          <Select.Item value="light">Light</Select.Item>
-          <Select.Item value="dark">Dark</Select.Item>
-          <Select.Item value="system">System</Select.Item>
-        </Select.Content>
-      </Select.Root>
+          <span class="sr-only">Toggle theme</span>
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content align="start">
+          <DropdownMenu.Item onclick={() => setMode("light")}>Light</DropdownMenu.Item
+          >
+          <DropdownMenu.Item onclick={() => setMode("dark")}>Dark</DropdownMenu.Item>
+          <DropdownMenu.Item onclick={() => resetMode()}>System</DropdownMenu.Item>
+        </DropdownMenu.Content>
+      </DropdownMenu.Root>
 
       <Label for="username">Name:</Label>
       <Input

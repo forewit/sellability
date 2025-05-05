@@ -14,7 +14,7 @@
   import { onMount } from "svelte";
   import PublishingStatus from "$lib/components/firebase/PublishingStatus.svelte";
   import { Loader2 } from "lucide-svelte";
-  import { ModeWatcher, setMode } from "mode-watcher";
+  import { ModeWatcher, mode } from "mode-watcher";
 
   let { children } = $props();
 
@@ -33,8 +33,13 @@
     }
   });
 
+  mode.subscribe((mode) => {
+    app.settings.theme = mode || "system";
+  });
+
   $effect(() => {
-    setMode(app.settings.theme);
+    // Additional effect to handle theme changes
+    document.body.className = app.settings.theme;
   });
 
   onMount(() => {
@@ -55,6 +60,16 @@
 <ModeWatcher />
 <SafeAreas />
 
+
+{#snippet content()}
+<ScrollArea type="scroll">
+  <div class="max-w-[1200px] m-auto pt-[var(--safe-area-top)]">
+    {@render children?.()}
+  </div>
+  <div class="h-24 pb-[var(--safe-area-bottom)]"></div>
+</ScrollArea>
+{/snippet}
+
 {#if firebase.isLoading}
   <div class="h-svh w-svw grid place-items-center">
     <Loader2 class="h-4 w-4 animate-spin" />
@@ -68,12 +83,7 @@
   <div
     class="h-screen w-screen grid relative pl-[var(--safe-area-left)] pr-[var(--safe-area-right)]"
   >
-    <ScrollArea type="scroll">
-      <div class="max-w-[1200px] m-auto pt-[var(--safe-area-top)]">
-        {@render children?.()}
-      </div>
-      <div class="h-24 pb-[var(--safe-area-bottom)]"></div>
-    </ScrollArea>
+    {@render content()}
     <Toolbar class="flex-row fixed left-1/2 -translate-x-1/2 bottom-5 z-20" />
   </div>
 
@@ -110,5 +120,5 @@
   </Dialog.Content>
 </Dialog.Root> -->
 {:else}
-  {@render children?.()}
+  {@render content()}
 {/if}
