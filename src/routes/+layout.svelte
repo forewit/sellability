@@ -3,6 +3,8 @@
   import { setAppContext } from "$lib/app/app.svelte";
   import Toolbar from "$lib/components/sellability/toolbar.svelte";
   import * as Sheet from "$lib/components/ui/sheet/index.js";
+  import * as Dialog from "$lib/components/ui/dialog/index.js";
+
   import Product from "$lib/components/sellability/product.svelte";
   import { ScrollArea } from "$lib/components/ui/scroll-area/index.js";
   import SafeAreas from "$lib/components/safeareas/safe-areas.svelte";
@@ -83,7 +85,7 @@
     }}
   >
     <Sheet.Content
-      class="pl-0 pr-[var(--safe-area-right)] pt-[var(--safe-area-top)] pb-[var(--safe-area-bottom)]"
+      class="md:min-w-[450px] pl-0 pr-[var(--safe-area-right)] pt-[var(--safe-area-top)] pb-[var(--safe-area-bottom)]"
       hideCloseButton
     >
       <ScrollArea class="h-full" type="scroll">
@@ -91,6 +93,22 @@
       </ScrollArea>
     </Sheet.Content>
   </Sheet.Root>
+
+  <!-- <Dialog.Root
+  open={productSheetOpen}
+  onOpenChange={(open) => {
+    if (!open) app.selectedProductId = "";
+  }}
+>
+  <Dialog.Content
+    class="pl-0 pr-[var(--safe-area-right)] pt-[var(--safe-area-top)] pb-[var(--safe-area-bottom)]"
+    hideCloseButton
+  >
+    <ScrollArea class="h-full" type="scroll">
+      <Product productId={app.selectedProductId} class="p-6" />
+    </ScrollArea>
+  </Dialog.Content>
+</Dialog.Root> -->
 {:else}
   {@render children?.()}
 {/if}

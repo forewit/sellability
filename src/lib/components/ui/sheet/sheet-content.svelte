@@ -39,7 +39,7 @@
     portalProps?: SheetPrimitive.PortalProps;
     side?: Side;
     children: Snippet;
-    hideCloseButton?: boolean; // Added type for hideCloseButton
+    hideCloseButton?: boolean;
   } = $props();
 </script>
 

@@ -23,8 +23,11 @@
   >
     <img src={`${base}/images/rocket.png`} class="w-8 min-w-8" alt="products" />
   </Button>
-  <Separator class="mx-2 h-6" orientation="vertical" />
-  <Button href="{base}/profile/" class="h-12 w-12" size="icon" variant="ghost">
-    <CircleUser  />
-  </Button>
+  <Button
+  class={cn("h-12 w-14", page.url.pathname === `${base}/profile/` && "bg-muted")}
+  href="{base}/profile/"
+  variant="ghost"
+>
+  <img src={`${base}/images/profile.png`} class="w-8 min-w-8" alt="products" />
+</Button>
 </div>

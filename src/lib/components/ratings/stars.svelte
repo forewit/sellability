@@ -7,13 +7,13 @@
 
 <div
   class={cn(
-    "flex flex-row",
+    "flex flex-row text-4xl gap-0.5",
     "rounded ring-offset-background focus-within:[&:has(:focus-visible)]:ring-ring focus-within:[&:has(:focus-visible)]:outline-none focus-within:[&:has(:focus-visible)]:ring-2 focus-within:[&:has(:focus-visible)]:ring-offset-4",
     className
   )}
 >
   {#each Array(size).fill(0) as _, index}
-    <label title="text" class={cn("cursor-pointer text-3xl", disabled && "cursor-auto")}
+    <label title="text" class={cn("cursor-pointer", disabled && "cursor-auto")}
       ><input
         class="appearance-none absolute peer"
         type="radio"

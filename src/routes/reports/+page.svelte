@@ -8,7 +8,18 @@
   import { base } from "$app/paths";
   import * as Tabs from "$lib/components/ui/tabs/index.js";
   import type { ChartData } from "$lib/components/charts/diverging-bar-chart.svelte";
-  import { ChartPie, ChartBarStacked, X, SquarePen, Info, Trash2, Sun, Moon } from "lucide-svelte";
+  import {
+    ChartPie,
+    ChartBarStacked,
+    X,
+    SquarePen,
+    Info,
+    Trash2,
+    Sun,
+    Moon,
+    Plus,
+    MoveLeft,
+  } from "lucide-svelte";
   import DonutChart from "$lib/components/charts/donut-chart.svelte";
   import DivergingBarChart from "$lib/components/charts/diverging-bar-chart.svelte";
   import { getAppContext } from "$lib/app/app.svelte";
@@ -50,7 +61,7 @@
   let showChart = $derived(timeData.reduce((acc, curr) => acc + curr.value, 0) > 0);
 
   $effect(() => {
-    if (app.selectedScenarioId == "") app.selectedScenarioId = app.scenarios[0]?.id || "";
+    if (app.selectedScenarioId == "") app.selectedScenarioId = app.scenarios[0]?.id || app.newScenario();
   });
 </script>
 
@@ -64,7 +75,18 @@
 <!-- Scenario List -->
 <Card.Root class="h-min m-3 transition-[height]">
   <Card.Content class="grid grid-cols-[1fr,auto] items-center">
-    <ScenarioList />
+    {#if app.scenarios.length == 0}
+      <div class="flex gap-6 items-center">
+        <Button onclick={() => (app.selectedScenarioId = app.newScenario())}>
+          <Plus />
+          New Scenario
+        </Button>
+        
+        <p>Create a scenario to get started!</p>
+      </div>
+    {:else}
+      <ScenarioList />
+    {/if}
     {#if !isMobile.current}
       <Button onclick={toggleMode} variant="ghost" size="icon" class="relative">
         <Sun
@@ -211,11 +233,5 @@
         </Card.Content>
       {/if}
     </Card.Root>
-  </div>
-{:else}
-  <div class="grid place-items-center h-[50vh]">
-    <div class="grid place-items-center gap-8 justify-center">
-      <p>Create a scenario to get started!</p>
-    </div>
   </div>
 {/if}

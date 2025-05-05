@@ -19,7 +19,8 @@
 
   const app = getAppContext();
 
-  let product = $derived(app.products.find(p=>p.id == productId))
+  let product = $derived(app.products.find((p) => p.id == productId));
+  let nameInputRef: HTMLInputElement | null = $state(null);
 
   let otherExpense = $state("");
   function addOtherExpense() {
@@ -44,6 +45,12 @@
       product.url = URL.createObjectURL(file);
     }
   }
+
+  $effect(() => {
+    if (nameInputRef && product && !product.name) {
+      nameInputRef.select();
+    }
+  });
 </script>
 
 <div class={cn("h-full grid grid-rows-[auto,1fr,auto] ", className)}>
@@ -52,6 +59,7 @@
       <Card.Title class="flex items-center gap-2">
         <img src={product.url || `${base}/images/cube.png`} class="w-8" alt={product.name} />
         <Input
+          bind:ref={nameInputRef}
           placeholder="Product Name"
           class="py-5 text-xl md:text-xl"
           bind:value={product.name}
@@ -60,7 +68,7 @@
     </Card.Header>
 
     <Card.Content class="flex flex-col gap-4 px-0">
-      <div class="flex gap-4 place-self-end">
+      <div class="flex gap-4 place-self-end items-center">
         <Label>Profitability</Label>
         <Stars size={3} value={app.productData[product.id].profitability} disabled class="mr-2" />
       </div>
@@ -77,7 +85,13 @@
             <div class="flex flex-col gap-4">
               <div class="flex flex-col gap-2">
                 <Label for="price">Sell Price ($)</Label>
-                <Input id="price" type="number" inputmode="decimal" bind:value={product.price} placeholder="0" />
+                <Input
+                  id="price"
+                  type="number"
+                  inputmode="decimal"
+                  bind:value={product.price}
+                  placeholder="0"
+                />
               </div>
               <!-- <div class="flex flex-col gap-2">
                 <Label for="image">Image</Label>
@@ -117,18 +131,18 @@
                   </div>
                 </div>
               {/each}
-                <form class="grid grid-cols-[1fr,auto] gap-2 items-center">
-                  <Input id="add-expense" placeholder="Add expense" bind:value={otherExpense} />
-                  <Button
-                    variant="ghost"
-                    onclick={addOtherExpense}
-                    class="p-2"
-                    disabled={otherExpense.length === 0}
-                    type="submit"
-                  >
-                    <Plus />
-                  </Button>
-                </form>
+              <form class="grid grid-cols-[1fr,auto] gap-2 items-center">
+                <Input id="add-expense" placeholder="Add expense" bind:value={otherExpense} />
+                <Button
+                  variant="ghost"
+                  onclick={addOtherExpense}
+                  class="p-2"
+                  disabled={otherExpense.length === 0}
+                  type="submit"
+                >
+                  <Plus />
+                </Button>
+              </form>
             </div>
           </Accordion.Content>
         </Accordion.Item>
@@ -136,7 +150,7 @@
           <Accordion.Trigger class="gap-4">
             Time
             <div class="grow"></div>
-            <Time value={app.productData[product.id].time} disabled/>
+            <Time value={app.productData[product.id].time} disabled />
           </Accordion.Trigger>
           <Accordion.Content class="p-2">
             <div class="flex flex-col gap-2">
@@ -146,7 +160,7 @@
                     <Label>{time.name}</Label>
                     <div class="grid grid-cols-[auto,1fr,auto] gap-2 items-center">
                       <Stars size={3} bind:value={time.rating} />
-                      <Time bind:value={time.value}/>
+                      <Time class="ml-4" bind:value={time.value} />
 
                       <Button
                         variant="ghost"
@@ -158,18 +172,18 @@
                     </div>
                   </div>
                 {/each}
-                  <form class="grid grid-cols-[1fr,auto] gap-2 items-center">
-                    <Input id="add-time" placeholder="Add time" bind:value={otherTime} />
-                    <Button
-                      variant="ghost"
-                      onclick={addOtherTime}
-                      class="p-2"
-                      disabled={otherTime.length === 0}
-                      type="submit"
-                    >
-                      <Plus />
-                    </Button>
-                  </form>
+                <form class="grid grid-cols-[1fr,auto] gap-2 items-center">
+                  <Input id="add-time" placeholder="Add time" bind:value={otherTime} />
+                  <Button
+                    variant="ghost"
+                    onclick={addOtherTime}
+                    class="p-2"
+                    disabled={otherTime.length === 0}
+                    type="submit"
+                  >
+                    <Plus />
+                  </Button>
+                </form>
               </div>
             </div>
           </Accordion.Content>
@@ -180,7 +194,7 @@
     <!-- Footer -->
     <Card.Footer class="justify-between p-0">
       <Button variant="outline" onclick={() => (app.selectedProductId = "")}>Close</Button>
-      <Dialog.Root>
+      <!-- <Dialog.Root>
         <Dialog.Trigger><Button variant="destructive">Delete</Button></Dialog.Trigger>
         <Dialog.Content>
           <Dialog.Header>
@@ -195,7 +209,7 @@
             >
           </Dialog.Footer>
         </Dialog.Content>
-      </Dialog.Root>
+      </Dialog.Root> -->
     </Card.Footer>
   {:else}
     <div class="py-12 text-center p-4"></div>
