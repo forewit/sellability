@@ -66,21 +66,16 @@
   <Card.Content class="grid grid-cols-[1fr,auto] items-center">
     <ScenarioList />
     {#if !isMobile.current}
-    <Button onclick={toggleMode} variant="ghost" size="icon" class="relative">
-      <Sun
-        class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
-      />
-      <Moon
-        class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
-      />
-    </Button>
+      <Button onclick={toggleMode} variant="ghost" size="icon" class="relative">
+        <Sun
+          class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
+        />
+        <Moon
+          class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
+        />
+      </Button>
     {/if}
   </Card.Content>
-  {#if !app.selectedScenario}
-    <Card.Footer>
-      <div class="text-center py-4 grow">Create a new Scenario to get started</div>
-    </Card.Footer>
-  {/if}
 </Card.Root>
 
 {#if app.selectedScenario}
@@ -216,5 +211,12 @@
         </Card.Content>
       {/if}
     </Card.Root>
+  </div>
+{:else}
+  <div class="grid place-items-center h-[50vh]">
+    <div class="grid place-items-center gap-8 justify-center">
+      <p>You don't have any scenarios yet. Lets get started!</p>
+      <Button onclick={app.newScenario}>Create a scenario</Button>
+    </div>
   </div>
 {/if}
