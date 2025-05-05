@@ -23,7 +23,7 @@
     <Table.Header>
       <Table.Row>
         <Table.Head colspan={2}>Product</Table.Head>
-        <Table.Head class="">Price</Table.Head>
+        <Table.Head class="text-right">Price</Table.Head>
         <Table.Head class="text-right">Expenses</Table.Head>
         <Table.Head class="text-right">Time</Table.Head>
         <Table.Head></Table.Head>
@@ -38,19 +38,12 @@
               class="w-6 min-w-6 aspect-square"
               alt={product.name}
             />
-            <!-- <Button
-                size="sm"
-                variant="ghost"
-                onclick={() => (app.selectedProductId = product.id)}
-              >
-                <SquarePen />
-              </Button> -->
           </Table.Cell>
-          <Table.Cell class="pl-0">
-            <Input bind:value={product.name} onclick={(e) => e.stopPropagation()} />
+          <Table.Cell class="px-0">
+            {product.name}
           </Table.Cell>
-          <Table.Cell>
-            <Input inputmode="decimal" type="number" class="w-16" bind:value={product.price} onclick={(e) => e.stopPropagation()}/>
+          <Table.Cell class="text-right">
+            ${product.price}
           </Table.Cell>
           <Table.Cell class="text-right">
             ${app.productData[product.id].expenses || 0}
