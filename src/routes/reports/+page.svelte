@@ -139,7 +139,7 @@
     </Card.Content>
   </Card.Root>
 
-  <div class="flex md:flex-row flex-col justify-between gap-3 px-3">
+  <div class="flex md:flex-row flex-col justify-between gap-3 px-3 pb-3">
     <!-- Goals -->
     <Card.Root class="h-min">
       <Card.Header>
@@ -151,7 +151,6 @@
       <Card.Content>
         <Goals bind:data={app.selectedScenario.goals} />
       </Card.Content>
-      <Card.Footer></Card.Footer>
     </Card.Root>
 
     <!-- Scenario Chart -->

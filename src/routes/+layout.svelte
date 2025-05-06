@@ -66,7 +66,7 @@
   <div class="max-w-[1200px] m-auto pt-[var(--safe-area-top)]">
     {@render children?.()}
   </div>
-  <div class="h-24 pb-[var(--safe-area-bottom)]"></div>
+  <div class="h-24 md:h-0 pb-[var(--safe-area-bottom)]"></div>
 </ScrollArea>
 {/snippet}
 

@@ -110,7 +110,7 @@
               ? (highlightedProductId = "")
               : (highlightedProductId = seg.productId)}}
           class={cn(
-            "relative cursor-pointer transition-[margin]",
+            "relative cursor-pointer transition-all",
             highlightedProductId === seg.productId &&
               "z-10 -mt-3 mb-3 after:absolute after:inset-0 after:content-[''] after:ring-[1px] after:ring-inset after:rounded after:ring-offset-0 after:ring-primary after:z-10  before:absolute before:inset-0 before:content-[''] before:ring-[1px] before:rounded before:ring-offset-0 before:ring-primary before:z-10"
           )}
@@ -125,7 +125,7 @@
         >
           <div
             class={cn(
-              "font-medium ease-in-out transition-[margin] flex items-center justify-center text-xs text-background h-8 border border-background",
+              "font-medium ease-in-out transition-all flex items-center justify-center text-xs text-background h-8 border border-background",
               groupBy == "sentiment" && "h-2 text-transparent",
               seg.profitabilityId == 0 && "bg-orange-700",
               seg.profitabilityId == 1 && "bg-yellow-500",
@@ -140,7 +140,7 @@
           </div>
           <div
             class={cn(
-              "font-medium ease-in-out transition-[margin] h-2 text-transparent mt-0.5 border border-background flex items-center justify-center text-xs",
+              "font-medium ease-in-out transition-all h-2 text-transparent mt-0.5 border border-background flex items-center justify-center text-xs",
               groupBy == "sentiment" && "h-8 text-background",
               seg.sentimentId == 0 && "bg-purple-200",
               seg.sentimentId == 1 && "bg-purple-300",
