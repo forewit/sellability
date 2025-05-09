@@ -11,5 +11,4 @@
 
 > ⚠️ MVP in progress
 
-#### stack
-[FaST stack](https://github.com/forewit/fast-stack)
+#### [FaST stack](https://github.com/forewit/fast-stack)
