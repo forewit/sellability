@@ -1,6 +1,6 @@
-# Sellability™
+# Sellability
 
-**Sellability™** is a simple tool for small business owners and makers to evaluate whether a product is both **profitable** and **personally sustainable**.
+A simple tool for small business owners and makers to evaluate whether a product is both **profitable** and **personally sustainable**.
 
 #### What it does
 - **Track Products**: Add products with cost and time breakdowns. Rate how much you *enjoy* each type of work.
