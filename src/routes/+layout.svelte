@@ -3,7 +3,6 @@
   import { setAppContext } from "$lib/app/app.svelte";
   import Toolbar from "$lib/components/sellability/toolbar.svelte";
   import * as Sheet from "$lib/components/ui/sheet/index.js";
-  import * as Dialog from "$lib/components/ui/dialog/index.js";
 
   import Product from "$lib/components/sellability/product.svelte";
   import { ScrollArea } from "$lib/components/ui/scroll-area/index.js";
@@ -31,15 +30,6 @@
     if (!firebase.user && !firebase.isLoading) {
       goto(`${base}/login/`);
     }
-  });
-
-  mode.subscribe((mode) => {
-    app.settings.theme = mode || "system";
-  });
-
-  $effect(() => {
-    // Additional effect to handle theme changes
-    document.body.className = app.settings.theme;
   });
 
   onMount(() => {
@@ -95,7 +85,7 @@
     }}
   >
     <Sheet.Content
-      class="md:min-w-[450px] pl-0 pr-[var(--safe-area-right)] pt-[var(--safe-area-top)] pb-[var(--safe-area-bottom)]"
+      class="min-w-[min(calc(100vw-2rem),450px)] pl-0 pr-[var(--safe-area-right)] pt-[var(--safe-area-top)] pb-[var(--safe-area-bottom)]"
       hideCloseButton
     >
       <ScrollArea class="h-full" type="scroll">
