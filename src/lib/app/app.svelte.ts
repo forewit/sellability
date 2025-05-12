@@ -1,15 +1,13 @@
-import { getContext, setContext, untrack } from 'svelte';
-import { saveToStorage, getFromStorage, } from '$lib/app/localstorage';
+import { getContext, setContext } from 'svelte';
 import { getFirebaseContext } from '$lib/firebase/firebase.svelte';
-import type { DocumentData } from 'firebase/firestore';
 
 export type Product = {
     id: string;
     url: string;
     name?: string;
     description?: string;
-    expenses: { name: string; value: number }[];
-    time: { name: string; value: number; rating: number }[];
+    expenses: { id:string, name: string; value: number }[];
+    time: { id:string, name: string; value: number; rating: number }[];
     price: number;
 }
 
@@ -24,8 +22,6 @@ export type ProductData = {
 
 export type UserSettings = {
     username: string;
-    color: string;
-    theme: "light" | "dark" | "system"
 }
 
 export type Scenario = {
@@ -41,6 +37,10 @@ export type Goals = {
     timespanDays: number;
 }
 
+function createID() {
+    return crypto.randomUUID().slice(0, 8);
+}
+
 function createApp() {
     const firebase = getFirebaseContext();
 
@@ -49,13 +49,9 @@ function createApp() {
     let scenarios: Scenario[] = $state([]);
     let settings: UserSettings = $state({
         username: "",
-        color: "",
-        theme: "system"
     });
 
     // ephemeral state
-    let lastUpdated = 0;
-    let remoteUpdate = $state(true);
     let authRedirect = $state("")
     let selectedProductId = $state("")
     let selectedScenarioId = $state("")
@@ -96,7 +92,7 @@ function createApp() {
     }
 
     const newProduct = () => {
-        const id = crypto.randomUUID().slice(0, 8)
+        const id = createID();
         products.push({ id: id, url: '', expenses: [], time: [], price: 0 })
         return id;
     }
@@ -106,8 +102,40 @@ function createApp() {
         products = products.filter(p => p.id !== id);
     }
 
+   const newExpense = (productId: string, expense?: { name: string; value: number }) => {
+        const id = createID();
+        const expenseData = expense || { name: "", value: 0 };
+        const product = products.find(p => p.id === productId);
+        if (product) {
+            product.expenses.push({ id, ...expenseData });
+        }
+        return id;
+    }
+    const deleteExpense = (productId: string, expenseId: string) => {
+        const product = products.find(p => p.id === productId);
+        if (product) {
+            product.expenses = product.expenses.filter(e => e.id !== expenseId);
+        }
+    }
+    const newTime = (productId: string, time?: { name: string; value: number; rating: number }) => {
+        const id = createID();
+        const timeData = time || { name: "", value: 0, rating: 0 };
+        const product = products.find(p => p.id === productId);
+        if (product) {
+            product.time.push({ id, ...timeData });
+        }
+        return id;
+    }
+
+    const deleteTime = (productId: string, timeId: string) => {
+        const product = products.find(p => p.id === productId);
+        if (product) {
+            product.time = product.time.filter(t => t.id !== timeId);
+        }
+    }
+
     const newScenario = () => {
-        const id = crypto.randomUUID().slice(0, 8);
+        const id = createID();
         scenarios.push({ id, name: "", quantities: {}, goals: { time: { targetHours: 30, maxHours: 50 }, profit: { target: 1200, min: 800 }, timespanDays: 5 } });
         return id;
     }
@@ -117,87 +145,33 @@ function createApp() {
         scenarios = scenarios.filter(s => s.id !== id);
     }
 
-    function publish() {
-        firebase.publishDoc([], { lastUpdated, selectedScenarioId, settings, products, scenarios })
-    }
 
-    function loadAndValidate(data: DocumentData) {
-        scenarios = data.scenarios;
-        selectedScenarioId = data.selectedScenarioId;
-        products = data.products;
-        settings = data.settings;
+     firebase.syncState(
+        ()=>(JSON.parse(JSON.stringify({ scenarios, selectedScenarioId, products, settings }))),
+        (v)=>{
+            if (v.scenarios !== undefined) scenarios = v.scenarios;
+            if (v.selectedScenarioId !== undefined) selectedScenarioId = v.selectedScenarioId;
+            if (v.products !== undefined) products = v.products;
+            if (v.settings !== undefined) settings = v.settings;
 
-        /* TODO: validation
-        if (Object.hasOwn(data, "settings") && typeof data.settings === "object" && data.settings !== null) {
-            settings = {
-                username: typeof data.settings.username === "string" ? data.settings.username : "",
-                color: typeof data.settings.color === "string" ? data.settings.color : "",
-                theme: typeof data.settings.theme === "string" ? data.settings.theme : "system"
-            };
-        }
-        
-        if (Object.hasOwn(data, "selectedScenarioId") && typeof data.selectedScenarioId === "string") {
-            // Only set if the scenario exists in the loaded scenarios
-            const scenarioExists = Array.isArray(data.scenarios) && data.scenarios.some((s: any) => s.id === data.selectedScenarioId);
-            selectedScenarioId = scenarioExists ? data.selectedScenarioId : "";
-        }
-        if (Object.hasOwn(data, "products") && Array.isArray(data.products)) {
-            // Basic validation: check each product has required fields
-            products = data.products.filter((p: any) =>
-                typeof p.id === "string" &&
-                Array.isArray(p.expenses) &&
-                Array.isArray(p.time) &&
-                typeof p.price === "number"
-            );
-        }
+            // loop through products and add an id for each expense and time if it doesn't already have one:
+            products.forEach(product => {
+                product.expenses.forEach(expense => {
+                    if (!expense.id) {
+                        expense.id = createID();
+                    }
+                });
+                product.time.forEach(time => {
+                    if (!time.id) {
+                        time.id = createID();
+                    }
+                });
+            });
+        },
+        "users",
+        firebase.USER_ID
+    )
 
-        if (Object.hasOwn(data, "scenarios") && Array.isArray(data.scenarios)) {
-            // Validate each scenario has required fields and correct types
-            scenarios = data.scenarios.filter((s: any) =>
-                typeof s.id === "string" &&
-                typeof s.name === "string" &&
-                typeof s.quantities === "object" && s.quantities !== null &&
-                typeof s.goals === "object" && s.goals !== null &&
-                typeof s.goals.time === "object" && s.goals.time !== null &&
-                typeof s.goals.time.targetHours === "number" &&
-                typeof s.goals.time.maxHours === "number" &&
-                typeof s.goals.profit === "object" && s.goals.profit !== null &&
-                typeof s.goals.profit.target === "number" &&
-                typeof s.goals.profit.min === "number" &&
-                typeof s.goals.timespanDays === "number"
-            );
-        }
-            */
-    }
-
-    firebase.subscribeToDoc([], (id, doc) => {
-        if (firebase.isLoading || doc === null) return
-        if (doc.lastUpdated === undefined || doc.lastUpdated < lastUpdated) {
-            publish()
-        } else if (doc.lastUpdated > lastUpdated) {
-            remoteUpdate = true;
-            loadAndValidate(doc)
-        } else if (doc.lastUpdated === lastUpdated) {
-            console.log("app in sync with user doc")
-        }
-    })
-
-    // Set up effects to sync state with localStorage whenever it changes
-    $effect(() => {
-        JSON.stringify(products);
-        JSON.stringify(scenarios);
-        JSON.stringify(selectedScenarioId)
-        JSON.stringify(settings);
-
-        untrack(() => {
-            if (remoteUpdate) {
-                remoteUpdate = false
-                return;
-            }
-            lastUpdated = Date.now();
-            publish();
-        })
-    });
 
     return {
         // read only state
@@ -212,6 +186,10 @@ function createApp() {
         deleteProduct,
         newScenario,
         deleteScenario,
+        newExpense,
+        deleteExpense,
+        newTime,
+        deleteTime,
 
         // editable state
         get authRedirect() { return authRedirect },

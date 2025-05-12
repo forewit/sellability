@@ -1,49 +1,54 @@
 <script lang="ts">
-  import { getAppContext, type Product } from "$lib/app/app.svelte";
+  import { getAppContext } from "$lib/app/app.svelte";
+  import { dragHandleZone, dragHandle } from "svelte-dnd-action";
+  import { flip } from "svelte/animate";
   import { cn } from "$lib/utils";
   import * as Card from "$lib/components/ui/card/index.js";
   import * as Accordion from "$lib/components/ui/accordion/index.js";
-  import * as Dialog from "$lib/components/ui/dialog/index.js";
+  import * as Tabs from "$lib/components/ui/tabs/index.js";
   import Stars from "$lib/components/ratings/stars.svelte";
   import { base } from "$app/paths";
   import { Label } from "$lib/components/ui/label/index.js";
   import { Input } from "$lib/components/ui/input/index.js";
   import Button from "$lib/components/ui/button/button.svelte";
   import Textarea from "$lib/components/ui/textarea/textarea.svelte";
-  import { Trash2, Plus } from "lucide-svelte";
-  import Slider from "$lib/components/ui/slider/slider.svelte";
-  import Heart from "$lib/components/ratings/heart.svelte";
-  import Time from "../ui/time.svelte";
+  import { Trash2, Plus, GripVertical } from "lucide-svelte";
+  import Time from "$lib/components/ui/time.svelte";
 
   let { productId = "", class: className = "" }: { productId?: string; class?: string } = $props();
 
   const app = getAppContext();
 
+  let timeOption = $state("time");
   let product = $derived(app.products.find((p) => p.id == productId));
   let nameInputRef: HTMLInputElement | null = $state(null);
 
-  let otherExpense = $state("");
   function addOtherExpense() {
-    product?.expenses.push({ name: otherExpense, value: 0 });
-    otherExpense = "";
-  }
-
-  let otherTime = $state("");
-  function addOtherTime() {
-    product?.time.push({ name: otherTime, value: 0, rating: 0 });
-    otherTime = "";
-  }
-
-  function handleImageChange(event: Event) {
     if (!product) return;
+    app.newExpense(product.id);
+  }
 
-    const input = event.currentTarget as HTMLInputElement;
-    const file = input.files?.[0];
-    if (file) {
-      // revoke old URL if there was one
-      if (product.url) URL.revokeObjectURL(product.url);
-      product.url = URL.createObjectURL(file);
-    }
+  function addOtherTime() {
+    if (!product) return;
+    app.newTime(product.id);
+  }
+
+  function handleDndConsiderExpenses(e: CustomEvent) {
+    if (!product) return;
+    product.expenses = e.detail.items;
+  }
+  function handleDndFinalizeExpenses(e: CustomEvent) {
+    if (!product) return;
+    product.expenses = e.detail.items;
+  }
+
+  function handleDndConsiderTime(e: CustomEvent) {
+    if (!product) return;
+    product.time = e.detail.items;
+  }
+  function handleDndFinalizeTime(e: CustomEvent) {
+    if (!product) return;
+    product.time = e.detail.items;
   }
 
   $effect(() => {
@@ -114,36 +119,53 @@
             <div class="grow"></div>
             ${app.productData[product.id].expenses}
           </Accordion.Trigger>
-          <Accordion.Content class="p-2">
-            <div class="flex flex-col gap-2">
-              {#each product.expenses as expense, i}
-                <div class="flex flex-col gap-2">
-                  <Label>{expense.name}</Label>
-                  <div class="grid grid-cols-[1fr,auto] gap-2 items-center">
-                    <Input type="number" inputmode="decimal" min="0" bind:value={expense.value} />
-                    <Button
-                      variant="ghost"
-                      class="p-2 opacity-30 hover:opacity-100"
-                      onclick={() => product.expenses.splice(i, 1)}
-                    >
-                      <Trash2 />
-                    </Button>
-                  </div>
-                </div>
-              {/each}
-              <form class="grid grid-cols-[1fr,auto] gap-2 items-center">
-                <Input id="add-expense" placeholder="Add expense" bind:value={otherExpense} />
-                <Button
-                  variant="ghost"
-                  onclick={addOtherExpense}
-                  class="p-2"
-                  disabled={otherExpense.length === 0}
-                  type="submit"
+          <Accordion.Content class="py-2 px-0">
+            {#if product.expenses.length > 0}
+              <div class="flex flex-col gap-4">
+                <section
+                  use:dragHandleZone={{
+                    items: product.expenses,
+                    flipDurationMs: 200,
+                    type: "expenses",
+                    dropTargetStyle: {},
+                  }}
+                  onconsider={handleDndConsiderExpenses}
+                  onfinalize={handleDndFinalizeExpenses}
+                  class="flex flex-col gap-2 mb-4"
                 >
-                  <Plus />
-                </Button>
-              </form>
-            </div>
+                  {#each product.expenses as expense, i (expense.id)}
+                    <div
+                      animate:flip={{ duration: 200 }}
+                      class="grid grid-cols-[auto,1fr,auto,auto] gap-2 items-center"
+                    >
+                      <div use:dragHandle>
+                        <GripVertical size={16} class="opacity-30" />
+                      </div>
+                      <Input class="" bind:value={expense.name} placeholder="Expense name" />
+                      <Input
+                        class="text-right w-24"
+                        type="number"
+                        inputmode="decimal"
+                        min="0"
+                        bind:value={expense.value}
+                      />
+                      <Button
+                        variant="ghost"
+                        class="p-2 opacity-30 hover:opacity-100"
+                        onclick={() => product.expenses.splice(i, 1)}
+                      >
+                        <Trash2 />
+                      </Button>
+                    </div>
+                  {/each}
+                </section>
+              </div>
+              {/if}
+              <div class="flex justify-end">
+                  <Button size="sm" onclick={addOtherExpense}>
+                    <Plus />Add Expense
+                  </Button>
+                </div>
           </Accordion.Content>
         </Accordion.Item>
         <Accordion.Item value="time">
@@ -152,40 +174,58 @@
             <div class="grow"></div>
             <Time value={app.productData[product.id].time} disabled />
           </Accordion.Trigger>
-          <Accordion.Content class="p-2">
-            <div class="flex flex-col gap-2">
-              <div class="flex flex-col gap-2">
-                {#each product.time as time, i}
-                  <div class="flex flex-col gap-2">
-                    <Label>{time.name}</Label>
-                    <div class="grid grid-cols-[auto,1fr,auto] gap-2 items-center">
-                      <Stars size={3} bind:value={time.rating} />
-                      <Time class="ml-4" bind:value={time.value} />
-
-                      <Button
-                        variant="ghost"
-                        class="p-2 opacity-30 hover:opacity-100"
-                        onclick={() => product.time.splice(i, 1)}
-                      >
-                        <Trash2 />
-                      </Button>
+          <Accordion.Content class="px-0 py-2">
+            {#if product.time.length > 0}
+            <div class="flex flex-col gap-4">
+              <section
+                use:dragHandleZone={{
+                  items: product.time,
+                  flipDurationMs: 200,
+                  type: "time",
+                  dropTargetStyle: {},
+                }}
+                onconsider={handleDndConsiderTime}
+                onfinalize={handleDndFinalizeTime}
+                class="flex flex-col gap-2 mb-4"
+              >
+                {#each product.time as time, i (time.id)}
+                  <div
+                    animate:flip={{ duration: 200 }}
+                    class="grid grid-cols-[auto,1fr,auto,auto] gap-2 items-center"
+                  >
+                    <div use:dragHandle>
+                      <GripVertical size={16} class="opacity-30" />
                     </div>
+                    <Input bind:value={time.name} placeholder="Time name" />
+                    {#if timeOption == "rating"}
+                      <Stars size={3} class="px-4" bind:value={time.rating} />
+                    {:else}
+                      <Time class="" bind:value={time.value} />
+                    {/if}
+                    <Button
+                      variant="ghost"
+                      class="p-2 opacity-30 hover:opacity-100"
+                      onclick={() => product.time.splice(i, 1)}
+                    >
+                      <Trash2 />
+                    </Button>
                   </div>
                 {/each}
-                <form class="grid grid-cols-[1fr,auto] gap-2 items-center">
-                  <Input id="add-time" placeholder="Add time" bind:value={otherTime} />
-                  <Button
-                    variant="ghost"
-                    onclick={addOtherTime}
-                    class="p-2"
-                    disabled={otherTime.length === 0}
-                    type="submit"
-                  >
-                    <Plus />
-                  </Button>
-                </form>
-              </div>
+              </section>
+              
             </div>
+            {/if}
+            <div class="flex gap-4 justify-between">
+                <Tabs.Root bind:value={timeOption}>
+                  <Tabs.List>
+                    <Tabs.Trigger value="time">Time</Tabs.Trigger>
+                    <Tabs.Trigger value="rating">Rating</Tabs.Trigger>
+                  </Tabs.List>
+                </Tabs.Root>
+                <Button size="sm" onclick={addOtherTime}>
+                  <Plus />Add Time
+                </Button>
+              </div>
           </Accordion.Content>
         </Accordion.Item>
       </Accordion.Root>

@@ -21,7 +21,7 @@
 {:else}
   <div class={cn("flex items-center gap-1", className)}>
     <Button
-      onclick={() => (hours = minutes = 0)}
+      onclick={() => (value = 0)}
       variant="ghost"
       class="hover:bg-transparent w-8 h-8 -mr-1 opacity-30"><RotateCcw /></Button
     >
