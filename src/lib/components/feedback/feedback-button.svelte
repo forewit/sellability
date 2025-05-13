@@ -14,24 +14,31 @@
     alignOffset?: number;
   } & Partial<ButtonProps>;
 
-  let { side, align, size = "default", sideOffset = 0, alignOffset = 0, ...restProps }: FeedbackButtonProps = $props();
+  let {
+    side,
+    align,
+    size = "default",
+    sideOffset = 0,
+    alignOffset = 0,
+    ...restProps
+  }: FeedbackButtonProps = $props();
 
   let open = $state(false);
 </script>
 
-<Popover.Root>
+<Popover.Root bind:open>
   <Popover.Trigger>
     <Button {...restProps}
       ><MessageCirclePlus />
       {size == "sm" ? "" : "Send feedback"}
     </Button>
   </Popover.Trigger>
-  <Popover.Content {side} {align} {sideOffset} {alignOffset} >
+  <Popover.Content {side} {align} {sideOffset} {alignOffset}>
     <div class="flex items-center gap-2 text-lg font-medium pb-4">
       <MessageCirclePlus class="size-5" />
       Send feedback
     </div>
 
-    <FeedbackForm onsubmit={()=>open=false}/></Popover.Content
+    <FeedbackForm onsubmit={() => (open = false)} /></Popover.Content
   >
 </Popover.Root>
