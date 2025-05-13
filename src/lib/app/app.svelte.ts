@@ -7,8 +7,8 @@ export type Product = {
     url: string;
     name?: string;
     description?: string;
-    expenses: { id:string, name: string; value: number }[];
-    time: { id:string, name: string; value: number; rating: number }[];
+    expenses: { id: string, name: string; value: number }[];
+    time: { id: string, name: string; value: number; rating: number }[];
     price: number;
 }
 
@@ -23,6 +23,7 @@ export type ProductData = {
 
 export type UserSettings = {
     username: string;
+    feedbackEnabled: boolean;
 }
 
 export type Scenario = {
@@ -43,6 +44,9 @@ export type Feedback = {
     summary: string;
     description: string;
     sentiment: number;
+    status: "new" | "in-progress" | "closed";
+    resolution?: string;
+    resolutionDate?: Date;
 }
 
 function createID() {
@@ -57,6 +61,7 @@ function createApp() {
     let scenarios: Scenario[] = $state([]);
     let settings: UserSettings = $state({
         username: "",
+        feedbackEnabled: true
     });
     let feedbackList: Feedback[] = $state([]);
 
@@ -111,9 +116,9 @@ function createApp() {
         products = products.filter(p => p.id !== id);
     }
 
-    const newFeedback = (data?: { summary: string; description: string; sentiment: number }) => {
+    const newFeedback = (data?: { summary: string; description: string; sentiment: number; status: "new" | "in-progress" | "closed" }) => {
         const id = createID();
-        const feedbackData = data || { summary: "", description: "", sentiment: 0 };
+        const feedbackData = data || { summary: "", description: "", sentiment: 0, status: "new" };
         feedbackList.push({ id, ...feedbackData });
         return id;
     }
@@ -122,7 +127,7 @@ function createApp() {
         feedbackList = feedbackList.filter(f => f.id !== id);
     }
 
-   const newExpense = (productId: string, expense?: { name: string; value: number }) => {
+    const newExpense = (productId: string, expense?: { name: string; value: number }) => {
         const id = createID();
         const expenseData = expense || { name: "", value: 0 };
         const product = products.find(p => p.id === productId);
@@ -165,16 +170,27 @@ function createApp() {
         scenarios = scenarios.filter(s => s.id !== id);
     }
 
+    firebase.syncState(
+        () => (JSON.parse(JSON.stringify({ feedbackList}))),
+        (v) => {
+            if (v.feedbackList !== undefined) feedbackList = v.feedbackList;
+        },
+        "feedback",
+        firebase.USER_ID
+    )
 
-     firebase.syncState(
-        ()=>(JSON.parse(JSON.stringify({ scenarios, selectedScenarioId, products, settings }))),
-        (v)=>{
+    firebase.syncState(
+        () => (JSON.parse(JSON.stringify({ scenarios, selectedScenarioId, products, settings }))),
+        (v) => {
             if (v.scenarios !== undefined) scenarios = v.scenarios;
             if (v.selectedScenarioId !== undefined) selectedScenarioId = v.selectedScenarioId;
             if (v.products !== undefined) products = v.products;
             if (v.settings !== undefined) settings = v.settings;
 
-            // loop through products and add an id for each expense and time if it doesn't already have one:
+            // Checking for non-existent, required data
+            if (settings.feedbackEnabled === undefined) {
+                settings.feedbackEnabled = true;
+            }
             products.forEach(product => {
                 product.expenses.forEach(expense => {
                     if (!expense.id) {

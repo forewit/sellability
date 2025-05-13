@@ -19,6 +19,7 @@
         summary,
         description,
         sentiment,
+        status: "new",
       });
 
       summary = "";
@@ -28,8 +29,7 @@
   }
 </script>
 
-<form class="flex flex-col gap-4 p-4 border rounded-lg" {onsubmit}>
-  <h1 class="text-2xl font-medium">Submit Feedback</h1>
+<form class="flex flex-col gap-4" {onsubmit}>
   <Input placeholder="Summary" bind:value={summary} required />
   <Textarea placeholder="Description" bind:value={description} required />
   <div class="flex justify-between">
