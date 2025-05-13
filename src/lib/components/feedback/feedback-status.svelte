@@ -4,7 +4,7 @@
   import * as Popover from "$lib/components/ui/popover/index.js";
 
   import { cn } from "$lib/utils";
-  import { Angry, Meh, Laugh, MessageCircle, EllipsisVertical, Info, Trash2 } from "lucide-svelte";
+  import { Frown, Meh, Laugh, MessageCircle, EllipsisVertical, Info, Trash2 } from "lucide-svelte";
   import Button from "../ui/button/button.svelte";
   import ChevronRight from "@lucide/svelte/icons/chevron-right";
   import ChevronDown from "@lucide/svelte/icons/chevron-down";
@@ -31,27 +31,22 @@ const app = getAppContext();
       <p class="text-sm">{data.description}</p>
     </div>  
     {#if data.sentiment === 1}
-      <Angry class="size-5 stroke-red-500" />
+      <Frown class="size-5 min-w-5 min-h-5 stroke-red-500" />
     {:else if data.sentiment === 2}
-      <Meh class="size-5 stroke-yellow-600" />
+      <Meh class="size-5 min-w-5 min-h-5 stroke-yellow-600" />
     {:else if data.sentiment === 3}
-      <Laugh class="size-5 stroke-green-500" />
+      <Laugh class="size-5 min-w-5 min-h-5 stroke-green-500" />
     {/if}
-    {#if data.status === "new"}
+
+    {#if data.status === "under-review"}
       <div
-        class="select-none rounded-full py-0.5 px-3 font-medium text-sm text-blue-800 bg-blue-200/80 shadow h-min"
-      >
-        Sent
-      </div>
-    {:else if data.status === "in-progress"}
-      <div
-        class="select-none rounded-full py-0.5 px-3 font-medium text-sm text-purple-800 bg-purple-200/80 shadow h-min"
+        class="select-none text-nowrap rounded-full py-0.5 px-3 font-medium text-sm text-purple-800 bg-purple-200/80 shadow h-min"
       >
         Under Review
       </div>
     {:else if data.status === "closed"}
       <div
-        class="select-none rounded-full py-0.5 px-3 font-medium text-sm text-green-800 bg-green-200/80 shadow h-min"
+        class="select-none text-nowrap rounded-full py-0.5 px-3 font-medium text-sm text-green-800 bg-green-200/80 shadow h-min"
       >
         Closed
       </div>

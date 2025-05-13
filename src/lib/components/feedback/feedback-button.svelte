@@ -15,6 +15,8 @@
   } & Partial<ButtonProps>;
 
   let { side, align, size = "default", sideOffset = 0, alignOffset = 0, ...restProps }: FeedbackButtonProps = $props();
+
+  let open = $state(false);
 </script>
 
 <Popover.Root>
@@ -30,6 +32,6 @@
       Send feedback
     </div>
 
-    <FeedbackForm /></Popover.Content
+    <FeedbackForm onsubmit={()=>open=false}/></Popover.Content
   >
 </Popover.Root>

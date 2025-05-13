@@ -44,7 +44,7 @@ export type Feedback = {
     summary: string;
     description: string;
     sentiment: number;
-    status: "new" | "in-progress" | "closed";
+    status: "under-review" | "closed";
     resolution?: string;
     resolutionDate?: Date;
 }
@@ -116,9 +116,9 @@ function createApp() {
         products = products.filter(p => p.id !== id);
     }
 
-    const newFeedback = (data?: { summary: string; description: string; sentiment: number; status: "new" | "in-progress" | "closed" }) => {
+    const newFeedback = (data?: { summary: string; description: string; sentiment: number; status: "under-review" | "closed" }) => {
         const id = createID();
-        const feedbackData = data || { summary: "", description: "", sentiment: 0, status: "new" };
+        const feedbackData = data || { summary: "", description: "", sentiment: 0, status: "under-review" };
         feedbackList.push({ id, ...feedbackData });
         return id;
     }
