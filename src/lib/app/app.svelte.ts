@@ -1,5 +1,6 @@
 import { getContext, setContext } from 'svelte';
 import { getFirebaseContext } from '$lib/firebase/firebase.svelte';
+import type { get } from 'svelte/store';
 
 export type Product = {
     id: string;
@@ -37,6 +38,13 @@ export type Goals = {
     timespanDays: number;
 }
 
+export type Feedback = {
+    id: string;
+    summary: string;
+    description: string;
+    sentiment: number;
+}
+
 function createID() {
     return crypto.randomUUID().slice(0, 8);
 }
@@ -50,6 +58,7 @@ function createApp() {
     let settings: UserSettings = $state({
         username: "",
     });
+    let feedbackList: Feedback[] = $state([]);
 
     // ephemeral state
     let authRedirect = $state("")
@@ -100,6 +109,17 @@ function createApp() {
     const deleteProduct = (id: string) => {
         if (selectedProductId == id) selectedProductId = "";
         products = products.filter(p => p.id !== id);
+    }
+
+    const newFeedback = (data?: { summary: string; description: string; sentiment: number }) => {
+        const id = createID();
+        const feedbackData = data || { summary: "", description: "", sentiment: 0 };
+        feedbackList.push({ id, ...feedbackData });
+        return id;
+    }
+
+    const deleteFeedback = (id: string) => {
+        feedbackList = feedbackList.filter(f => f.id !== id);
     }
 
    const newExpense = (productId: string, expense?: { name: string; value: number }) => {
@@ -180,6 +200,7 @@ function createApp() {
         get selectedProduct() { return selectedProduct },
         get selectedScenario() { return selectedScenario },
         get productData() { return productData },
+        get feedbackList() { return feedbackList },
 
         // helper functions
         newProduct,
@@ -190,6 +211,8 @@ function createApp() {
         deleteExpense,
         newTime,
         deleteTime,
+        newFeedback,
+        deleteFeedback,
 
         // editable state
         get authRedirect() { return authRedirect },
