@@ -5,7 +5,11 @@
   import { Separator } from "$lib/components/ui/separator/index.js";
   import { base } from "$app/paths";
   import Button from "$lib/components/ui/button/button.svelte";
+  import { getAppContext } from "$lib/app/app.svelte";
+  import FeedbackButton from "../feedback/feedback-button.svelte";
   let { class: className = "" } = $props();
+
+  const app = getAppContext();
 </script>
 
 <div class={cn("p-2 h-min flex items-center gap-1 bg-background rounded-lg  border shadow-sm", className)}>
@@ -30,4 +34,11 @@
 >
   <img src={`${base}/images/profile.png`} class="w-8 min-w-8" alt="products" />
 </Button>
+
+
+{#if app.settings.feedbackEnabled}
+<div class="h-8 mx-2 w-[1px] bg-muted"></div>
+
+    <FeedbackButton variant="ghost" side="top" size="sm" class="w-8 min-w-8 hover:bg-transparent" alignOffset={20} sideOffset={20} />
+    {/if}
 </div>
