@@ -12,24 +12,16 @@
 
   let { class: className = "", data }: { class?: string; data: Feedback } = $props();
 
-const app = getAppContext();
+  const app = getAppContext();
+
+  let open = $state(false);
 </script>
 
 <div class={cn("p-4 rounded-lg border", className)}>
-  <div class="flex items-center gap-4 pr-2">
+  <h1 class="grow mb-1 font-medium leading-none tracking-tight">{data.summary}</h1>
+  <p class="text-sm">{data.description}</p>
 
-    <Popover.Root>
-      <Popover.Trigger>
-        <Trash2 class="size-4 stroke-muted-foreground" />
-      </Popover.Trigger>
-      <Popover.Content class="w-min p-0">
-        <Button variant="link" onclick={() => {app.deleteFeedback(data.id)}}>Delete</Button>
-      </Popover.Content>
-    </Popover.Root>
-    <div class="grow">
-      <h1 class="grow mb-1 font-medium leading-none tracking-tight">{data.summary}</h1>
-      <p class="text-sm">{data.description}</p>
-    </div>  
+  <div class="flex items-center gap-4 pt-3">
     {#if data.sentiment === 1}
       <Frown class="size-5 min-w-5 min-h-5 stroke-red-500" />
     {:else if data.sentiment === 2}
@@ -51,5 +43,20 @@ const app = getAppContext();
         Closed
       </div>
     {/if}
+    <div class="grow"></div>
+    <Popover.Root bind:open>
+      <Popover.Trigger>
+        <Trash2 class="size-4 stroke-muted-foreground" />
+      </Popover.Trigger>
+      <Popover.Content class="w-min p-0">
+        <Button
+          variant="link"
+          onclick={() => {
+            open = false;
+            app.deleteFeedback(data.id);
+          }}>Delete</Button
+        >
+      </Popover.Content>
+    </Popover.Root>
   </div>
 </div>

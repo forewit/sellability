@@ -13,17 +13,18 @@
     feedbackList = $bindable([]),
   }: { class?: string; feedbackList: Feedback[] } = $props();
 
-
   let filteredStatuses: ("under-review" | "closed")[] = $state([]);
   let filteredSentiments: string[] = $state([]);
 
-
-  let filteredFeebackList = $derived.by(()=>{
+  let filteredFeebackList = $derived.by(() => {
     return feedbackList.filter((feedback) => {
       if (filteredStatuses.length > 0 && !filteredStatuses.includes(feedback.status)) {
         return false;
       }
-      if (filteredSentiments.length > 0 && !filteredSentiments.includes(feedback.sentiment.toString())) {
+      if (
+        filteredSentiments.length > 0 &&
+        !filteredSentiments.includes(feedback.sentiment.toString())
+      ) {
         return false;
       }
       return true;
@@ -32,10 +33,12 @@
 </script>
 
 <div class={cn("", className)}>
-  <div class="flex gap-2 items-center">
-    <Label class="pr-2 text-nowrap">Filter feedback by:</Label>
+  <div class="flex gap-2 items-center flex-wrap">
+    <!-- <Label class="py-2 pr-2 text-nowrap">Filter feedback by:</Label> -->
     <Select.Root type="multiple" bind:value={filteredStatuses} disabled={feedbackList.length === 0}>
-      <Select.Trigger class="w-[140px]">Status {filteredStatuses.length > 0 ? `(${filteredStatuses.length})` : ""}</Select.Trigger>
+      <Select.Trigger class="w-[140px]"
+        >Status {filteredStatuses.length > 0 ? `(${filteredStatuses.length})` : ""}</Select.Trigger
+      >
       <Select.Content>
         <Select.Item value="under-review">
           <div
@@ -53,11 +56,19 @@
         </Select.Item>
       </Select.Content>
     </Select.Root>
-    <Select.Root type="multiple" bind:value={filteredSentiments} disabled={feedbackList.length === 0}>
-      <Select.Trigger class="w-[140px]">Sentiment {filteredSentiments.length > 0 ? `(${filteredSentiments.length})` : ""}</Select.Trigger>
+    <Select.Root
+      type="multiple"
+      bind:value={filteredSentiments}
+      disabled={feedbackList.length === 0}
+    >
+      <Select.Trigger class="w-[140px]"
+        >Sentiment {filteredSentiments.length > 0
+          ? `(${filteredSentiments.length})`
+          : ""}</Select.Trigger
+      >
       <Select.Content>
         <Select.Item value="0">
-            <p>No sentiment</p>
+          <p>No sentiment</p>
         </Select.Item>
         <Select.Item value="3">
           <Laugh class="size-5 stroke-green-500 mr-1" />
@@ -73,11 +84,19 @@
         </Select.Item>
       </Select.Content>
     </Select.Root>
+
     {#if filteredStatuses.length > 0 || filteredSentiments.length > 0}
-    <Button onclick={() => {filteredStatuses = []; filteredSentiments = []}} variant="ghost">
+      <Button
+        onclick={() => {
+          filteredStatuses = [];
+          filteredSentiments = [];
+        }}
+        variant="ghost"
+        class=""
+      >
         <RotateCcw class="size-5" />
         Reset
-    </Button>
+      </Button>
     {/if}
   </div>
   <div class="flex flex-col gap-3 mt-6">
@@ -85,7 +104,7 @@
       <FeedbackStatus data={feedback} />
     {/each}
     {#if filteredFeebackList.length === 0 && (filteredStatuses.length > 0 || filteredSentiments.length > 0)}
-        <p class="text-muted-foreground text-center p-4">No results</p>
+      <p class="text-muted-foreground text-center p-4">No results</p>
     {/if}
   </div>
 </div>
