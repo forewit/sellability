@@ -12,7 +12,12 @@
   const app = getAppContext();
 </script>
 
-<div class={cn("p-2 h-min flex items-center gap-1 bg-background rounded-lg  border shadow-sm", className)}>
+<div
+  class={cn(
+    "p-2 h-min flex items-center gap-1 bg-background rounded-lg  border shadow-sm",
+    className
+  )}
+>
   <Button
     href="{base}/"
     class={cn("h-12 w-14", page.url.pathname === `${base}/` && "bg-muted")}
@@ -28,17 +33,23 @@
     <img src={`${base}/images/rocket.png`} class="w-8 min-w-8" alt="products" />
   </Button>
   <Button
-  class={cn("h-12 w-14", page.url.pathname === `${base}/profile/` && "bg-muted")}
-  href="{base}/profile/"
-  variant="ghost"
->
-  <img src={`${base}/images/profile.png`} class="w-8 min-w-8" alt="products" />
-</Button>
+    class={cn("h-12 w-14", page.url.pathname === `${base}/profile/` && "bg-muted")}
+    href="{base}/profile/"
+    variant="ghost"
+  >
+    <img src={`${base}/images/profile.png`} class="w-8 min-w-8" alt="products" />
+  </Button>
+<!-- 
+  {#if app.settings.feedbackEnabled}
+    <div class="h-8 mx-2 w-[1px] bg-muted"></div>
 
-
-{#if app.settings.feedbackEnabled}
-<div class="h-8 mx-2 w-[1px] bg-muted"></div>
-
-    <FeedbackButton variant="ghost" side="top" size="sm" class="w-8 min-w-8 hover:bg-transparent" alignOffset={20} sideOffset={20} />
-    {/if}
+    <FeedbackButton
+      variant="ghost"
+      side="top"
+      size="sm"
+      class="w-8 min-w-8 hover:bg-transparent"
+      alignOffset={20}
+      sideOffset={20}
+    />
+  {/if} -->
 </div>
